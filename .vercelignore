@@ -1,0 +1,7 @@
+research/
+versions/
+*.py
+*.md
+__pycache__/
+.vscode/
+.git/

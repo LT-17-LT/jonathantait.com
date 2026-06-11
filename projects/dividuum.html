@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='UTF-8' />
+<meta name='viewport' content='width=device-width, initial-scale=1.0' />
+<title>Dividuum — Jonathan Tait</title>
+<meta name='description' content='A generative music video built with German composer Benjamin Richter, where the visual world evolved alongside the tools themselves.' />
+<style>
+:root{
+  --egg:#f4efe6;
+  --egg2:#efe8dc;
+  --ink:#171513;
+  --muted:rgba(23,21,19,.76);
+  --line:rgba(23,21,19,.12);
+  --line2:rgba(23,21,19,.08);
+  --gold:#b88348;
+  --gold-soft:#d3a977;
+  --radius:28px;
+  --radius2:22px;
+  --shadow:0 24px 72px rgba(68,48,28,.11);
+  --project-hero-h:520px;
+  --project-meta-h:520px;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:linear-gradient(180deg,var(--egg),#f8f5ef 40%,var(--egg2));color:var(--ink);line-height:1.56}
+a{text-decoration:none;color:inherit}
+img,video{display:block;max-width:100%}
+button{font:inherit}
+.shell{width:min(calc(100% - 32px),1220px);margin:0 auto}
+.nav{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 0;background:linear-gradient(180deg,rgba(244,239,230,.95),rgba(244,239,230,.76),transparent)}
+.nav a,.btn,.gallery-btn{min-height:44px;padding:11px 15px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.5);display:inline-flex;align-items:center;gap:8px}
+.btn.primary{background:linear-gradient(135deg,var(--gold-soft),var(--gold));color:white;border-color:transparent}
+.hero{display:grid;grid-template-columns:1.02fr .98fr;gap:20px;padding:22px 0}
+.card{background:rgba(255,255,255,.56);border:1px solid rgba(255,255,255,.68);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.hero>.card{height:var(--project-hero-h)}
+.media{min-height:var(--project-hero-h);background:#e5ddd0}
+.media img,.media video{width:100%;height:100%;object-fit:cover}
+.copy,.meta-card,.wide-card{padding:22px;display:grid;gap:12px;align-content:start}
+.copy{align-content:center;overflow:auto}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;width:fit-content;border:1px solid rgba(23,21,19,.08);background:rgba(255,255,255,.52);text-transform:uppercase;letter-spacing:.16em;font-size:.76rem;color:var(--muted)}
+.eyebrow::before{content:'';width:8px;height:8px;border-radius:999px;background:var(--gold)}
+h1{margin:0;font-size:clamp(2.9rem,5vw,5.2rem);line-height:.94;letter-spacing:-.05em}
+h2{margin:0;font-size:clamp(1.3rem,2vw,1.86rem);letter-spacing:-.04em}
+h3{margin:0;font-size:clamp(1.15rem,1.7vw,1.5rem);letter-spacing:-.03em}
+p{margin:0;color:var(--muted)}
+.label{display:block;color:rgba(23,21,19,.52);text-transform:uppercase;letter-spacing:.16em;font-size:.72rem}
+.meta-grid{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);gap:16px;align-items:start}
+.meta-grid > *{min-width:0}
+.summary-card{height:var(--project-meta-h);display:grid;grid-template-rows:auto minmax(0,1fr)}
+.summary-scroll{min-height:0;overflow-y:auto;padding-right:8px}
+.summary-card .frame-list{display:grid;gap:14px;margin-top:2px}
+.summary-card .frame-item{display:grid;gap:6px;padding-top:14px;border-top:1px solid var(--line2)}
+.gallery-card{display:grid;grid-template-rows:minmax(0,1fr) auto auto;align-content:start;min-width:0;height:var(--project-meta-h);padding:0}
+.gallery-stage-wrap{position:relative;min-width:0;width:100%;height:100%;overflow:hidden}
+.gallery-stage{width:100%;max-width:100%;height:100%;background:#e5ddd0;border-bottom:1px solid var(--line2);overflow:hidden}
+.gallery-stage img,.gallery-stage video,.gallery-stage iframe{width:100%;height:100%;object-fit:cover;border:0;background:#e5ddd0}
+.gallery-stage img,.gallery-stage iframe{cursor:zoom-in}
+.gallery-toolbar{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;padding:12px 18px 8px}
+.gallery-controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.gallery-btn{cursor:pointer}
+.gallery-count{color:rgba(23,21,19,.6);font-size:.82rem;text-transform:uppercase;letter-spacing:.18em}
+.gallery-strip{display:flex;gap:10px;overflow-x:auto;padding:0 18px 14px;scrollbar-width:thin}
+.gallery-lightbox{position:fixed;inset:0;z-index:120;display:none;align-items:center;justify-content:center;background:rgba(14,12,10,.92);padding:28px}
+.gallery-lightbox.open{display:flex}
+.gallery-lightbox-inner{width:min(100%,1400px);height:min(100%,92vh);display:grid;grid-template-rows:auto 1fr auto;gap:16px}
+.gallery-lightbox-top{display:flex;justify-content:space-between;align-items:center;gap:12px;color:white}
+.gallery-lightbox-top .gallery-count{color:rgba(255,255,255,.7)}
+.gallery-lightbox-stage{position:relative;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);border-radius:28px;overflow:hidden}
+.gallery-lightbox-stage img,.gallery-lightbox-stage video,.gallery-lightbox-stage iframe{width:100%;height:100%;object-fit:contain;border:0;background:#0e0c0a}
+.gallery-lightbox-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:2}
+.gallery-lightbox-nav.prev{left:18px}
+.gallery-lightbox-nav.next{right:18px}
+.gallery-lightbox-strip{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px}
+.gallery-lightbox .gallery-thumb{flex-basis:108px}
+.gallery-thumb{position:relative;flex:0 0 96px;aspect-ratio:1/1;padding:0;border-radius:18px;border:1px solid var(--line);background:rgba(255,255,255,.6);overflow:hidden;cursor:pointer}
+.gallery-thumb.active{border-color:rgba(184,131,72,.6);box-shadow:0 0 0 2px rgba(184,131,72,.16)}
+.gallery-thumb img{width:100%;height:100%;object-fit:cover}
+.gallery-thumb span{position:absolute;left:8px;bottom:8px;padding:4px 7px;border-radius:999px;background:rgba(23,21,19,.72);color:white;font-size:.68rem;letter-spacing:.08em}
+.section-stack{display:grid;gap:16px;padding:16px 0 32px}
+.narrative-card{padding:22px 22px 24px}
+.note-stack{display:grid;gap:16px}
+.note-item{display:grid;gap:8px}
+.note-item + .note-item{padding-top:16px;border-top:1px solid var(--line2)}
+@media (max-width:980px){.hero,.meta-grid{grid-template-columns:1fr}.hero>.card,.summary-card,.gallery-card{height:auto}.media{min-height:360px}.copy{overflow:visible}.summary-scroll{overflow:visible;padding-right:0}.gallery-stage{height:auto;aspect-ratio:16/10}.gallery-thumb{flex-basis:88px}.gallery-lightbox .gallery-thumb{flex-basis:96px}}
+</style>
+</head>
+<body>
+<div class='shell'>
+<nav class='nav'>
+  <a href='../index.html#selected-work'>← Back to homepage</a>
+  <div style='display:flex;gap:10px;flex-wrap:wrap'>
+    <a href='swing-path-pro.html'>Prev</a>
+    <a href='bio.html'>Next</a>
+
+</nav>
+<section class='hero'>
+  <div class='card media'><img src='https://static.wixstatic.com/media/14555f_11502d0fedfe49cfbb111a1e76defa4c~mv2.jpg/v1/fill/w_1000,h_500,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_11502d0fedfe49cfbb111a1e76defa4c~mv2.jpg' alt='Dividuum' /></div>
+  <div class='card copy'>
+    <div class='eyebrow'>Concept / digital world</div>
+    <h1>Dividuum</h1>
+    <p>A generative music video built with German composer Benjamin Richter, where the visual world evolved alongside the tools themselves.</p>
+    <p>Because the project began before the current wave of image-editing models matured, the work had to evolve in dialogue with the technology rather than simply through a fixed pre-planned pipeline.</p>
+    <div style='display:flex;gap:12px;flex-wrap:wrap'>
+      <a class='btn' href='../index.html#film'>Back to services</a>
+    </div>
+
+</section>
+<section class='meta-grid'>
+  <article class='card meta-card summary-card'>
+    <div class='eyebrow'>Overview</div>
+    <div class='summary-scroll'>
+      <h3>Project at a glance</h3>
+      <p>Dividuum sits closest to worldbuilding: a project where mood, character, sequence, and visual identity emerged gradually through experimentation and revision.</p>
+      <div class='frame-list'>
+        <div class='frame-item'><span class='label'>Role</span><p>Visual concept development, sequence-building, image generation, and editorial refinement for a music-video collaboration.</p></div>
+        <div class='frame-item'><span class='label'>Brief</span><p>Create a visual world for Benjamin Richter’s track that could adapt as the available tools improved, without losing coherence or authorship.</p></div>
+        <div class='frame-item'><span class='label'>Outcome</span><p>A music video shaped through iterative rebuilding, where improved character consistency and image-editing capability directly influenced the final sequences.</p></div>
+      </div>
+    </div>
+  </article>
+  <article class='card gallery-card'>
+    <div class='gallery-stage-wrap'>
+      <div class='gallery-stage' id='galleryStage'><img src='https://i.ytimg.com/vi/esKxXmCEkkQ/hqdefault.jpg' alt='Dividuum video preview' data-gallery-preview='youtube' /></div>
+    </div>
+    <div class='gallery-toolbar'>
+      <div class='gallery-controls'>
+        <button class='gallery-btn' type='button' id='galleryPrev'>Prev</button>
+        <div class='gallery-count'><span id='galleryCurrent'>1</span> / <span id='galleryTotal'>13</span></div>
+        <button class='gallery-btn' type='button' id='galleryNext'>Next</button>
+
+    </div>
+    <div class='gallery-strip'><button class='gallery-thumb active' type='button' data-gallery-thumb='0' aria-label='Show Dividuum asset 1'><img src='https://i.ytimg.com/vi/esKxXmCEkkQ/hqdefault.jpg' alt='Dividuum preview 1' /><span>Film</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='1' aria-label='Show Dividuum asset 2'><img src='https://static.wixstatic.com/media/14555f_1b9e337b70014d1cbe38077dda276b59~mv2.jpg/v1/fill/w_1000,h_500,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_1b9e337b70014d1cbe38077dda276b59~mv2.jpg' alt='Dividuum preview 2' /><span>02</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='2' aria-label='Show Dividuum asset 3'><img src='https://static.wixstatic.com/media/14555f_11502d0fedfe49cfbb111a1e76defa4c~mv2.jpg/v1/fill/w_1000,h_500,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_11502d0fedfe49cfbb111a1e76defa4c~mv2.jpg' alt='Dividuum preview 3' /><span>03</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='3' aria-label='Show Dividuum asset 4'><img src='https://static.wixstatic.com/media/14555f_510334186a70457aa4a6036856f78ec7~mv2.jpg' alt='Dividuum preview 4' /><span>04</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='4' aria-label='Show Dividuum asset 5'><img src='https://static.wixstatic.com/media/14555f_48fb040acadf434ea7a955c57420e231~mv2.jpg' alt='Dividuum preview 5' /><span>05</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='5' aria-label='Show Dividuum asset 6'><img src='https://static.wixstatic.com/media/14555f_d1f35cf0ab9747af997683fae4adfccd~mv2.jpg' alt='Dividuum preview 6' /><span>06</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='6' aria-label='Show Dividuum asset 7'><img src='https://static.wixstatic.com/media/14555f_e209c7abff624754b240f0997322d169~mv2.jpg' alt='Dividuum preview 7' /><span>07</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='7' aria-label='Show Dividuum asset 8'><img src='https://static.wixstatic.com/media/14555f_dfce3967e65442b28ef5cca712a30552~mv2.jpg' alt='Dividuum preview 8' /><span>08</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='8' aria-label='Show Dividuum asset 9'><img src='https://static.wixstatic.com/media/14555f_7c6ab26f7fa743449814d7910eb5d28a~mv2.jpg' alt='Dividuum preview 9' /><span>09</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='9' aria-label='Show Dividuum asset 10'><img src='https://static.wixstatic.com/media/14555f_c716431debeb4f28916b320400ee528c~mv2.jpg' alt='Dividuum preview 10' /><span>10</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='10' aria-label='Show Dividuum asset 11'><img src='https://static.wixstatic.com/media/14555f_809ae5d7f8ed487e9d8f3d526997b5ff~mv2.jpg' alt='Dividuum preview 11' /><span>11</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='11' aria-label='Show Dividuum asset 12'><img src='https://static.wixstatic.com/media/14555f_3e0dc3e83f6b49f0854565a1c653afe5~mv2.jpg' alt='Dividuum preview 12' /><span>12</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='12' aria-label='Show Dividuum asset 13'><img src='https://static.wixstatic.com/media/14555f_c28ad3fecc454e97a63fc0f4317c3b8f~mv2.jpg' alt='Dividuum preview 13' /><span>13</span></button></div>
+  </article>
+</section>
+<section class='section-stack'>
+  <article class='card wide-card narrative-card'>
+    <div class='eyebrow'>Case-study overview</div>
+    <h2>Project notes</h2>
+    <div class='note-stack'><div class='note-item'><span class='label'>Project intent</span><p>In this project, the aim was to build a fully felt digital world for a music-video collaboration, allowing concept, sequence, and atmosphere to evolve together.</p></div><div class='note-item'><span class='label'>Production approach</span><p>The piece was built through a hybrid workflow combining MidJourney, NanoBanana, ComfyUI, and DaVinci Resolve. As better editing and consistency became possible, earlier sequences were revisited, rebuilt, and folded back into the final structure.</p></div><div class='note-item'><span class='label'>Visual language</span><p>In this project, the visual language is built through sequence logic as much as single frames. Character, mood, and continuity are developed across the piece so the world feels sustained rather than assembled from isolated images.</p></div><div class='note-item'><span class='label'>Outcome</span><p>The result is a music video shaped through repeated experimentation and rebuilding, where the evolving capabilities of the tools became part of the project’s final structure rather than an invisible background condition.</p></div></div>
+  </article>
+</section>
+</div>
+<div class='gallery-lightbox' id='galleryLightbox' aria-hidden='true'>
+  <div class='gallery-lightbox-inner'>
+    <div class='gallery-lightbox-top'>
+      <div class='eyebrow'>Expanded view</div>
+      <div class='gallery-controls'>
+        <div class='gallery-count'><span id='lightboxCurrent'>1</span> / <span id='lightboxTotal'>13</span></div>
+        <button class='gallery-btn' type='button' id='lightboxClose'>Close</button>
+      </div>
+    </div>
+    <div class='gallery-lightbox-stage' id='galleryLightboxStage'>
+      <button class='gallery-btn gallery-lightbox-nav prev' type='button' id='lightboxPrev'>Prev</button>
+      <button class='gallery-btn gallery-lightbox-nav next' type='button' id='lightboxNext'>Next</button>
+    </div>
+    <div class='gallery-lightbox-strip' id='galleryLightboxStrip'><button class='gallery-thumb active' type='button' data-gallery-thumb='0' aria-label='Show Dividuum asset 1'><img src='https://i.ytimg.com/vi/esKxXmCEkkQ/hqdefault.jpg' alt='Dividuum preview 1' /><span>Film</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='1' aria-label='Show Dividuum asset 2'><img src='https://static.wixstatic.com/media/14555f_1b9e337b70014d1cbe38077dda276b59~mv2.jpg/v1/fill/w_1000,h_500,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_1b9e337b70014d1cbe38077dda276b59~mv2.jpg' alt='Dividuum preview 2' /><span>02</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='2' aria-label='Show Dividuum asset 3'><img src='https://static.wixstatic.com/media/14555f_11502d0fedfe49cfbb111a1e76defa4c~mv2.jpg/v1/fill/w_1000,h_500,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_11502d0fedfe49cfbb111a1e76defa4c~mv2.jpg' alt='Dividuum preview 3' /><span>03</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='3' aria-label='Show Dividuum asset 4'><img src='https://static.wixstatic.com/media/14555f_510334186a70457aa4a6036856f78ec7~mv2.jpg' alt='Dividuum preview 4' /><span>04</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='4' aria-label='Show Dividuum asset 5'><img src='https://static.wixstatic.com/media/14555f_48fb040acadf434ea7a955c57420e231~mv2.jpg' alt='Dividuum preview 5' /><span>05</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='5' aria-label='Show Dividuum asset 6'><img src='https://static.wixstatic.com/media/14555f_d1f35cf0ab9747af997683fae4adfccd~mv2.jpg' alt='Dividuum preview 6' /><span>06</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='6' aria-label='Show Dividuum asset 7'><img src='https://static.wixstatic.com/media/14555f_e209c7abff624754b240f0997322d169~mv2.jpg' alt='Dividuum preview 7' /><span>07</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='7' aria-label='Show Dividuum asset 8'><img src='https://static.wixstatic.com/media/14555f_dfce3967e65442b28ef5cca712a30552~mv2.jpg' alt='Dividuum preview 8' /><span>08</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='8' aria-label='Show Dividuum asset 9'><img src='https://static.wixstatic.com/media/14555f_7c6ab26f7fa743449814d7910eb5d28a~mv2.jpg' alt='Dividuum preview 9' /><span>09</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='9' aria-label='Show Dividuum asset 10'><img src='https://static.wixstatic.com/media/14555f_c716431debeb4f28916b320400ee528c~mv2.jpg' alt='Dividuum preview 10' /><span>10</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='10' aria-label='Show Dividuum asset 11'><img src='https://static.wixstatic.com/media/14555f_809ae5d7f8ed487e9d8f3d526997b5ff~mv2.jpg' alt='Dividuum preview 11' /><span>11</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='11' aria-label='Show Dividuum asset 12'><img src='https://static.wixstatic.com/media/14555f_3e0dc3e83f6b49f0854565a1c653afe5~mv2.jpg' alt='Dividuum preview 12' /><span>12</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='12' aria-label='Show Dividuum asset 13'><img src='https://static.wixstatic.com/media/14555f_c28ad3fecc454e97a63fc0f4317c3b8f~mv2.jpg' alt='Dividuum preview 13' /><span>13</span></button></div>
+  </div>
+</div>
+<script id='galleryData' type='application/json'>[{"type": "youtube", "src": "https://www.youtube.com/embed/esKxXmCEkkQ", "thumb": "https://i.ytimg.com/vi/esKxXmCEkkQ/hqdefault.jpg"}, {"type": "image", "src": "https://static.wixstatic.com/media/14555f_1b9e337b70014d1cbe38077dda276b59~mv2.jpg/v1/fill/w_1000,h_500,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_1b9e337b70014d1cbe38077dda276b59~mv2.jpg", "thumb": "https://static.wixstatic.com/media/14555f_1b9e337b70014d1cbe38077dda276b59~mv2.jpg/v1/fill/w_1000,h_500,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_1b9e337b70014d1cbe38077dda276b59~mv2.jpg"}, {"type": "image", "src": "https://static.wixstatic.com/media/14555f_11502d0fedfe49cfbb111a1e76defa4c~mv2.jpg/v1/fill/w_1000,h_500,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_11502d0fedfe49cfbb111a1e76defa4c~mv2.jpg", "thumb": "https://static.wixstatic.com/media/14555f_11502d0fedfe49cfbb111a1e76defa4c~mv2.jpg/v1/fill/w_1000,h_500,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_11502d0fedfe49cfbb111a1e76defa4c~mv2.jpg"}, {"type": "image", "src": "https://static.wixstatic.com/media/14555f_510334186a70457aa4a6036856f78ec7~mv2.jpg", "thumb": "https://static.wixstatic.com/media/14555f_510334186a70457aa4a6036856f78ec7~mv2.jpg"}, {"type": "image", "src": "https://static.wixstatic.com/media/14555f_48fb040acadf434ea7a955c57420e231~mv2.jpg", "thumb": "https://static.wixstatic.com/media/14555f_48fb040acadf434ea7a955c57420e231~mv2.jpg"}, {"type": "image", "src": "https://static.wixstatic.com/media/14555f_d1f35cf0ab9747af997683fae4adfccd~mv2.jpg", "thumb": "https://static.wixstatic.com/media/14555f_d1f35cf0ab9747af997683fae4adfccd~mv2.jpg"}, {"type": "image", "src": "https://static.wixstatic.com/media/14555f_e209c7abff624754b240f0997322d169~mv2.jpg", "thumb": "https://static.wixstatic.com/media/14555f_e209c7abff624754b240f0997322d169~mv2.jpg"}, {"type": "image", "src": "https://static.wixstatic.com/media/14555f_dfce3967e65442b28ef5cca712a30552~mv2.jpg", "thumb": "https://static.wixstatic.com/media/14555f_dfce3967e65442b28ef5cca712a30552~mv2.jpg"}, {"type": "image", "src": "https://static.wixstatic.com/media/14555f_7c6ab26f7fa743449814d7910eb5d28a~mv2.jpg", "thumb": "https://static.wixstatic.com/media/14555f_7c6ab26f7fa743449814d7910eb5d28a~mv2.jpg"}, {"type": "image", "src": "https://static.wixstatic.com/media/14555f_c716431debeb4f28916b320400ee528c~mv2.jpg", "thumb": "https://static.wixstatic.com/media/14555f_c716431debeb4f28916b320400ee528c~mv2.jpg"}, {"type": "image", "src": "https://static.wixstatic.com/media/14555f_809ae5d7f8ed487e9d8f3d526997b5ff~mv2.jpg", "thumb": "https://static.wixstatic.com/media/14555f_809ae5d7f8ed487e9d8f3d526997b5ff~mv2.jpg"}, {"type": "image", "src": "https://static.wixstatic.com/media/14555f_3e0dc3e83f6b49f0854565a1c653afe5~mv2.jpg", "thumb": "https://static.wixstatic.com/media/14555f_3e0dc3e83f6b49f0854565a1c653afe5~mv2.jpg"}, {"type": "image", "src": "https://static.wixstatic.com/media/14555f_c28ad3fecc454e97a63fc0f4317c3b8f~mv2.jpg", "thumb": "https://static.wixstatic.com/media/14555f_c28ad3fecc454e97a63fc0f4317c3b8f~mv2.jpg"}]</script>
+<script>
+(() => {
+  const dataEl = document.getElementById('galleryData');
+  const stage = document.getElementById('galleryStage');
+  const lightbox = document.getElementById('galleryLightbox');
+  const lightboxStage = document.getElementById('galleryLightboxStage');
+  if (!dataEl || !stage || !lightbox || !lightboxStage) return;
+  const items = JSON.parse(dataEl.textContent);
+  const thumbs = Array.from(document.querySelectorAll('.gallery-strip [data-gallery-thumb]'));
+  const lightboxThumbs = Array.from(document.querySelectorAll('.gallery-lightbox-strip [data-gallery-thumb]'));
+  const prev = document.getElementById('galleryPrev');
+  const next = document.getElementById('galleryNext');
+  const current = document.getElementById('galleryCurrent');
+  const total = document.getElementById('galleryTotal');
+  const lightboxCurrent = document.getElementById('lightboxCurrent');
+  const lightboxTotal = document.getElementById('lightboxTotal');
+  const lightboxPrev = document.getElementById('lightboxPrev');
+  const lightboxNext = document.getElementById('lightboxNext');
+  const lightboxClose = document.getElementById('lightboxClose');
+  const title = "Dividuum";
+  let index = 0;
+
+  const stageMarkup = (item) => {
+    if (!item) return '';
+    if (item.type === 'youtube') {
+      return `<img src="${item.thumb || item.src}" alt="${title} video preview" data-gallery-preview="youtube" />`;
+    }
+    if (item.type === 'video') {
+      return `<video src="${item.src}" controls controlslist="nofullscreen noremoteplayback" disablepictureinpicture playsinline preload="metadata"></video>`;
+    }
+    return `<img src="${item.src}" alt="${title}" />`;
+  };
+
+  const lightboxMarkup = (item) => {
+    if (!item) return '';
+    if (item.type === 'youtube') {
+      return `<iframe src="${item.src}?rel=0&modestbranding=1" title="${title} video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>`;
+    }
+    if (item.type === 'video') {
+      return `<video src="${item.src}" controls controlslist="nofullscreen noremoteplayback" disablepictureinpicture playsinline preload="metadata"></video>`;
+    }
+    return `<img src="${item.src}" alt="${title}" />`;
+  };
+
+  const syncState = () => {
+    current.textContent = String(index + 1);
+    total.textContent = String(items.length);
+    lightboxCurrent.textContent = String(index + 1);
+    lightboxTotal.textContent = String(items.length);
+    thumbs.forEach((thumb, i) => thumb.classList.toggle('active', i === index));
+    lightboxThumbs.forEach((thumb, i) => thumb.classList.toggle('active', i === index));
+  };
+
+  const renderStage = () => {
+    const item = items[index];
+    stage.innerHTML = stageMarkup(item);
+    const prevBtn = lightboxStage.querySelector('#lightboxPrev');
+    const nextBtn = lightboxStage.querySelector('#lightboxNext');
+    lightboxStage.innerHTML = lightboxMarkup(item);
+    lightboxStage.appendChild(prevBtn);
+    lightboxStage.appendChild(nextBtn);
+    syncState();
+  };
+
+  const setIndex = (nextIndex) => {
+    if (!items.length) return;
+    index = (nextIndex + items.length) % items.length;
+    renderStage();
+  };
+
+  const openLightbox = () => {
+    lightbox.classList.add('open');
+    lightbox.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    renderStage();
+  };
+
+  const closeLightbox = () => {
+    lightbox.classList.remove('open');
+    lightbox.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  };
+
+  stage.addEventListener('click', (event) => {
+    const media = stage.firstElementChild;
+    if (!media) return;
+    if (media.tagName === 'IMG' || media.tagName === 'IFRAME') {
+      openLightbox();
+    }
+  });
+
+  thumbs.forEach((thumb, thumbIndex) => thumb.addEventListener('click', () => setIndex(thumbIndex)));
+  lightboxThumbs.forEach((thumb, thumbIndex) => thumb.addEventListener('click', () => setIndex(thumbIndex)));
+  prev?.addEventListener('click', () => setIndex(index - 1));
+  next?.addEventListener('click', () => setIndex(index + 1));
+  lightboxPrev?.addEventListener('click', () => setIndex(index - 1));
+  lightboxNext?.addEventListener('click', () => setIndex(index + 1));
+  lightboxClose?.addEventListener('click', closeLightbox);
+  lightbox?.addEventListener('click', (event) => { if (event.target === lightbox) closeLightbox(); });
+  document.addEventListener('keydown', (event) => {
+    if (!lightbox.classList.contains('open')) return;
+    if (event.key === 'Escape') closeLightbox();
+    if (event.key === 'ArrowLeft') setIndex(index - 1);
+    if (event.key === 'ArrowRight') setIndex(index + 1);
+  });
+  renderStage();
+})();
+</script>
+</body>
+</html>

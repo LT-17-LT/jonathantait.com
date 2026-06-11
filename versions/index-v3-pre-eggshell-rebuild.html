@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jonathan Tait — Generative AI Creative Technologist</title>
+  <meta name="description" content="A cinematic, scroll-driven portfolio prototype for Jonathan Tait built around a ribbon-head identity transformation film." />
+  <style>
+    :root {
+      --bg: #07080b;
+      --bg-2: #0e1016;
+      --panel: rgba(255,255,255,0.06);
+      --panel-strong: rgba(255,255,255,0.1);
+      --line: rgba(255,255,255,0.12);
+      --text: #f4f0e7;
+      --muted: rgba(244,240,231,0.72);
+      --gold: #d5a266;
+      --gold-2: #f2d0a7;
+      --smoke: #91a1b1;
+      --radius: 26px;
+      --shadow: 0 28px 90px rgba(0,0,0,0.36);
+      --max: 1320px;
+      --nav-h: 72px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 20% 0%, rgba(213,162,102,0.08), transparent 28%),
+        radial-gradient(circle at 100% 10%, rgba(145,161,177,0.07), transparent 24%),
+        linear-gradient(180deg, #05060a 0%, #090b11 30%, #0b0e15 100%);
+      line-height: 1.5;
+    }
+    a { color: inherit; text-decoration: none; }
+    img, video { display: block; max-width: 100%; }
+    .shell { width: min(calc(100% - 32px), var(--max)); margin: 0 auto; }
+
+    .site-nav {
+      position: fixed;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(calc(100% - 24px), var(--max));
+      z-index: 60;
+      min-height: var(--nav-h);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 12px 18px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(9,10,15,0.72);
+      backdrop-filter: blur(18px) saturate(120%);
+      box-shadow: 0 8px 40px rgba(0,0,0,0.24);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 0.86rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .brand-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, var(--gold-2), var(--gold));
+      box-shadow: 0 0 18px rgba(213,162,102,0.75);
+      flex: 0 0 auto;
+    }
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    .nav-links a, .button {
+      min-height: 44px;
+      padding: 10px 15px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.03);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text);
+      transition: transform 180ms ease, background 180ms ease, border-color 180ms ease;
+      font-size: 0.95rem;
+    }
+    .nav-links a:hover, .button:hover {
+      transform: translateY(-1px);
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.24);
+    }
+    .button.primary {
+      background: linear-gradient(135deg, rgba(213,162,102,0.95), rgba(176,120,72,0.95));
+      color: #fff7ef;
+      box-shadow: 0 16px 32px rgba(213,162,102,0.2);
+    }
+
+    .hero {
+      min-height: 100svh;
+      padding: 116px 0 34px;
+      display: grid;
+      align-items: end;
+      position: relative;
+      overflow: clip;
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 50% 18%, rgba(213,162,102,0.18), transparent 18%),
+        linear-gradient(180deg, rgba(6,7,10,0.18) 0%, rgba(6,7,10,0.58) 62%, rgba(6,7,10,0.92) 100%);
+      pointer-events: none;
+      z-index: 2;
+    }
+    .hero-media {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      overflow: hidden;
+    }
+    .hero-media video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: saturate(1.02) contrast(1.04) brightness(0.84);
+    }
+    .grain {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      opacity: 0.16;
+      background-image:
+        radial-gradient(circle at 18% 20%, rgba(255,255,255,0.24) 0.6px, transparent 0.9px),
+        radial-gradient(circle at 72% 42%, rgba(255,255,255,0.14) 0.6px, transparent 0.9px),
+        radial-gradient(circle at 44% 76%, rgba(255,255,255,0.12) 0.5px, transparent 0.8px);
+      background-size: 200px 200px, 260px 260px, 150px 150px;
+      mix-blend-mode: soft-light;
+      pointer-events: none;
+    }
+    .hero-content {
+      position: relative;
+      z-index: 4;
+      display: grid;
+      gap: 28px;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      width: fit-content;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.05);
+      color: var(--muted);
+      font-size: 0.8rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--gold);
+      box-shadow: 0 0 14px rgba(213,162,102,0.8);
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+      gap: 22px;
+      align-items: end;
+    }
+    h1 {
+      margin: 0;
+      max-width: 11ch;
+      font-size: clamp(3.2rem, 8vw, 7.5rem);
+      line-height: 0.92;
+      letter-spacing: -0.06em;
+      text-wrap: balance;
+    }
+    .lede {
+      max-width: 44rem;
+      margin: 18px 0 0;
+      font-size: clamp(1rem, 1.8vw, 1.28rem);
+      color: var(--muted);
+    }
+    .hero-card, .panel, .project-card, .footer-card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
+      border: 1px solid rgba(255,255,255,0.13);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+    .hero-card {
+      padding: 22px;
+      display: grid;
+      gap: 18px;
+      align-content: end;
+      min-height: 280px;
+    }
+    .hero-card p, .muted, .step-meta, .project-card p, .footer-card p { color: var(--muted); }
+    .hero-actions, .statline { display: flex; flex-wrap: wrap; gap: 12px; }
+    .statline span {
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.05);
+      font-size: 0.92rem;
+    }
+
+    section { padding: 28px 0 10px; }
+    .section-head {
+      display: grid;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    h2 {
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 4rem);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+    }
+    .section-copy { color: var(--muted); max-width: 52rem; }
+
+    .scroll-film {
+      position: relative;
+      padding: 34px 0 0;
+    }
+    .scroll-film-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+      gap: 22px;
+      align-items: start;
+    }
+    .video-stage {
+      position: sticky;
+      top: calc(var(--nav-h) + 34px);
+      min-height: calc(100svh - var(--nav-h) - 48px);
+      padding: 18px;
+    }
+    .video-frame {
+      position: relative;
+      overflow: hidden;
+      border-radius: calc(var(--radius) - 6px);
+      border: 1px solid rgba(255,255,255,0.1);
+      min-height: calc(100svh - var(--nav-h) - 84px);
+      background: #05060a;
+    }
+    .video-frame video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: saturate(1.05) contrast(1.06) brightness(0.88);
+    }
+    .video-overlay {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 18px;
+      display: grid;
+      gap: 10px;
+      padding: 18px;
+      border-radius: 20px;
+      background: linear-gradient(180deg, rgba(6,7,10,0.08), rgba(6,7,10,0.7));
+      border: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(12px);
+    }
+    .timeline-bar {
+      height: 3px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.12);
+      overflow: hidden;
+    }
+    .timeline-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--gold), var(--gold-2));
+      box-shadow: 0 0 16px rgba(213,162,102,0.6);
+    }
+    .overlay-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: end;
+    }
+    .overlay-title {
+      margin: 0;
+      font-size: clamp(1.15rem, 2vw, 1.5rem);
+      letter-spacing: -0.03em;
+    }
+    .overlay-kicker {
+      color: var(--muted);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+    }
+    .overlay-copy { color: var(--muted); max-width: 44ch; }
+
+    .steps {
+      display: grid;
+      gap: 16px;
+      padding-bottom: 24vh;
+    }
+    .step {
+      position: relative;
+      padding: 22px;
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,0.1);
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+      min-height: 62svh;
+      display: grid;
+      align-content: end;
+      gap: 14px;
+      transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+    }
+    .step.active {
+      transform: translateX(6px);
+      border-color: rgba(213,162,102,0.4);
+      background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(213,162,102,0.05));
+      box-shadow: 0 16px 40px rgba(0,0,0,0.16);
+    }
+    .step-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .step-time {
+      color: var(--gold-2);
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 0.78rem;
+    }
+    .step-label {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      font-size: 0.76rem;
+    }
+    .step h3 {
+      margin: 0;
+      font-size: clamp(1.6rem, 2vw, 2.2rem);
+      letter-spacing: -0.04em;
+    }
+    .step p { margin: 0; color: var(--muted); max-width: 52ch; }
+    .step-pills {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+    .step-pills span {
+      padding: 9px 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.04);
+      font-size: 0.9rem;
+    }
+
+    .system-grid, .projects-grid, .footer-grid {
+      display: grid;
+      gap: 16px;
+    }
+    .system-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .panel {
+      padding: 18px;
+      display: grid;
+      gap: 10px;
+    }
+    .panel h3, .project-card h3, .footer-card h3 {
+      margin: 0;
+      font-size: 1.05rem;
+      letter-spacing: -0.03em;
+    }
+    .projects-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .project-card {
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+    }
+    .project-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: baseline;
+      flex-wrap: wrap;
+    }
+    .project-tag {
+      color: var(--gold-2);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      font-size: 0.72rem;
+    }
+    .project-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .footer-grid {
+      grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+      margin: 16px 0 36px;
+    }
+    .footer-card {
+      padding: 22px;
+      display: grid;
+      gap: 16px;
+    }
+
+    @media (max-width: 1080px) {
+      .hero-grid,
+      .scroll-film-grid,
+      .footer-grid,
+      .system-grid,
+      .projects-grid {
+        grid-template-columns: 1fr;
+      }
+      .video-stage {
+        position: relative;
+        top: 0;
+        min-height: auto;
+      }
+      .video-frame { min-height: 56svh; }
+      .step { min-height: auto; }
+    }
+
+    @media (max-width: 760px) {
+      .site-nav {
+        position: static;
+        transform: none;
+        width: min(calc(100% - 20px), var(--max));
+        margin: 12px auto 0;
+        border-radius: 28px;
+      }
+      .hero { padding-top: 24px; }
+      h1 { max-width: none; }
+      .hero-card { min-height: auto; }
+      .video-frame { min-height: 42svh; }
+      .step { padding: 18px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .step, .nav-links a, .button { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="site-nav">
+    <div class="brand"><span class="brand-dot"></span> Jonathan Tait</div>
+    <div class="nav-links">
+      <a href="#film">Film</a>
+      <a href="#system">System</a>
+      <a href="#work">Work</a>
+      <a href="projects/bio.html">Bio</a>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-media">
+      <video autoplay muted loop playsinline preload="metadata" poster="https://static.wixstatic.com/media/14555f_5a2ebb11c07049c5b6f5fdf2c100280a~mv2.png">
+        <source src="https://d8j0ntlcm91z4.cloudfront.net/user_2zHxsu73kQLwzkHl7I48OV6CZAC/hf_20260609_123627_314d57a6-60e9-4b49-92c0-57d03a56e093.mp4" type="video/mp4" />
+      </video>
+      <div class="grain"></div>
+    </div>
+    <div class="shell hero-content">
+      <div class="eyebrow">Scroll-tied identity film</div>
+      <div class="hero-grid">
+        <div>
+          <h1>Identity becomes motion. Motion becomes the site.</h1>
+          <p class="lede">A rebuilt jonathantait.com concept using your ribbon-head clip as the actual navigation language: dark reveal, smoke and sparks, horizontal ribbon field, then type resolve into selected work.</p>
+        </div>
+        <aside class="hero-card">
+          <p>This version treats the film as the connective tissue of the homepage instead of a decorative hero background. The scroll sequence below is timed directly to the 15-second clip and hands off into self-contained local project pages.</p>
+          <div class="statline">
+            <span>15.09 second hero film</span>
+            <span>Identity → transformation → type</span>
+            <span>Local project navigation</span>
+          </div>
+          <div class="hero-actions">
+            <a class="button primary" href="#film">Watch the scroll sequence</a>
+            <a class="button" href="#work">Open selected work</a>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="film" class="scroll-film">
+      <div class="shell">
+        <div class="section-head">
+          <div class="eyebrow">Timed homepage sequence</div>
+          <h2>Exact scroll copy tied to your clip.</h2>
+          <p class="section-copy">The left side is the sticky film stage. The right side is the exact homepage scroll sequence copy, broken into timed beats that match the motion logic of the clip you sent: icon hold, ignition, unravel, horizontal ribbon field, and final type resolve.</p>
+        </div>
+        <div class="scroll-film-grid">
+          <div class="hero-card video-stage">
+            <div class="video-frame">
+              <video id="scrollVideo" muted playsinline preload="metadata" poster="https://static.wixstatic.com/media/14555f_5a2ebb11c07049c5b6f5fdf2c100280a~mv2.png">
+                <source src="https://d8j0ntlcm91z4.cloudfront.net/user_2zHxsu73kQLwzkHl7I48OV6CZAC/hf_20260609_123627_314d57a6-60e9-4b49-92c0-57d03a56e093.mp4" type="video/mp4" />
+              </video>
+              <div class="video-overlay">
+                <div class="timeline-bar"><div id="timelineFill" class="timeline-fill"></div></div>
+                <div class="overlay-row">
+                  <div>
+                    <div id="overlayKicker" class="overlay-kicker">00:00–00:02 · hero hold</div>
+                    <h3 id="overlayTitle" class="overlay-title">Jonathan Tait</h3>
+                  </div>
+                  <div class="overlay-kicker">Generative AI Creative Technologist</div>
+                </div>
+                <div id="overlayCopy" class="overlay-copy">A dark, iconic opening frame. Let the symbol breathe before any portfolio information competes with it.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="steps" id="steps">
+            <article class="step active" data-start="0" data-end="2.1" data-title="Jonathan Tait" data-kicker="00:00–00:02 · hero hold" data-copy="A dark, iconic opening frame. Let the ribbon-head symbol breathe before any portfolio information competes with it.">
+              <div class="step-head">
+                <span class="step-time">00:00–00:02</span>
+                <span class="step-label">Setup</span>
+              </div>
+              <h3>Jonathan Tait</h3>
+              <p>Lead with the icon alone in darkness. No clutter. No project grid yet. The homepage should open like a film title card, giving the mark a full beat to establish identity and premium tone.</p>
+              <div class="step-pills"><span>Dark hold</span><span>Minimal intro</span><span>Symbol first</span></div>
+            </article>
+
+            <article class="step" data-start="2.1" data-end="4.6" data-title="Generative AI Creative Technologist" data-kicker="00:02–00:05 · ignition" data-copy="Backlight, smoke, and shimmer wake the form. This is where the role line enters for the first time.">
+              <div class="step-head">
+                <span class="step-time">00:02–00:05</span>
+                <span class="step-label">Build</span>
+              </div>
+              <h3>Generative AI Creative Technologist</h3>
+              <p>As the smoke and glow build behind the icon, bring in the role line. This is the first moment where the homepage explains who you are, but it still does it through atmosphere rather than dense copy.</p>
+              <div class="step-pills"><span>Role reveal</span><span>Glow build</span><span>Smoke continuity</span></div>
+            </article>
+
+            <article class="step" data-start="4.6" data-end="7.6" data-title="Identity becomes motion" data-kicker="00:05–00:08 · unravel" data-copy="The icon starts to break open. Pair that with a short line that explains the creative logic of the site.">
+              <div class="step-head">
+                <span class="step-time">00:05–00:08</span>
+                <span class="step-label">Peak</span>
+              </div>
+              <h3>Identity becomes motion.</h3>
+              <p>When the ribbon-head begins to unravel, use the copy to explain the transformation. This is the bridge from static identity into your actual practice: systems, moving images, generative visuals, and cinematic brand language.</p>
+              <div class="step-pills"><span>Unraveling icon</span><span>Sparks</span><span>Transformation beat</span></div>
+            </article>
+
+            <article class="step" data-start="7.6" data-end="10.6" data-title="Motion becomes worldbuilding" data-kicker="00:08–00:11 · ribbon field" data-copy="The free-floating bands flatten into a broader transition field. This is the perfect handoff from abstract identity to site architecture.">
+              <div class="step-head">
+                <span class="step-time">00:08–00:11</span>
+                <span class="step-label">Transition</span>
+              </div>
+              <h3>Motion becomes worldbuilding.</h3>
+              <p>As the shape opens into horizontal ribbons and circular trails, shift the homepage toward structure. This is where the film starts behaving like navigation: motion, design, campaigns, experiments, and selected work all feel like they emerge from the same system.</p>
+              <div class="step-pills"><span>Horizontal bands</span><span>Transition field</span><span>Navigation logic</span></div>
+            </article>
+
+            <article class="step" data-start="10.6" data-end="13.2" data-title="The work lives inside the system" data-kicker="00:11–00:13 · approach to type" data-copy="The circular light trails tighten and the frame prepares for typography. This is where capability gives way to selection.">
+              <div class="step-head">
+                <span class="step-time">00:11–00:13</span>
+                <span class="step-label">Aftermath</span>
+              </div>
+              <h3>The work lives inside the system.</h3>
+              <p>Use this beat to prepare the viewer for the portfolio handoff. The film is no longer just cinematic branding; it becomes the organizing logic for how the selected work appears below.</p>
+              <div class="step-pills"><span>Selection handoff</span><span>Typography prep</span><span>Calmer pace</span></div>
+            </article>
+
+            <article class="step" data-start="13.2" data-end="15.09" data-title="Selected work" data-kicker="00:13–00:15 · type resolve" data-copy="Typography resolves as the destination state. The next scroll should naturally enter the portfolio, not restart the visual language from zero.">
+              <div class="step-head">
+                <span class="step-time">00:13–00:15</span>
+                <span class="step-label">Resolve</span>
+              </div>
+              <h3>Selected work</h3>
+              <p>When the typography lands, use it as the handoff into the project section below. This final beat should feel like the viewer has arrived at the portfolio through the film, not been interrupted by it.</p>
+              <div class="step-pills"><span>Type resolve</span><span>Portfolio entry</span><span>Scroll continuation</span></div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="system">
+      <div class="shell">
+        <div class="section-head">
+          <div class="eyebrow">How the clip shapes the rest</div>
+          <h2>Use the film as a system, not a one-off hero.</h2>
+          <p class="section-copy">The point of this rebuild is that the clip teaches the user how the site moves. These are the motifs the rest of the portfolio should borrow so the scroll feels continuous instead of split between “video intro” and “website below.”</p>
+        </div>
+        <div class="system-grid">
+          <article class="panel">
+            <h3>Ribbon bands</h3>
+            <p>Reuse the bands as section separators, masked reveals, hover accents, and subtle dividers behind headings.</p>
+          </article>
+          <article class="panel">
+            <h3>Smoke and haze</h3>
+            <p>Keep atmosphere behind key headlines and transition zones, but lighter than the hero so it never muddies the work.</p>
+          </article>
+          <article class="panel">
+            <h3>Warm light trails</h3>
+            <p>Use gold traces for hover states, timeline indicators, and project-entry animations that echo the film without replaying it constantly.</p>
+          </article>
+          <article class="panel">
+            <h3>Type as destination</h3>
+            <p>Let typography feel earned. The film resolves into words, and those words should resolve into actual portfolio structure.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="work">
+      <div class="shell">
+        <div class="section-head">
+          <div class="eyebrow">Local prototype pages</div>
+          <h2>Selected work that now stands on its own.</h2>
+          <p class="section-copy">These links no longer bounce users back into the old Wix structure. Each one opens a local prototype case-study shell so the redesigned site feels self-contained while still preserving the original live pages as references inside each project.</p>
+        </div>
+        <div class="projects-grid">
+          <article class="project-card">
+            <div class="project-top"><h3>The Reunion</h3><span class="project-tag">Atmosphere / narrative</span></div>
+            <p>Use this as a mood anchor for emotional, cinematic framing and slower reveal sequences.</p>
+            <div class="project-actions"><a class="button primary" href="projects/the-reunion.html">Open local page</a></div>
+          </article>
+          <article class="project-card">
+            <div class="project-top"><h3>Jeep Apparel</h3><span class="project-tag">Commercial / motion</span></div>
+            <p>Strong candidate for sharper commercial contrast against the darker identity-led opener.</p>
+            <div class="project-actions"><a class="button primary" href="projects/jeep-apparel.html">Open local page</a></div>
+          </article>
+          <article class="project-card">
+            <div class="project-top"><h3>Invisi Merino</h3><span class="project-tag">Lifestyle / contrast</span></div>
+            <p>Brings brighter visual relief and a softer tonal beat after denser premium-motion sections.</p>
+            <div class="project-actions"><a class="button primary" href="projects/invisi-merino.html">Open local page</a></div>
+          </article>
+          <article class="project-card">
+            <div class="project-top"><h3>I/B/H Mens Fashion</h3><span class="project-tag">Editorial / premium</span></div>
+            <p>A strong reference lane for luxury-fashion pacing, detail, and restrained type overlays.</p>
+            <div class="project-actions"><a class="button primary" href="projects/ibh-mens-fashion.html">Open local page</a></div>
+          </article>
+          <article class="project-card">
+            <div class="project-top"><h3>Carrol Boyes</h3><span class="project-tag">Commercial / product</span></div>
+            <p>Useful for grounding the more abstract visual language in premium commercial clarity.</p>
+            <div class="project-actions"><a class="button primary" href="projects/carrol-boyes.html">Open local page</a></div>
+          </article>
+          <article class="project-card">
+            <div class="project-top"><h3>Bio</h3><span class="project-tag">Profile / contact</span></div>
+            <p>A local bio shell so the site has a real internal endpoint for background, capability, and contact.</p>
+            <div class="project-actions"><a class="button primary" href="projects/bio.html">Open local bio</a></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="shell footer-grid">
+        <article class="footer-card">
+          <div class="eyebrow">Where this version improved</div>
+          <h3>The clip is now the structural idea.</h3>
+          <p>Instead of just placing a cinematic video behind a homepage, this rebuild ties the actual homepage copy and section sequencing to the motion in your ribbon-head film. That gives the site a stronger authored feel and a cleaner handoff into the portfolio.</p>
+          <div class="hero-actions">
+            <a class="button primary" href="#film">Review the timed sequence</a>
+            <a class="button" href="projects/bio.html">Open bio page</a>
+          </div>
+        </article>
+        <article class="footer-card">
+          <div class="eyebrow">Next strongest upgrade</div>
+          <h3>Build the lower pages with real project copy and media picks.</h3>
+          <p>The shell structure now works. The next level-up is to replace the placeholder case-study text with your actual best stills, role summaries, and outcomes so every page feels as authored as the hero film.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const video = document.getElementById('scrollVideo');
+      const steps = Array.from(document.querySelectorAll('.step'));
+      const fill = document.getElementById('timelineFill');
+      const overlayTitle = document.getElementById('overlayTitle');
+      const overlayKicker = document.getElementById('overlayKicker');
+      const overlayCopy = document.getElementById('overlayCopy');
+      const filmSection = document.getElementById('film');
+      let duration = 15.09;
+      let activeIndex = 0;
+
+      const syncOverlay = (step) => {
+        overlayTitle.textContent = step.dataset.title;
+        overlayKicker.textContent = step.dataset.kicker;
+        overlayCopy.textContent = step.dataset.copy;
+      };
+
+      const setActive = (index) => {
+        activeIndex = index;
+        steps.forEach((step, i) => step.classList.toggle('active', i === index));
+        syncOverlay(steps[index]);
+      };
+
+      const updateByScroll = () => {
+        const rect = filmSection.getBoundingClientRect();
+        const total = Math.max(1, filmSection.offsetHeight - window.innerHeight);
+        const progress = Math.min(1, Math.max(0, -rect.top / total));
+        fill.style.width = (progress * 100).toFixed(2) + '%';
+        if (video && Number.isFinite(duration) && duration > 0) {
+          const target = Math.min(duration - 0.05, progress * duration);
+          if (!video.seeking) {
+            try { video.currentTime = target; } catch (e) {}
+          }
+        }
+
+        let bestIndex = 0;
+        let bestDistance = Infinity;
+        steps.forEach((step, index) => {
+          const box = step.getBoundingClientRect();
+          const distance = Math.abs(box.top - window.innerHeight * 0.28);
+          if (distance < bestDistance) {
+            bestDistance = distance;
+            bestIndex = index;
+          }
+        });
+        if (bestIndex !== activeIndex) setActive(bestIndex);
+      };
+
+      if (video) {
+        video.pause();
+        video.addEventListener('loadedmetadata', () => {
+          if (Number.isFinite(video.duration) && video.duration > 0) duration = video.duration;
+          updateByScroll();
+        });
+      }
+
+      syncOverlay(steps[0]);
+      setActive(0);
+      updateByScroll();
+      window.addEventListener('scroll', updateByScroll, { passive: true });
+      window.addEventListener('resize', updateByScroll);
+    })();
+  </script>
+</body>
+</html>

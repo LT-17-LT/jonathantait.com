@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jonathan Tait — Generative AI Creative Technologist</title>
+  <meta name="description" content="A cinematic portfolio homepage for Jonathan Tait built around motion, atmosphere, and selected work." />
+  <style>
+    :root {
+      --bg: #08090c;
+      --panel: rgba(255,255,255,0.06);
+      --panel-strong: rgba(255,255,255,0.1);
+      --text: #f4f1ea;
+      --muted: rgba(244,241,234,0.72);
+      --line: rgba(255,255,255,0.12);
+      --accent: #d58f57;
+      --accent-2: #8fb6c9;
+      --shadow: 0 24px 80px rgba(0,0,0,0.35);
+      --radius: 24px;
+      --max: 1320px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(143,182,201,0.16), transparent 34%),
+        radial-gradient(circle at top right, rgba(213,143,87,0.14), transparent 26%),
+        linear-gradient(180deg, #06070a 0%, #0a0b10 42%, #11131a 100%);
+      color: var(--text);
+      line-height: 1.45;
+    }
+    a { color: inherit; text-decoration: none; }
+    img, video { display: block; max-width: 100%; }
+
+    .shell {
+      width: min(calc(100% - 32px), var(--max));
+      margin: 0 auto;
+    }
+
+    .site-nav {
+      position: fixed;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(calc(100% - 24px), var(--max));
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      background: rgba(10,11,15,0.62);
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(18px) saturate(130%);
+      border-radius: 999px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.24);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.92rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+    .brand-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #f0d2ba, var(--accent));
+      box-shadow: 0 0 18px rgba(213,143,87,0.65);
+    }
+    .nav-links {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .nav-links a,
+    .button {
+      min-height: 44px;
+      padding: 11px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      transition: transform 180ms ease, background 180ms ease, border-color 180ms ease;
+    }
+    .nav-links a:hover,
+    .button:hover,
+    .project-row:hover {
+      transform: translateY(-1px);
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.24);
+    }
+    .button.primary {
+      background: linear-gradient(135deg, rgba(213,143,87,0.92), rgba(180,114,66,0.94));
+      color: #fff7f1;
+      border-color: rgba(255,255,255,0.18);
+      box-shadow: 0 16px 32px rgba(213,143,87,0.22);
+    }
+
+    .hero {
+      min-height: 100svh;
+      position: relative;
+      overflow: clip;
+      display: grid;
+      align-items: end;
+      padding: 96px 0 26px;
+    }
+    .hero-media {
+      position: absolute;
+      inset: 0;
+      z-index: -3;
+      overflow: hidden;
+    }
+    .hero-media video,
+    .preview-media video,
+    .preview-media img,
+    .film-cell video,
+    .film-cell img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .hero-media::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(5,7,10,0.36) 0%, rgba(5,7,10,0.48) 26%, rgba(5,7,10,0.76) 74%, rgba(5,7,10,0.96) 100%),
+        radial-gradient(circle at 25% 18%, rgba(213,143,87,0.16), transparent 30%),
+        radial-gradient(circle at 78% 20%, rgba(143,182,201,0.18), transparent 25%);
+      z-index: 2;
+    }
+    .grain {
+      position: absolute;
+      inset: 0;
+      opacity: 0.18;
+      pointer-events: none;
+      z-index: 3;
+      background-image:
+        radial-gradient(circle at 20% 20%, rgba(255,255,255,0.28) 0.6px, transparent 0.8px),
+        radial-gradient(circle at 70% 40%, rgba(255,255,255,0.18) 0.6px, transparent 0.8px),
+        radial-gradient(circle at 40% 70%, rgba(255,255,255,0.14) 0.5px, transparent 0.7px);
+      background-size: 190px 190px, 250px 250px, 160px 160px;
+      mix-blend-mode: soft-light;
+    }
+    .hero-content {
+      position: relative;
+      z-index: 5;
+      display: grid;
+      gap: 34px;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      width: fit-content;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(255,255,255,0.06);
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      font-size: 0.8rem;
+    }
+    .eyebrow::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 16px rgba(213,143,87,0.8);
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+      gap: 22px;
+      align-items: end;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(3.3rem, 8vw, 7.8rem);
+      line-height: 0.92;
+      letter-spacing: -0.06em;
+      max-width: 10.5ch;
+      text-wrap: balance;
+    }
+    .lede {
+      margin: 20px 0 0;
+      max-width: 42rem;
+      font-size: clamp(1rem, 1.75vw, 1.28rem);
+      color: var(--muted);
+    }
+    .hero-card,
+    .intro-card,
+    .preview-card,
+    .note,
+    .footer-card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
+      border: 1px solid rgba(255,255,255,0.13);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+    .hero-card {
+      padding: 20px;
+      display: grid;
+      gap: 18px;
+      min-height: 280px;
+      align-content: end;
+    }
+    .hero-card p,
+    .micro,
+    .kicker,
+    .note p,
+    .footer-card p,
+    .preview-meta,
+    .project-url,
+    .section-copy {
+      color: var(--muted);
+    }
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .statline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .statline span {
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      font-size: 0.92rem;
+    }
+
+    section {
+      padding: 28px 0 10px;
+    }
+    .section-head {
+      display: grid;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    h2 {
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 4rem);
+      line-height: 0.96;
+      letter-spacing: -0.05em;
+      text-wrap: balance;
+    }
+    .intro-grid,
+    .work-grid,
+    .footer-grid {
+      display: grid;
+      gap: 20px;
+    }
+    .intro-grid {
+      grid-template-columns: 0.8fr 1.2fr;
+      align-items: stretch;
+    }
+    .intro-card {
+      padding: 18px;
+    }
+    .portrait {
+      aspect-ratio: 1 / 1;
+      border-radius: 22px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+    }
+    .intro-copy {
+      padding: 30px;
+      display: grid;
+      gap: 18px;
+      align-content: center;
+    }
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .pill-row span {
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.04);
+      color: rgba(244,241,234,0.92);
+      font-size: 0.93rem;
+    }
+
+    .work-grid {
+      grid-template-columns: minmax(0, 1fr) minmax(320px, 0.92fr);
+      align-items: start;
+    }
+    .project-list {
+      display: grid;
+      gap: 12px;
+    }
+    .project-row {
+      padding: 18px;
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.035);
+      cursor: pointer;
+      transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+    }
+    .project-row.active {
+      border-color: rgba(213,143,87,0.56);
+      background: linear-gradient(180deg, rgba(213,143,87,0.13), rgba(255,255,255,0.04));
+    }
+    .project-top {
+      display: flex;
+      gap: 18px;
+      justify-content: space-between;
+      align-items: start;
+    }
+    .project-index {
+      color: rgba(213,143,87,0.96);
+      font-size: 0.85rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .project-title {
+      font-size: clamp(1.25rem, 2vw, 1.65rem);
+      line-height: 1.02;
+      letter-spacing: -0.03em;
+      margin-top: 3px;
+    }
+    .project-meta {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .project-meta span {
+      border-radius: 999px;
+      padding: 7px 10px;
+      border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(244,241,234,0.86);
+      font-size: 0.85rem;
+    }
+    .project-url {
+      font-size: 0.94rem;
+      margin-top: 12px;
+      word-break: break-word;
+    }
+    .preview-card {
+      position: sticky;
+      top: 92px;
+      overflow: hidden;
+    }
+    .preview-media {
+      aspect-ratio: 4 / 5;
+      background: #0f1117;
+      position: relative;
+      overflow: hidden;
+    }
+    .preview-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(5,6,8,0.1) 0%, rgba(5,6,8,0.2) 45%, rgba(5,6,8,0.82) 100%);
+      z-index: 2;
+      pointer-events: none;
+    }
+    .preview-copy {
+      padding: 22px;
+      display: grid;
+      gap: 12px;
+    }
+    .preview-title {
+      font-size: 1.55rem;
+      letter-spacing: -0.04em;
+      margin: 0;
+    }
+    .preview-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .film-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .film-cell {
+      position: relative;
+      overflow: hidden;
+      border-radius: 22px;
+      min-height: 360px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.03);
+      box-shadow: var(--shadow);
+    }
+    .film-cell::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0.08) 10%, rgba(0,0,0,0.18) 48%, rgba(0,0,0,0.65) 100%);
+      z-index: 1;
+      pointer-events: none;
+    }
+    .film-caption {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 18px;
+      z-index: 3;
+      display: grid;
+      gap: 6px;
+    }
+    .film-caption strong {
+      font-size: 1.12rem;
+      letter-spacing: -0.02em;
+    }
+
+    .note {
+      margin-top: 18px;
+      padding: 20px;
+    }
+    .note strong { display: block; margin-bottom: 8px; }
+
+    .footer-grid {
+      grid-template-columns: 1.15fr 0.85fr;
+      padding-bottom: 34px;
+    }
+    .footer-card {
+      padding: 24px;
+    }
+    .footer-card h3,
+    .note h3 {
+      margin: 0 0 12px;
+      font-size: 1.2rem;
+      letter-spacing: -0.03em;
+    }
+    .footer-list {
+      margin: 14px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+    }
+    .footer-list li + li { margin-top: 8px; }
+    .muted { color: var(--muted); }
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent);
+      margin: 10px 0 0;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 500ms ease, transform 500ms ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 1080px) {
+      .hero-grid,
+      .intro-grid,
+      .work-grid,
+      .footer-grid,
+      .film-strip {
+        grid-template-columns: 1fr;
+      }
+      .preview-card { position: relative; top: 0; }
+      .film-cell { min-height: 280px; }
+    }
+    @media (max-width: 720px) {
+      .site-nav {
+        border-radius: 26px;
+        align-items: start;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .nav-links { width: 100%; justify-content: flex-start; }
+      h1 { max-width: 100%; }
+      .hero { padding-top: 138px; }
+      .intro-copy,
+      .hero-card,
+      .preview-copy,
+      .footer-card,
+      .note { padding: 18px; }
+      .project-top { flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="site-nav" aria-label="Primary">
+    <a class="brand" href="#top">
+      <span class="brand-dot"></span>
+      <span>Jonathan Tait</span>
+    </a>
+    <div class="nav-links">
+      <a href="#selected-work">Selected work</a>
+      <a href="#motion">Motion</a>
+      <a href="#about">About</a>
+      <a href="https://www.jonathantait.com/bio" target="_blank" rel="noreferrer">Current bio</a>
+    </div>
+  </nav>
+
+  <header class="hero" id="top">
+    <div class="hero-media" aria-hidden="true">
+      <video id="heroVideo" autoplay muted loop playsinline poster="https://static.wixstatic.com/media/14555f_5a2ebb11c07049c5b6f5fdf2c100280a~mv2.png"></video>
+      <div class="grain"></div>
+    </div>
+    <div class="shell hero-content">
+      <div class="eyebrow reveal">Cinematic portfolio rebuild</div>
+      <div class="hero-grid">
+        <div class="reveal">
+          <h1>Generative AI creative technologist.</h1>
+          <p class="lede">A cinematic, motion-first homepage concept for jonathantait.com built from the live site’s existing portfolio media and case-study links. The goal is simple: make the work feel premium the moment the page loads.</p>
+        </div>
+        <aside class="hero-card reveal" aria-label="Build summary">
+          <p class="micro">Built in the spirit of the Gemini + cinematic-site workflow from the X tutorial: strong motion, sparse copy, atmospheric transitions, and a premium portfolio posture.</p>
+          <div class="statline">
+            <span>Uses real live-site assets</span>
+            <span>Links into existing case studies</span>
+            <span>Static deploy-ready HTML</span>
+          </div>
+          <div class="hero-actions">
+            <a class="button primary" href="#selected-work">Enter the work</a>
+            <a class="button" href="https://www.jonathantait.com/" target="_blank" rel="noreferrer">View current site</a>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <div class="shell intro-grid">
+        <div class="intro-card reveal">
+          <div class="portrait">
+            <img src="https://static.wixstatic.com/media/14555f_5a2ebb11c07049c5b6f5fdf2c100280a~mv2.png" alt="Jonathan Tait signature artwork" />
+          </div>
+        </div>
+        <div class="intro-card intro-copy reveal">
+          <div class="eyebrow">Signature frame</div>
+          <h2>More atmosphere. Less dead space.</h2>
+          <p class="section-copy">The current homepage is extremely sparse and slideshow-led. This rebuild turns the same body of work into a sharper cinematic front door: a strong hero, motion-backed storytelling, and a clearer path into selected projects.</p>
+          <div class="pill-row">
+            <span>Premium motion</span>
+            <span>Original static artifact</span>
+            <span>Portfolio-first UX</span>
+            <span>Draft copy, real links</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="selected-work">
+      <div class="shell">
+        <div class="section-head reveal">
+          <div class="eyebrow">Selected work</div>
+          <h2>Hover the list. Preview the world. Open the case study.</h2>
+          <p class="section-copy">I kept the project titles and destinations from the live site intact. The hover preview system gives the homepage a richer editorial rhythm without inventing fake project claims.</p>
+        </div>
+        <div class="work-grid">
+          <div class="project-list reveal" id="projectList"></div>
+          <aside class="preview-card reveal" aria-live="polite">
+            <div class="preview-media" id="previewMediaWrap">
+              <div class="preview-overlay"></div>
+            </div>
+            <div class="preview-copy">
+              <div class="eyebrow">Active preview</div>
+              <h3 class="preview-title" id="previewTitle">The Reunion</h3>
+              <p class="preview-meta" id="previewMeta">Existing jonathantait.com case-study destination preserved.</p>
+              <div class="preview-actions">
+                <a class="button primary" id="previewButton" href="https://www.jonathantait.com/TheReunion" target="_blank" rel="noreferrer">Open case study</a>
+                <a class="button" href="#motion">View motion strip</a>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section id="motion">
+      <div class="shell">
+        <div class="section-head reveal">
+          <div class="eyebrow">Motion strip</div>
+          <h2>Built for cinematic first impressions.</h2>
+          <p class="section-copy">This section reuses the live site’s existing motion assets as a premium reel grid. On a full production pass, this is where I’d swap in finalized Seedance/Gemini-generated sequences or your preferred AI motion renders.</p>
+        </div>
+        <div class="film-strip reveal" id="filmStrip"></div>
+        <div class="note reveal">
+          <strong>Important publishing note</strong>
+          <p>The live domain currently resolves to a Wix site. This new build is deploy-ready as static HTML, but replacing the live site will require either exporting the design into your chosen host or changing the domain/DNS setup away from Wix.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="about">
+      <div class="shell footer-grid">
+        <div class="footer-card reveal">
+          <div class="eyebrow">About this version</div>
+          <h2>Working draft, not fake polish.</h2>
+          <p>This version is intentionally honest: it uses real media and real project URLs from the current live site, while keeping the positioning copy light where the source material didn’t expose detailed project descriptions.</p>
+          <div class="divider"></div>
+          <ul class="footer-list">
+            <li>Designed as a self-contained HTML artifact you can open directly or deploy statically.</li>
+            <li>Copy is conservative where details were not available from the live Wix pages.</li>
+            <li>The strongest next step is either: provide final bio/contact copy, or let me turn this into a full multi-page portfolio build.</li>
+          </ul>
+        </div>
+        <div class="footer-card reveal">
+          <div class="eyebrow">Next actions</div>
+          <h3>What’s ready now</h3>
+          <p>Homepage concept built and working locally.</p>
+          <div class="hero-actions">
+            <a class="button primary" href="https://www.jonathantait.com/" target="_blank" rel="noreferrer">Open live site</a>
+            <a class="button" href="https://www.jonathantait.com/bio" target="_blank" rel="noreferrer">Open current bio</a>
+          </div>
+          <p class="muted">If you want, I can do the next pass by building standalone pages for each case study and structuring the whole thing for a Vercel/Netlify deployment.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const videos = [
+      'https://video.wixstatic.com/video/14555f_343718bf66064559958720e839bd303a/1080p/mp4/file.mp4',
+      'https://video.wixstatic.com/video/14555f_4bcaf37a15b4474c88346a0374016a0e/1080p/mp4/file.mp4',
+      'https://video.wixstatic.com/video/14555f_674fb0bc43b247f18d6ea0fd0268d7ea/1080p/mp4/file.mp4',
+      'https://video.wixstatic.com/video/14555f_da2df56551b44abd8b3529af9cd98415/1080p/mp4/file.mp4'
+    ];
+
+    const images = [
+      'https://static.wixstatic.com/media/14555f_343718bf66064559958720e839bd303af000.jpg',
+      'https://static.wixstatic.com/media/14555f_4bcaf37a15b4474c88346a0374016a0ef000.jpg',
+      'https://static.wixstatic.com/media/14555f_674fb0bc43b247f18d6ea0fd0268d7eaf000.jpg',
+      'https://static.wixstatic.com/media/14555f_5a2ebb11c07049c5b6f5fdf2c100280a~mv2.png'
+    ];
+
+    const projects = [
+      { title: 'The Reunion', url: 'https://www.jonathantait.com/TheReunion', mediaType: 'image', media: images[0], tags: ['Case study', 'Live link'] },
+      { title: 'Jeep Apparel', url: 'https://www.jonathantait.com/JeepApparel', mediaType: 'video', media: videos[2], tags: ['Case study', 'Live link'] },
+      { title: 'Invisi Merino', url: 'https://www.jonathantait.com/invisimerino', mediaType: 'image', media: images[2], tags: ['Case study', 'Live link'] },
+      { title: 'I/B/H Mens Fashion', url: 'https://www.jonathantait.com/IBH-MensFashion', mediaType: 'video', media: videos[0], tags: ['Case study', 'Live link'] },
+      { title: 'I/B/H Canned Refreshment', url: 'https://www.jonathantait.com/IBH-CannedRefreshment', mediaType: 'video', media: videos[1], tags: ['Case study', 'Live link'] },
+      { title: 'I/B/H Frozen Yoghurt', url: 'https://www.jonathantait.com/IBH-FrozenYoghurt', mediaType: 'image', media: images[1], tags: ['Case study', 'Live link'] },
+      { title: 'Carrol Boyes', url: 'https://www.jonathantait.com/CarrolBoyes', mediaType: 'video', media: videos[3], tags: ['Case study', 'Live link'] },
+      { title: 'Swing Path Pro', url: 'https://www.jonathantait.com/SwingPathPro', mediaType: 'image', media: images[3], tags: ['Case study', 'Live link'] },
+      { title: 'Dividuum', url: 'https://www.jonathantait.com/Dividuum', mediaType: 'image', media: images[0], tags: ['Case study', 'Live link'] },
+      { title: 'Bio', url: 'https://www.jonathantait.com/bio', mediaType: 'image', media: images[3], tags: ['Profile', 'Live link'] }
+    ];
+
+    const heroVideo = document.getElementById('heroVideo');
+    let heroIndex = 0;
+    function setHeroVideo(index) {
+      heroVideo.src = videos[index % videos.length];
+      heroVideo.play().catch(() => {});
+    }
+    setHeroVideo(heroIndex);
+    setInterval(() => {
+      heroIndex = (heroIndex + 1) % videos.length;
+      setHeroVideo(heroIndex);
+    }, 10000);
+
+    const projectList = document.getElementById('projectList');
+    const previewMediaWrap = document.getElementById('previewMediaWrap');
+    const previewTitle = document.getElementById('previewTitle');
+    const previewMeta = document.getElementById('previewMeta');
+    const previewButton = document.getElementById('previewButton');
+
+    function mediaNode(project) {
+      if (project.mediaType === 'video') {
+        const video = document.createElement('video');
+        video.src = project.media;
+        video.autoplay = true;
+        video.muted = true;
+        video.loop = true;
+        video.playsInline = true;
+        video.setAttribute('aria-label', project.title + ' preview video');
+        return video;
+      }
+      const img = document.createElement('img');
+      img.src = project.media;
+      img.alt = project.title + ' preview image';
+      return img;
+    }
+
+    function activateProject(index) {
+      document.querySelectorAll('.project-row').forEach((row, rowIndex) => {
+        row.classList.toggle('active', rowIndex === index);
+      });
+      const project = projects[index];
+      previewTitle.textContent = project.title;
+      previewMeta.textContent = 'Existing jonathantait.com destination preserved: ' + project.url.replace('https://www.jonathantait.com/', '/');
+      previewButton.href = project.url;
+      previewMediaWrap.querySelectorAll('img,video').forEach(el => el.remove());
+      previewMediaWrap.prepend(mediaNode(project));
+    }
+
+    projects.forEach((project, index) => {
+      const row = document.createElement('a');
+      row.href = project.url;
+      row.target = '_blank';
+      row.rel = 'noreferrer';
+      row.className = 'project-row';
+      row.innerHTML = `
+        <div class="project-top">
+          <div>
+            <div class="project-index">${String(index + 1).padStart(2, '0')}</div>
+            <div class="project-title">${project.title}</div>
+          </div>
+          <div class="project-meta">${project.tags.map(tag => `<span>${tag}</span>`).join('')}</div>
+        </div>
+        <div class="project-url">${project.url}</div>
+      `;
+      row.addEventListener('mouseenter', () => activateProject(index));
+      row.addEventListener('focus', () => activateProject(index));
+      projectList.appendChild(row);
+    });
+    activateProject(0);
+
+    const filmStrip = document.getElementById('filmStrip');
+    [
+      { label: 'Ambient landscape', mediaType: 'image', media: images[0], note: 'Atmosphere / mood frame' },
+      { label: 'Summer portrait', mediaType: 'image', media: images[2], note: 'Lifestyle energy / warmth' },
+      { label: 'Live motion asset', mediaType: 'video', media: videos[1], note: 'Existing motion from current site' },
+      { label: 'Signature mark', mediaType: 'image', media: images[3], note: 'Identity / graphic language' }
+    ].forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'film-cell';
+      card.appendChild(mediaNode(item));
+      const caption = document.createElement('div');
+      caption.className = 'film-caption';
+      caption.innerHTML = `<strong>${item.label}</strong><span class="muted">${item.note}</span>`;
+      card.appendChild(caption);
+      filmStrip.appendChild(card);
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('visible');
+      });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>

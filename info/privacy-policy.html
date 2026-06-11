@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='UTF-8' />
+<meta name='viewport' content='width=device-width, initial-scale=1.0' />
+<title>Privacy policy — Jonathan Tait</title>
+<meta name='description' content='Privacy policy and legal information for Jonathan Tait.' />
+<style>
+:root{
+  --egg:#f4efe6;
+  --egg2:#efe8dc;
+  --ink:#171513;
+  --muted:rgba(23,21,19,.76);
+  --line:rgba(23,21,19,.12);
+  --line2:rgba(23,21,19,.08);
+  --gold:#b88348;
+  --gold-soft:#d3a977;
+  --radius:28px;
+  --radius2:22px;
+  --shadow:0 24px 72px rgba(68,48,28,.11);
+  --project-hero-h:520px;
+  --project-meta-h:520px;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:linear-gradient(180deg,var(--egg),#f8f5ef 40%,var(--egg2));color:var(--ink);line-height:1.56}
+a{text-decoration:none;color:inherit}
+img,video{display:block;max-width:100%}
+button{font:inherit}
+.shell{width:min(calc(100% - 32px),1220px);margin:0 auto}
+.nav{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 0;background:linear-gradient(180deg,rgba(244,239,230,.95),rgba(244,239,230,.76),transparent)}
+.nav a,.btn,.gallery-btn{min-height:44px;padding:11px 15px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.5);display:inline-flex;align-items:center;gap:8px}
+.btn.primary{background:linear-gradient(135deg,var(--gold-soft),var(--gold));color:white;border-color:transparent}
+.hero{display:grid;grid-template-columns:1.02fr .98fr;gap:20px;padding:22px 0}
+.card{background:rgba(255,255,255,.56);border:1px solid rgba(255,255,255,.68);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.hero>.card{height:var(--project-hero-h)}
+.media{min-height:var(--project-hero-h);background:#e5ddd0}
+.media img,.media video{width:100%;height:100%;object-fit:cover}
+.copy,.meta-card,.wide-card{padding:22px;display:grid;gap:12px;align-content:start}
+.copy{align-content:center;overflow:auto}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;width:fit-content;border:1px solid rgba(23,21,19,.08);background:rgba(255,255,255,.52);text-transform:uppercase;letter-spacing:.16em;font-size:.76rem;color:var(--muted)}
+.eyebrow::before{content:'';width:8px;height:8px;border-radius:999px;background:var(--gold)}
+h1{margin:0;font-size:clamp(2.9rem,5vw,5.2rem);line-height:.94;letter-spacing:-.05em}
+h2{margin:0;font-size:clamp(1.3rem,2vw,1.86rem);letter-spacing:-.04em}
+h3{margin:0;font-size:clamp(1.15rem,1.7vw,1.5rem);letter-spacing:-.03em}
+p{margin:0;color:var(--muted)}
+.label{display:block;color:rgba(23,21,19,.52);text-transform:uppercase;letter-spacing:.16em;font-size:.72rem}
+.meta-grid{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);gap:16px;align-items:start}
+.meta-grid > *{min-width:0}
+.summary-card{height:var(--project-meta-h);display:grid;grid-template-rows:auto minmax(0,1fr)}
+.summary-scroll{min-height:0;overflow-y:auto;padding-right:8px}
+.summary-card .frame-list{display:grid;gap:14px;margin-top:2px}
+.summary-card .frame-item{display:grid;gap:6px;padding-top:14px;border-top:1px solid var(--line2)}
+.gallery-card{display:grid;grid-template-rows:minmax(0,1fr) auto auto;align-content:start;min-width:0;height:var(--project-meta-h);padding:0}
+.gallery-stage-wrap{position:relative;min-width:0;width:100%;height:100%;overflow:hidden}
+.gallery-stage{width:100%;max-width:100%;height:100%;background:#e5ddd0;border-bottom:1px solid var(--line2);overflow:hidden}
+.gallery-stage img,.gallery-stage video,.gallery-stage iframe{width:100%;height:100%;object-fit:cover;border:0;background:#e5ddd0}
+.gallery-stage img,.gallery-stage iframe{cursor:zoom-in}
+.gallery-toolbar{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;padding:12px 18px 8px}
+.gallery-controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.gallery-btn{cursor:pointer}
+.gallery-count{color:rgba(23,21,19,.6);font-size:.82rem;text-transform:uppercase;letter-spacing:.18em}
+.gallery-strip{display:flex;gap:10px;overflow-x:auto;padding:0 18px 14px;scrollbar-width:thin}
+.gallery-lightbox{position:fixed;inset:0;z-index:120;display:none;align-items:center;justify-content:center;background:rgba(14,12,10,.92);padding:28px}
+.gallery-lightbox.open{display:flex}
+.gallery-lightbox-inner{width:min(100%,1400px);height:min(100%,92vh);display:grid;grid-template-rows:auto 1fr auto;gap:16px}
+.gallery-lightbox-top{display:flex;justify-content:space-between;align-items:center;gap:12px;color:white}
+.gallery-lightbox-top .gallery-count{color:rgba(255,255,255,.7)}
+.gallery-lightbox-stage{position:relative;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);border-radius:28px;overflow:hidden}
+.gallery-lightbox-stage img,.gallery-lightbox-stage video,.gallery-lightbox-stage iframe{width:100%;height:100%;object-fit:contain;border:0;background:#0e0c0a}
+.gallery-lightbox-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:2}
+.gallery-lightbox-nav.prev{left:18px}
+.gallery-lightbox-nav.next{right:18px}
+.gallery-lightbox-strip{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px}
+.gallery-lightbox .gallery-thumb{flex-basis:108px}
+.gallery-thumb{position:relative;flex:0 0 96px;aspect-ratio:1/1;padding:0;border-radius:18px;border:1px solid var(--line);background:rgba(255,255,255,.6);overflow:hidden;cursor:pointer}
+.gallery-thumb.active{border-color:rgba(184,131,72,.6);box-shadow:0 0 0 2px rgba(184,131,72,.16)}
+.gallery-thumb img{width:100%;height:100%;object-fit:cover}
+.gallery-thumb span{position:absolute;left:8px;bottom:8px;padding:4px 7px;border-radius:999px;background:rgba(23,21,19,.72);color:white;font-size:.68rem;letter-spacing:.08em}
+.section-stack{display:grid;gap:16px;padding:16px 0 32px}
+.narrative-card{padding:22px 22px 24px}
+.note-stack{display:grid;gap:16px}
+.note-item{display:grid;gap:8px}
+.note-item + .note-item{padding-top:16px;border-top:1px solid var(--line2)}
+@media (max-width:980px){.hero,.meta-grid{grid-template-columns:1fr}.hero>.card,.summary-card,.gallery-card{height:auto}.media{min-height:360px}.copy{overflow:visible}.summary-scroll{overflow:visible;padding-right:0}.gallery-stage{height:auto;aspect-ratio:16/10}.gallery-thumb{flex-basis:88px}.gallery-lightbox .gallery-thumb{flex-basis:96px}}
+</style>
+</head>
+<body>
+<div class='shell'>
+<nav class='nav'>
+  <a href='../index.html#connect'>← Back to homepage</a>
+</nav>
+<section class='hero' style='grid-template-columns:1fr;gap:16px'>
+  <div class='card copy' style='min-height:auto'>
+    <div class='eyebrow'>Info</div>
+    <h1 style='max-width:none'>Privacy policy</h1>
+    <p>Privacy policy and legal information for Jonathan Tait.</p>
+    <div style='display:flex;gap:12px;flex-wrap:wrap'>
+      <a class='btn' href='../index.html#connect'>Back to connect</a>
+    </div>
+  </div>
+</section>
+<section class='section-stack'><article class='card wide-card narrative-card'><div class='eyebrow'>Contact</div><p>E-Mail: iam@jonathantait.com</p></article><article class='card wide-card narrative-card'><div class='eyebrow'>Haftung für Inhalte</div><p>Als Diensteanbieter bin ich gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG bin ich als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen. Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werde ich diese Inhalte umgehend entfernen.</p></article><article class='card wide-card narrative-card'><div class='eyebrow'>Haftung für Links</div><p>Mein Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte ich keinen Einfluss habe. Deshalb kann ich für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich. Die verlinkten Seiten wurden zum Zeitpunkt der Verlinkung auf mögliche Rechtsverstöße überprüft. Rechtswidrige Inhalte waren zum Zeitpunkt der Verlinkung nicht erkennbar. Eine permanente inhaltliche Kontrolle der verlinkten Seiten ist jedoch ohne konkrete Anhaltspunkte einer Rechtsverletzung nicht zumutbar. Bei Bekanntwerden von Rechtsverletzungen werde ich derartige Links umgehend entfernen.</p></article><article class='card wide-card narrative-card'><div class='eyebrow'>Urheberrecht</div><p>Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers. Downloads und Kopien dieser Seite sind nur für den privaten, nicht kommerziellen Gebrauch gestattet. Soweit die Inhalte auf dieser Seite nicht vom Betreiber erstellt wurden, werden die Urheberrechte Dritter beachtet. Insbesondere werden Inhalte Dritter als solche gekennzeichnet. Sollten Sie trotzdem auf eine Urheberrechtsverletzung aufmerksam werden, bitte ich um einen entsprechenden Hinweis. Bei Bekanntwerden von Rechtsverletzungen werde ich derartige Inhalte umgehend entfernen.</p></article><article class='card wide-card narrative-card'><div class='eyebrow'>Online-Streitbeilegung</div><p>Gemäß Art. 14 Abs. 1 ODR-VO stellt die Europäische Kommission eine Plattform zur Online-Streitbeilegung (OS) bereit: https://ec.europa.eu/consumers/odr/</p></article></section>
+
+</div>
+</body>
+</html>
