@@ -399,9 +399,9 @@ content_overrides = {
         'next_text': 'The result is a music video shaped through repeated experimentation and rebuilding, where the evolving capabilities of the tools became part of the project’s final structure rather than an invisible background condition.'
     },
     'bio': {
-        'summary': 'From sound and editing through the lens and into generative systems, the work has evolved as one continuous image-making practice shaped by atmosphere, light, and intent.',
-        'hero_text': 'Jonathan Tait works across cinematic direction, AI-assisted campaign production, synthetic worldbuilding, and physical making, bringing the same attention to composition, mood, and felt realism across each part of the process.',
-        'overview_text': 'The journey into AI did not replace an earlier practice so much as extend it. What began in moving image and post-production now continues through tools such as ComfyUI, Unreal Engine, Blender, and generative image systems. Build work that feels grounded and emotionally legible even when it is entirely synthetic, while staying faithful to the fundamentals of light, composition, and intent to create bodies of work that moves between systems and materials while maintaining a consistent authored atmosphere across both. Tactile experimentation in painting, sculpting, folded paper, and poured resin keeps the work anchored to material behaviour and visual truth.',
+        'summary': 'From moving image and post-production into generative systems and physical making, Jonathan Tait’s practice is centred on building images that feel grounded, atmospheric, and believable.',
+        'hero_text': 'His work spans cinematic direction, AI-assisted campaign production, and synthetic worldbuilding, using tools such as ComfyUI, Unreal Engine, Blender, and generative image systems. That digital process is balanced by hands-on experimentation in painting, sculpting, folded paper, and poured resin.',
+        'overview_text': 'Across both, the focus stays the same: careful attention to light, composition, mood, and material truth.',
 
         'brief_text': '',
         'outcome_text': '',
