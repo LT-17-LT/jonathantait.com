@@ -662,13 +662,13 @@ index_html = """<!DOCTYPE html>
         padding:8px 12px;
       }
       .film-spread {
-        min-height:auto;
+        min-height:220svh;
         padding-top:8px;
       }
       .film-stage {
-        position:relative;
-        top:auto;
-        height:430px;
+        position:sticky;
+        top:12px;
+        height:860px;
       }
       .film-stage::after {
         background:linear-gradient(180deg,rgba(10,10,12,.1) 0%, rgba(10,10,12,.12) 22%, rgba(10,10,12,.28) 58%, rgba(10,10,12,.58) 100%);
