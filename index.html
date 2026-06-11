@@ -114,12 +114,85 @@
       .bio-media, .connect-card { min-height:320px; }
     }
     @media (max-width:780px) {
-      .site-nav { position:static; transform:none; width:min(calc(100% - 20px),var(--max)); margin:12px auto 0; border-radius:28px; }
-      .hero { padding-top:24px; }
-      h1 { max-width:none; }
-      .overlay-panel { left:16px; right:16px; width:auto; bottom:28px; }
-      .service-stack { min-height:132px; }
-      .overlay-title { max-width:14ch; font-size:clamp(1.55rem,7vw,2.2rem); }
+      .site-nav {
+        position:static;
+        transform:none;
+        width:min(calc(100% - 20px),var(--max));
+        margin:12px auto 0;
+        padding:12px 14px;
+        border-radius:28px;
+        display:grid;
+        grid-template-columns:1fr;
+        gap:10px;
+        align-items:start;
+      }
+      .brand-mark { font-size:.92rem; letter-spacing:.2em; }
+      .nav-links {
+        margin-left:0;
+        gap:8px;
+        flex-wrap:nowrap;
+        justify-content:flex-start;
+        width:100%;
+      }
+      .nav-links a {
+        min-height:40px;
+        padding:8px 12px;
+        font-size:.94rem;
+        white-space:nowrap;
+      }
+      .hero {
+        min-height:78svh;
+        padding:18px 0 10px;
+      }
+      .hero-content {
+        gap:14px;
+        padding-bottom:92px;
+      }
+      .hero-grid { max-width:100%; }
+      h1 {
+        max-width:9.5ch;
+        font-size:clamp(2.8rem,10vw,4.2rem);
+        line-height:.9;
+      }
+      .hero-actions { gap:8px; }
+      .hero-actions .button {
+        min-height:38px;
+        padding:8px 12px;
+      }
+      .film-spread {
+        min-height:auto;
+        padding-top:8px;
+      }
+      .film-stage {
+        position:relative;
+        top:auto;
+        height:430px;
+      }
+      .film-stage::after {
+        background:linear-gradient(180deg,rgba(10,10,12,.1) 0%, rgba(10,10,12,.12) 22%, rgba(10,10,12,.28) 58%, rgba(10,10,12,.58) 100%);
+      }
+      .overlay-panel {
+        left:auto;
+        right:16px;
+        width:min(320px, calc(100% - 32px));
+        bottom:22px;
+      }
+      .service-stack { min-height:176px; }
+      .overlay-title {
+        max-width:12ch;
+        font-size:clamp(1.7rem,7.3vw,2.3rem);
+      }
+      .overlay-copy {
+        max-width:24ch;
+        font-size:1rem;
+        line-height:1.38;
+      }
+      #selected-work {
+        padding-top:18px;
+      }
+      #selected-work .section-head {
+        margin-bottom:16px;
+      }
     }
     @media (prefers-reduced-motion: reduce) { html { scroll-behavior:auto; } .nav-links a, .button, .hero-media-item, .service-slide { transition:none; } }
   </style>
@@ -289,7 +362,7 @@
             <div class='bio-copy'>
               <div class='kicker'>Profile / positioning</div>
               <h3>Bio</h3>
-              <p>From sound and editing through the lens and into generative systems, the work has evolved as one continuous image-making practice shaped by atmosphere, light, and intent.</p>
+              <p>From moving image and post-production into generative systems and physical making, Jonathan Tait’s practice is centred on building images that feel grounded, atmospheric, and believable.</p>
               <p>The work moves between cinematic image-making, generative workflows, and tactile experimentation while staying anchored to light, composition, and authored feeling.</p>
               <a class='ghost-link' href='projects/bio.html'>Open full bio page</a>
             </div>
