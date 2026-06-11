@@ -125,9 +125,10 @@ p{margin:0;color:var(--muted)}
     <div class='gallery-toolbar'>
       <div class='gallery-controls'>
         <button class='gallery-btn' type='button' id='galleryPrev'>Prev</button>
-        <div class='gallery-count'><span id='galleryCurrent'>1</span> / <span id='galleryTotal'>13</span></div>
         <button class='gallery-btn' type='button' id='galleryNext'>Next</button>
-
+        <div class='gallery-count'><span id='galleryCurrent'>1</span> / <span id='galleryTotal'>13</span></div>
+      </div>
+      <button class='gallery-btn' type='button' id='galleryExpand'>Expand</button>
     </div>
     <div class='gallery-strip'><button class='gallery-thumb active' type='button' data-gallery-thumb='0' aria-label='Show Jeep Apparel asset 1'><img src='../generated-gallery-thumbs/jeep-apparel-00-4f564392b130.jpg' alt='Jeep Apparel preview 1' /><span>Video</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='1' aria-label='Show Jeep Apparel asset 2'><img src='https://static.wixstatic.com/media/14555f_e9c7ac8eac134e38a750285bd00289ba~mv2.png/v1/fill/w_1000,h_1778,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_e9c7ac8eac134e38a750285bd00289ba~mv2.png' alt='Jeep Apparel preview 2' /><span>02</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='2' aria-label='Show Jeep Apparel asset 3'><img src='https://static.wixstatic.com/media/14555f_4fa049c18a7c45faa63d585851b6c6a1~mv2.png' alt='Jeep Apparel preview 3' /><span>03</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='3' aria-label='Show Jeep Apparel asset 4'><img src='https://static.wixstatic.com/media/14555f_59c7a49ea79a47af9b6071adf18d5498~mv2.png' alt='Jeep Apparel preview 4' /><span>04</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='4' aria-label='Show Jeep Apparel asset 5'><img src='https://static.wixstatic.com/media/14555f_b07979f6c0674d95a780822090864e11~mv2.png' alt='Jeep Apparel preview 5' /><span>05</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='5' aria-label='Show Jeep Apparel asset 6'><img src='https://static.wixstatic.com/media/14555f_3ed3f1d0082543989493fb9054c1be1a~mv2.png' alt='Jeep Apparel preview 6' /><span>06</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='6' aria-label='Show Jeep Apparel asset 7'><img src='https://static.wixstatic.com/media/14555f_aa65eeed002949a79ad95953fbaa0a5d~mv2.png' alt='Jeep Apparel preview 7' /><span>07</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='7' aria-label='Show Jeep Apparel asset 8'><img src='https://static.wixstatic.com/media/14555f_90da7b8c9bd94180bda86d0e91e9d311~mv2.png' alt='Jeep Apparel preview 8' /><span>08</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='8' aria-label='Show Jeep Apparel asset 9'><img src='https://static.wixstatic.com/media/14555f_5c3ba143fff14128ad481226ae4e9a28~mv2.png' alt='Jeep Apparel preview 9' /><span>09</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='9' aria-label='Show Jeep Apparel asset 10'><img src='https://static.wixstatic.com/media/14555f_d65c20e013d44499b5992e18e0d7e835~mv2.png' alt='Jeep Apparel preview 10' /><span>10</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='10' aria-label='Show Jeep Apparel asset 11'><img src='https://static.wixstatic.com/media/14555f_ab39ac0e32bb45efb0857d421afd9454f000.jpg' alt='Jeep Apparel preview 11' /><span>11</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='11' aria-label='Show Jeep Apparel asset 12'><img src='https://static.wixstatic.com/media/14555f_343718bf66064559958720e839bd303af000.jpg' alt='Jeep Apparel preview 12' /><span>12</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='12' aria-label='Show Jeep Apparel asset 13'><img src='https://static.wixstatic.com/media/14555f_5f716bc007304b35ac50145d9f720710f000.jpg' alt='Jeep Apparel preview 13' /><span>13</span></button></div>
   </article>
@@ -169,6 +170,7 @@ p{margin:0;color:var(--muted)}
   const lightboxThumbs = Array.from(document.querySelectorAll('.gallery-lightbox-strip [data-gallery-thumb]'));
   const prev = document.getElementById('galleryPrev');
   const next = document.getElementById('galleryNext');
+  const expand = document.getElementById('galleryExpand');
   const current = document.getElementById('galleryCurrent');
   const total = document.getElementById('galleryTotal');
   const lightboxCurrent = document.getElementById('lightboxCurrent');
@@ -252,6 +254,7 @@ p{margin:0;color:var(--muted)}
   lightboxThumbs.forEach((thumb, thumbIndex) => thumb.addEventListener('click', () => setIndex(thumbIndex)));
   prev?.addEventListener('click', () => setIndex(index - 1));
   next?.addEventListener('click', () => setIndex(index + 1));
+  expand?.addEventListener('click', openLightbox);
   lightboxPrev?.addEventListener('click', () => setIndex(index - 1));
   lightboxNext?.addEventListener('click', () => setIndex(index + 1));
   lightboxClose?.addEventListener('click', closeLightbox);

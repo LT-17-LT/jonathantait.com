@@ -125,9 +125,10 @@ p{margin:0;color:var(--muted)}
     <div class='gallery-toolbar'>
       <div class='gallery-controls'>
         <button class='gallery-btn' type='button' id='galleryPrev'>Prev</button>
-        <div class='gallery-count'><span id='galleryCurrent'>1</span> / <span id='galleryTotal'>13</span></div>
         <button class='gallery-btn' type='button' id='galleryNext'>Next</button>
-
+        <div class='gallery-count'><span id='galleryCurrent'>1</span> / <span id='galleryTotal'>13</span></div>
+      </div>
+      <button class='gallery-btn' type='button' id='galleryExpand'>Expand</button>
     </div>
     <div class='gallery-strip'><button class='gallery-thumb active' type='button' data-gallery-thumb='0' aria-label='Show The Reunion asset 1'><img src='https://i.ytimg.com/vi/lqwqS_55zro/hqdefault.jpg' alt='The Reunion preview 1' /><span>Film</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='1' aria-label='Show The Reunion asset 2'><img src='https://static.wixstatic.com/media/14555f_95e9c9d2b11642ada02786cf6fd4c69d~mv2.jpg/v1/fill/w_1000,h_424,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_95e9c9d2b11642ada02786cf6fd4c69d~mv2.jpg' alt='The Reunion preview 2' /><span>02</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='2' aria-label='Show The Reunion asset 3'><img src='https://static.wixstatic.com/media/14555f_6cc8c0bfb28d499d962c8b310f3b1e6e~mv2.jpg/v1/fill/w_1000,h_424,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_6cc8c0bfb28d499d962c8b310f3b1e6e~mv2.jpg' alt='The Reunion preview 3' /><span>03</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='3' aria-label='Show The Reunion asset 4'><img src='https://static.wixstatic.com/media/14555f_aa52852993644f688851846305b346c5~mv2.jpg' alt='The Reunion preview 4' /><span>04</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='4' aria-label='Show The Reunion asset 5'><img src='https://static.wixstatic.com/media/14555f_3b327309185846d88679dde6a85aca71~mv2.jpg' alt='The Reunion preview 5' /><span>05</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='5' aria-label='Show The Reunion asset 6'><img src='https://static.wixstatic.com/media/14555f_302ef17db78842b890970b8c8a86f768~mv2.jpg' alt='The Reunion preview 6' /><span>06</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='6' aria-label='Show The Reunion asset 7'><img src='https://static.wixstatic.com/media/14555f_1734c82caefb47e9873f3c113e003b7b~mv2.jpg' alt='The Reunion preview 7' /><span>07</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='7' aria-label='Show The Reunion asset 8'><img src='https://static.wixstatic.com/media/14555f_284d5067a23d432ab7cd751acf540831~mv2.jpg' alt='The Reunion preview 8' /><span>08</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='8' aria-label='Show The Reunion asset 9'><img src='https://static.wixstatic.com/media/14555f_f6e08b5c348041f38ebb5402c2da9409~mv2.jpg' alt='The Reunion preview 9' /><span>09</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='9' aria-label='Show The Reunion asset 10'><img src='https://static.wixstatic.com/media/14555f_bd0c3efe416c41678da331064fcc9b07~mv2.jpg' alt='The Reunion preview 10' /><span>10</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='10' aria-label='Show The Reunion asset 11'><img src='https://static.wixstatic.com/media/14555f_12fe06380a7f447e9a58740ca001fe9e~mv2.jpg' alt='The Reunion preview 11' /><span>11</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='11' aria-label='Show The Reunion asset 12'><img src='https://static.wixstatic.com/media/14555f_2b195fee1ec642448bd225386257eaaa~mv2.jpg' alt='The Reunion preview 12' /><span>12</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='12' aria-label='Show The Reunion asset 13'><img src='https://static.wixstatic.com/media/14555f_d824fbec6551412789f9622e9a42cf24~mv2.jpg' alt='The Reunion preview 13' /><span>13</span></button></div>
   </article>
@@ -169,6 +170,7 @@ p{margin:0;color:var(--muted)}
   const lightboxThumbs = Array.from(document.querySelectorAll('.gallery-lightbox-strip [data-gallery-thumb]'));
   const prev = document.getElementById('galleryPrev');
   const next = document.getElementById('galleryNext');
+  const expand = document.getElementById('galleryExpand');
   const current = document.getElementById('galleryCurrent');
   const total = document.getElementById('galleryTotal');
   const lightboxCurrent = document.getElementById('lightboxCurrent');
@@ -252,6 +254,7 @@ p{margin:0;color:var(--muted)}
   lightboxThumbs.forEach((thumb, thumbIndex) => thumb.addEventListener('click', () => setIndex(thumbIndex)));
   prev?.addEventListener('click', () => setIndex(index - 1));
   next?.addEventListener('click', () => setIndex(index + 1));
+  expand?.addEventListener('click', openLightbox);
   lightboxPrev?.addEventListener('click', () => setIndex(index - 1));
   lightboxNext?.addEventListener('click', () => setIndex(index + 1));
   lightboxClose?.addEventListener('click', closeLightbox);

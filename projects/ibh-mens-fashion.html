@@ -125,9 +125,10 @@ p{margin:0;color:var(--muted)}
     <div class='gallery-toolbar'>
       <div class='gallery-controls'>
         <button class='gallery-btn' type='button' id='galleryPrev'>Prev</button>
-        <div class='gallery-count'><span id='galleryCurrent'>1</span> / <span id='galleryTotal'>13</span></div>
         <button class='gallery-btn' type='button' id='galleryNext'>Next</button>
-
+        <div class='gallery-count'><span id='galleryCurrent'>1</span> / <span id='galleryTotal'>13</span></div>
+      </div>
+      <button class='gallery-btn' type='button' id='galleryExpand'>Expand</button>
     </div>
     <div class='gallery-strip'><button class='gallery-thumb active' type='button' data-gallery-thumb='0' aria-label='Show I/B/H Mens Fashion asset 1'><img src='https://i.ytimg.com/vi/eVjkMmNxj1Y/hqdefault.jpg' alt='I/B/H Mens Fashion preview 1' /><span>Film</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='1' aria-label='Show I/B/H Mens Fashion asset 2'><img src='https://static.wixstatic.com/media/14555f_474f2750e7f3468db9613883ad4a9929~mv2.jpg/v1/fill/w_1000,h_558,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_474f2750e7f3468db9613883ad4a9929~mv2.jpg' alt='I/B/H Mens Fashion preview 2' /><span>02</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='2' aria-label='Show I/B/H Mens Fashion asset 3'><img src='https://static.wixstatic.com/media/14555f_a715f604326d41a19ed685d841ac87c9~mv2.jpg/v1/fill/w_1000,h_558,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_a715f604326d41a19ed685d841ac87c9~mv2.jpg' alt='I/B/H Mens Fashion preview 3' /><span>03</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='3' aria-label='Show I/B/H Mens Fashion asset 4'><img src='https://static.wixstatic.com/media/14555f_f282e653624242259c1765e629ec46b4~mv2.jpg' alt='I/B/H Mens Fashion preview 4' /><span>04</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='4' aria-label='Show I/B/H Mens Fashion asset 5'><img src='https://static.wixstatic.com/media/14555f_d961f08c7634449f9ddad12ddd0bb11c~mv2.jpg' alt='I/B/H Mens Fashion preview 5' /><span>05</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='5' aria-label='Show I/B/H Mens Fashion asset 6'><img src='https://static.wixstatic.com/media/14555f_51c50d29715744a8bef749ef786f5887~mv2.jpg' alt='I/B/H Mens Fashion preview 6' /><span>06</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='6' aria-label='Show I/B/H Mens Fashion asset 7'><img src='https://static.wixstatic.com/media/14555f_1c1fe7bff34e450aa160016d4d38f42e~mv2.jpg' alt='I/B/H Mens Fashion preview 7' /><span>07</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='7' aria-label='Show I/B/H Mens Fashion asset 8'><img src='https://static.wixstatic.com/media/14555f_5abad3dc347b40148cdd8e9eb22f1c8c~mv2.jpg' alt='I/B/H Mens Fashion preview 8' /><span>08</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='8' aria-label='Show I/B/H Mens Fashion asset 9'><img src='https://static.wixstatic.com/media/14555f_e1e1095e97bb4779a34d8b9de322ed27~mv2.png' alt='I/B/H Mens Fashion preview 9' /><span>09</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='9' aria-label='Show I/B/H Mens Fashion asset 10'><img src='https://static.wixstatic.com/media/14555f_46581ee7ad2a4ddfb9652fd68cc99d1b~mv2.jpg' alt='I/B/H Mens Fashion preview 10' /><span>10</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='10' aria-label='Show I/B/H Mens Fashion asset 11'><img src='https://static.wixstatic.com/media/14555f_c5450102d7f2496096f9683a959a21b4~mv2.jpg' alt='I/B/H Mens Fashion preview 11' /><span>11</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='11' aria-label='Show I/B/H Mens Fashion asset 12'><img src='https://static.wixstatic.com/media/14555f_bd8d25b8fdc94d9fbf3d242c6d0bd13e~mv2.jpg' alt='I/B/H Mens Fashion preview 12' /><span>12</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='12' aria-label='Show I/B/H Mens Fashion asset 13'><img src='https://static.wixstatic.com/media/14555f_42831158b66e46279aa940ae3fb5b46c~mv2.jpg' alt='I/B/H Mens Fashion preview 13' /><span>13</span></button></div>
   </article>
@@ -169,6 +170,7 @@ p{margin:0;color:var(--muted)}
   const lightboxThumbs = Array.from(document.querySelectorAll('.gallery-lightbox-strip [data-gallery-thumb]'));
   const prev = document.getElementById('galleryPrev');
   const next = document.getElementById('galleryNext');
+  const expand = document.getElementById('galleryExpand');
   const current = document.getElementById('galleryCurrent');
   const total = document.getElementById('galleryTotal');
   const lightboxCurrent = document.getElementById('lightboxCurrent');
@@ -252,6 +254,7 @@ p{margin:0;color:var(--muted)}
   lightboxThumbs.forEach((thumb, thumbIndex) => thumb.addEventListener('click', () => setIndex(thumbIndex)));
   prev?.addEventListener('click', () => setIndex(index - 1));
   next?.addEventListener('click', () => setIndex(index + 1));
+  expand?.addEventListener('click', openLightbox);
   lightboxPrev?.addEventListener('click', () => setIndex(index - 1));
   lightboxNext?.addEventListener('click', () => setIndex(index + 1));
   lightboxClose?.addEventListener('click', closeLightbox);

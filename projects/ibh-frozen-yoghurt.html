@@ -125,9 +125,10 @@ p{margin:0;color:var(--muted)}
     <div class='gallery-toolbar'>
       <div class='gallery-controls'>
         <button class='gallery-btn' type='button' id='galleryPrev'>Prev</button>
-        <div class='gallery-count'><span id='galleryCurrent'>1</span> / <span id='galleryTotal'>14</span></div>
         <button class='gallery-btn' type='button' id='galleryNext'>Next</button>
-
+        <div class='gallery-count'><span id='galleryCurrent'>1</span> / <span id='galleryTotal'>14</span></div>
+      </div>
+      <button class='gallery-btn' type='button' id='galleryExpand'>Expand</button>
     </div>
     <div class='gallery-strip'><button class='gallery-thumb active' type='button' data-gallery-thumb='0' aria-label='Show I/B/H Frozen Yoghurt asset 1'><img src='../generated-gallery-thumbs/ibh-frozen-yoghurt-00-3db4d668a5ce.jpg' alt='I/B/H Frozen Yoghurt preview 1' /><span>Video</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='1' aria-label='Show I/B/H Frozen Yoghurt asset 2'><img src='https://static.wixstatic.com/media/14555f_95f8bea9fb954665b0e74c86b795ecbb~mv2.png/v1/fill/w_1000,h_747,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_95f8bea9fb954665b0e74c86b795ecbb~mv2.png' alt='I/B/H Frozen Yoghurt preview 2' /><span>02</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='2' aria-label='Show I/B/H Frozen Yoghurt asset 3'><img src='https://static.wixstatic.com/media/14555f_1e5266f954ad4fc68faf0b3989e5360d~mv2.png' alt='I/B/H Frozen Yoghurt preview 3' /><span>03</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='3' aria-label='Show I/B/H Frozen Yoghurt asset 4'><img src='https://static.wixstatic.com/media/14555f_433c4aef8808435e99aaf6473c31ab96~mv2.png' alt='I/B/H Frozen Yoghurt preview 4' /><span>04</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='4' aria-label='Show I/B/H Frozen Yoghurt asset 5'><img src='https://static.wixstatic.com/media/14555f_75729667068d460582eedc6b7b6f4efb~mv2.png' alt='I/B/H Frozen Yoghurt preview 5' /><span>05</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='5' aria-label='Show I/B/H Frozen Yoghurt asset 6'><img src='https://static.wixstatic.com/media/14555f_367f41f47efc415e8ce04174a4736134~mv2.png' alt='I/B/H Frozen Yoghurt preview 6' /><span>06</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='6' aria-label='Show I/B/H Frozen Yoghurt asset 7'><img src='https://static.wixstatic.com/media/14555f_58f6f1df62cf4e6f8c14d9375b886319~mv2.png' alt='I/B/H Frozen Yoghurt preview 7' /><span>07</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='7' aria-label='Show I/B/H Frozen Yoghurt asset 8'><img src='https://static.wixstatic.com/media/14555f_fc088f4aa67849bc9402642a203fa943~mv2.png' alt='I/B/H Frozen Yoghurt preview 8' /><span>08</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='8' aria-label='Show I/B/H Frozen Yoghurt asset 9'><img src='https://static.wixstatic.com/media/14555f_8d40a2b4ca9a42678599e32b5daf9dd8~mv2.png' alt='I/B/H Frozen Yoghurt preview 9' /><span>09</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='9' aria-label='Show I/B/H Frozen Yoghurt asset 10'><img src='https://static.wixstatic.com/media/14555f_0e5c986112dc4c2b9d07b14b7832c4c7~mv2.png' alt='I/B/H Frozen Yoghurt preview 10' /><span>10</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='10' aria-label='Show I/B/H Frozen Yoghurt asset 11'><img src='https://static.wixstatic.com/media/14555f_08620449341d4562bc06ed9b5956adcf~mv2.png' alt='I/B/H Frozen Yoghurt preview 11' /><span>11</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='11' aria-label='Show I/B/H Frozen Yoghurt asset 12'><img src='https://static.wixstatic.com/media/14555f_23ad1f216b544a25832e10260c495ea7~mv2.png' alt='I/B/H Frozen Yoghurt preview 12' /><span>12</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='12' aria-label='Show I/B/H Frozen Yoghurt asset 13'><img src='https://static.wixstatic.com/media/14555f_b9ecc90f57134bc58e02db041887e5c1~mv2.png' alt='I/B/H Frozen Yoghurt preview 13' /><span>13</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='13' aria-label='Show I/B/H Frozen Yoghurt asset 14'><img src='https://static.wixstatic.com/media/14555f_6a3dfdde39154e8d87ab0e9d0e6f0a37~mv2.png' alt='I/B/H Frozen Yoghurt preview 14' /><span>14</span></button></div>
   </article>
@@ -169,6 +170,7 @@ p{margin:0;color:var(--muted)}
   const lightboxThumbs = Array.from(document.querySelectorAll('.gallery-lightbox-strip [data-gallery-thumb]'));
   const prev = document.getElementById('galleryPrev');
   const next = document.getElementById('galleryNext');
+  const expand = document.getElementById('galleryExpand');
   const current = document.getElementById('galleryCurrent');
   const total = document.getElementById('galleryTotal');
   const lightboxCurrent = document.getElementById('lightboxCurrent');
@@ -252,6 +254,7 @@ p{margin:0;color:var(--muted)}
   lightboxThumbs.forEach((thumb, thumbIndex) => thumb.addEventListener('click', () => setIndex(thumbIndex)));
   prev?.addEventListener('click', () => setIndex(index - 1));
   next?.addEventListener('click', () => setIndex(index + 1));
+  expand?.addEventListener('click', openLightbox);
   lightboxPrev?.addEventListener('click', () => setIndex(index - 1));
   lightboxNext?.addEventListener('click', () => setIndex(index + 1));
   lightboxClose?.addEventListener('click', closeLightbox);

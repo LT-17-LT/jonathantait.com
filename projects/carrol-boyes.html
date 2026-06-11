@@ -125,9 +125,10 @@ p{margin:0;color:var(--muted)}
     <div class='gallery-toolbar'>
       <div class='gallery-controls'>
         <button class='gallery-btn' type='button' id='galleryPrev'>Prev</button>
-        <div class='gallery-count'><span id='galleryCurrent'>1</span> / <span id='galleryTotal'>11</span></div>
         <button class='gallery-btn' type='button' id='galleryNext'>Next</button>
-
+        <div class='gallery-count'><span id='galleryCurrent'>1</span> / <span id='galleryTotal'>11</span></div>
+      </div>
+      <button class='gallery-btn' type='button' id='galleryExpand'>Expand</button>
     </div>
     <div class='gallery-strip'><button class='gallery-thumb active' type='button' data-gallery-thumb='0' aria-label='Show Carrol Boyes asset 1'><img src='https://static.wixstatic.com/media/14555f_87071ee760ea49bb8d6ecc015b11ad06~mv2.png/v1/fill/w_1000,h_667,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_87071ee760ea49bb8d6ecc015b11ad06~mv2.png' alt='Carrol Boyes preview 1' /><span>01</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='1' aria-label='Show Carrol Boyes asset 2'><img src='https://static.wixstatic.com/media/14555f_7200187af99a4ad58f506a88ecdc3a32~mv2.png/v1/fill/w_1000,h_1500,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_7200187af99a4ad58f506a88ecdc3a32~mv2.png' alt='Carrol Boyes preview 2' /><span>02</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='2' aria-label='Show Carrol Boyes asset 3'><img src='https://static.wixstatic.com/media/14555f_46e9e63e8a894b5fa340f3fb427c8a91~mv2.png' alt='Carrol Boyes preview 3' /><span>03</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='3' aria-label='Show Carrol Boyes asset 4'><img src='https://static.wixstatic.com/media/14555f_c5a74f4e0f014be8a347f668721206dd~mv2.png' alt='Carrol Boyes preview 4' /><span>04</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='4' aria-label='Show Carrol Boyes asset 5'><img src='https://static.wixstatic.com/media/14555f_c7a9ed6a59ec483790013b6ceb8826c2~mv2.jpg' alt='Carrol Boyes preview 5' /><span>05</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='5' aria-label='Show Carrol Boyes asset 6'><img src='https://static.wixstatic.com/media/14555f_7fc43350f7b743918f1fe4f87fc50167~mv2.png' alt='Carrol Boyes preview 6' /><span>06</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='6' aria-label='Show Carrol Boyes asset 7'><img src='https://static.wixstatic.com/media/14555f_3c71103960c94e5b8a2fcd2299a2df7e~mv2.png' alt='Carrol Boyes preview 7' /><span>07</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='7' aria-label='Show Carrol Boyes asset 8'><img src='https://static.wixstatic.com/media/14555f_fa556c6ddd434bdd8841313b36e9063c~mv2.png' alt='Carrol Boyes preview 8' /><span>08</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='8' aria-label='Show Carrol Boyes asset 9'><img src='https://static.wixstatic.com/media/14555f_b1e1e6768f4b4e80b49849b7b73a4f46~mv2.png' alt='Carrol Boyes preview 9' /><span>09</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='9' aria-label='Show Carrol Boyes asset 10'><img src='https://static.wixstatic.com/media/14555f_6f415a90b4b24f4580284779e3447232~mv2.png' alt='Carrol Boyes preview 10' /><span>10</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='10' aria-label='Show Carrol Boyes asset 11'><img src='https://static.wixstatic.com/media/14555f_aa00e77977d64d3383b906afe2b5658b~mv2.png' alt='Carrol Boyes preview 11' /><span>11</span></button></div>
   </article>
@@ -169,6 +170,7 @@ p{margin:0;color:var(--muted)}
   const lightboxThumbs = Array.from(document.querySelectorAll('.gallery-lightbox-strip [data-gallery-thumb]'));
   const prev = document.getElementById('galleryPrev');
   const next = document.getElementById('galleryNext');
+  const expand = document.getElementById('galleryExpand');
   const current = document.getElementById('galleryCurrent');
   const total = document.getElementById('galleryTotal');
   const lightboxCurrent = document.getElementById('lightboxCurrent');
@@ -252,6 +254,7 @@ p{margin:0;color:var(--muted)}
   lightboxThumbs.forEach((thumb, thumbIndex) => thumb.addEventListener('click', () => setIndex(thumbIndex)));
   prev?.addEventListener('click', () => setIndex(index - 1));
   next?.addEventListener('click', () => setIndex(index + 1));
+  expand?.addEventListener('click', openLightbox);
   lightboxPrev?.addEventListener('click', () => setIndex(index - 1));
   lightboxNext?.addEventListener('click', () => setIndex(index + 1));
   lightboxClose?.addEventListener('click', closeLightbox);

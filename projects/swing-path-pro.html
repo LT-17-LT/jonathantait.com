@@ -125,9 +125,10 @@ p{margin:0;color:var(--muted)}
     <div class='gallery-toolbar'>
       <div class='gallery-controls'>
         <button class='gallery-btn' type='button' id='galleryPrev'>Prev</button>
-        <div class='gallery-count'><span id='galleryCurrent'>1</span> / <span id='galleryTotal'>12</span></div>
         <button class='gallery-btn' type='button' id='galleryNext'>Next</button>
-
+        <div class='gallery-count'><span id='galleryCurrent'>1</span> / <span id='galleryTotal'>12</span></div>
+      </div>
+      <button class='gallery-btn' type='button' id='galleryExpand'>Expand</button>
     </div>
     <div class='gallery-strip'><button class='gallery-thumb active' type='button' data-gallery-thumb='0' aria-label='Show Swing Path Pro asset 1'><img src='https://static.wixstatic.com/media/14555f_a332f37bddfc430aba6e13529563c5ff~mv2.jpg/v1/fill/w_1000,h_500,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_a332f37bddfc430aba6e13529563c5ff~mv2.jpg' alt='Swing Path Pro preview 1' /><span>01</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='1' aria-label='Show Swing Path Pro asset 2'><img src='https://static.wixstatic.com/media/14555f_201fe8a3772b4d4ea2e6b9c1803efd7c~mv2.jpg/v1/fill/w_1000,h_753,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_201fe8a3772b4d4ea2e6b9c1803efd7c~mv2.jpg' alt='Swing Path Pro preview 2' /><span>02</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='2' aria-label='Show Swing Path Pro asset 3'><img src='https://static.wixstatic.com/media/14555f_e203d88ce2af4506bc0c7b9f389fff79~mv2.jpg' alt='Swing Path Pro preview 3' /><span>03</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='3' aria-label='Show Swing Path Pro asset 4'><img src='https://static.wixstatic.com/media/14555f_5e29ffd9d3b049438a1506e087ab5410~mv2.jpg' alt='Swing Path Pro preview 4' /><span>04</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='4' aria-label='Show Swing Path Pro asset 5'><img src='https://static.wixstatic.com/media/14555f_3c52dd6826c64f7f9e61a501973ac290~mv2.jpg' alt='Swing Path Pro preview 5' /><span>05</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='5' aria-label='Show Swing Path Pro asset 6'><img src='https://static.wixstatic.com/media/14555f_52a9496f44da4339986392730e562f32~mv2.jpg' alt='Swing Path Pro preview 6' /><span>06</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='6' aria-label='Show Swing Path Pro asset 7'><img src='https://static.wixstatic.com/media/14555f_2aa85c1dbbf246e0925471f9a715dc4a~mv2.jpg' alt='Swing Path Pro preview 7' /><span>07</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='7' aria-label='Show Swing Path Pro asset 8'><img src='https://static.wixstatic.com/media/14555f_8e07711d0be54960b0bf9e0adfbfbf94~mv2.jpg' alt='Swing Path Pro preview 8' /><span>08</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='8' aria-label='Show Swing Path Pro asset 9'><img src='https://static.wixstatic.com/media/14555f_dfd2fa6f4e594c1b9d1cc969482c6014~mv2.jpg' alt='Swing Path Pro preview 9' /><span>09</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='9' aria-label='Show Swing Path Pro asset 10'><img src='https://static.wixstatic.com/media/14555f_4dd6cfaeeb534db788d9eacd9c9dd28e~mv2.jpg' alt='Swing Path Pro preview 10' /><span>10</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='10' aria-label='Show Swing Path Pro asset 11'><img src='https://static.wixstatic.com/media/14555f_71f0d75f7db8435f9ff194a71b02b08c~mv2.jpg' alt='Swing Path Pro preview 11' /><span>11</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='11' aria-label='Show Swing Path Pro asset 12'><img src='https://static.wixstatic.com/media/14555f_8a958c45a39f4b6d90d143732a7eb47d~mv2.jpg' alt='Swing Path Pro preview 12' /><span>12</span></button></div>
   </article>
@@ -169,6 +170,7 @@ p{margin:0;color:var(--muted)}
   const lightboxThumbs = Array.from(document.querySelectorAll('.gallery-lightbox-strip [data-gallery-thumb]'));
   const prev = document.getElementById('galleryPrev');
   const next = document.getElementById('galleryNext');
+  const expand = document.getElementById('galleryExpand');
   const current = document.getElementById('galleryCurrent');
   const total = document.getElementById('galleryTotal');
   const lightboxCurrent = document.getElementById('lightboxCurrent');
@@ -252,6 +254,7 @@ p{margin:0;color:var(--muted)}
   lightboxThumbs.forEach((thumb, thumbIndex) => thumb.addEventListener('click', () => setIndex(thumbIndex)));
   prev?.addEventListener('click', () => setIndex(index - 1));
   next?.addEventListener('click', () => setIndex(index + 1));
+  expand?.addEventListener('click', openLightbox);
   lightboxPrev?.addEventListener('click', () => setIndex(index - 1));
   lightboxNext?.addEventListener('click', () => setIndex(index + 1));
   lightboxClose?.addEventListener('click', closeLightbox);

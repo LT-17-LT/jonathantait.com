@@ -401,10 +401,10 @@ content_overrides = {
     'bio': {
         'summary': 'From sound and editing through the lens and into generative systems, the work has evolved as one continuous image-making practice shaped by atmosphere, light, and intent.',
         'hero_text': 'Jonathan Tait works across cinematic direction, AI-assisted campaign production, synthetic worldbuilding, and physical making, bringing the same attention to composition, mood, and felt realism across each part of the process.',
-        'overview_text': 'The journey into AI did not replace an earlier practice so much as extend it. What began in moving image and post-production now continues through tools such as ComfyUI, Unreal Engine, Blender, and generative image systems, while tactile experimentation in painting, sculpting, folded paper, and poured resin keeps the work anchored to material behaviour and visual truth.',
+        'overview_text': 'The journey into AI did not replace an earlier practice so much as extend it. What began in moving image and post-production now continues through tools such as ComfyUI, Unreal Engine, Blender, and generative image systems. Build work that feels grounded and emotionally legible even when it is entirely synthetic, while staying faithful to the fundamentals of light, composition, and intent to create bodies of work that moves between systems and materials while maintaining a consistent authored atmosphere across both. Tactile experimentation in painting, sculpting, folded paper, and poured resin keeps the work anchored to material behaviour and visual truth.',
 
-        'brief_text': 'Build work that feels grounded and emotionally legible even when it is entirely synthetic, while staying faithful to the fundamentals of light, composition, and intent.',
-        'outcome_text': 'A body of work that moves between systems and materials while maintaining a consistent authored atmosphere across both.',
+        'brief_text': '',
+        'outcome_text': '',
         'copy_1': 'In this project, the aim was to frame the practice as one continuous enquiry into image-making, atmosphere, and perception rather than as a résumé-style list of tools or roles.',
         'approach_text': 'Generative workflows now sit at the centre of the practice, using tools such as ComfyUI, Unreal Engine, Blender, and cloud-based models to create work that feels plausible, tactile, and grounded rather than overtly synthetic. The digital process is balanced by physical making that keeps the eye trained on how materials, light, and surface behave in the real world.',
         'portfolio_text': 'In this project, the visual language is quieter and more reflective, bringing the portfolio’s different chapters back into one authored practice shaped by perception, atmosphere, and material awareness.',
@@ -872,6 +872,7 @@ privacy_page = f"""<!DOCTYPE html>
 (info_dir / 'privacy-policy.html').write_text(privacy_page, encoding='utf-8')
 
 def render_bio_profile_page(p, prev_slug, next_slug):
+    bio_extra_paragraph = f"<p>{html.escape(p['brief_text'])} {html.escape(p['outcome_text'])}</p>" if (p.get('brief_text') or p.get('outcome_text')) else ''
     page = f"""<!DOCTYPE html>
 <html lang='en'>
 <head>
@@ -900,11 +901,7 @@ def render_bio_profile_page(p, prev_slug, next_slug):
     <p>{html.escape(p['summary'])}</p>
     <p>{html.escape(p['hero_text'])}</p>
     <p>{html.escape(p['overview_text'])}</p>
-    <div class='frame-list'>
-      <div class='frame-item'><span class='label'>Role</span><p>{html.escape(p['role_text'])}</p></div>
-      <div class='frame-item'><span class='label'>Brief</span><p>{html.escape(p['brief_text'])}</p></div>
-      <div class='frame-item'><span class='label'>Outcome</span><p>{html.escape(p['outcome_text'])}</p></div>
-    </div>
+    {bio_extra_paragraph}
     <div style='display:flex;gap:12px;flex-wrap:wrap'>
       <a class='btn' href='../index.html#film'>Back to services</a>
     </div>
@@ -977,9 +974,10 @@ for idx, p in enumerate(projects):
     <div class='gallery-toolbar'>
       <div class='gallery-controls'>
         <button class='gallery-btn' type='button' id='galleryPrev'>Prev</button>
-        <div class='gallery-count'><span id='galleryCurrent'>1</span> / <span id='galleryTotal'>{len(p['gallery_items'])}</span></div>
         <button class='gallery-btn' type='button' id='galleryNext'>Next</button>
-
+        <div class='gallery-count'><span id='galleryCurrent'>1</span> / <span id='galleryTotal'>{len(p['gallery_items'])}</span></div>
+      </div>
+      <button class='gallery-btn' type='button' id='galleryExpand'>Expand</button>
     </div>
     <div class='gallery-strip'>{gallery_thumbs_html}</div>
   </article>
@@ -1021,6 +1019,7 @@ for idx, p in enumerate(projects):
   const lightboxThumbs = Array.from(document.querySelectorAll('.gallery-lightbox-strip [data-gallery-thumb]'));
   const prev = document.getElementById('galleryPrev');
   const next = document.getElementById('galleryNext');
+  const expand = document.getElementById('galleryExpand');
   const current = document.getElementById('galleryCurrent');
   const total = document.getElementById('galleryTotal');
   const lightboxCurrent = document.getElementById('lightboxCurrent');
@@ -1104,6 +1103,7 @@ for idx, p in enumerate(projects):
   lightboxThumbs.forEach((thumb, thumbIndex) => thumb.addEventListener('click', () => setIndex(thumbIndex)));
   prev?.addEventListener('click', () => setIndex(index - 1));
   next?.addEventListener('click', () => setIndex(index + 1));
+  expand?.addEventListener('click', openLightbox);
   lightboxPrev?.addEventListener('click', () => setIndex(index - 1));
   lightboxNext?.addEventListener('click', () => setIndex(index + 1));
   lightboxClose?.addEventListener('click', closeLightbox);
