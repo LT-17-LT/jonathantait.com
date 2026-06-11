@@ -506,7 +506,7 @@ index_html = """<!DOCTYPE html>
   <meta charset='UTF-8' />
   <meta name='viewport' content='width=device-width, initial-scale=1.0' />
   <title>Jonathan Tait — Generative AI Creative Technologist</title>
-  <meta name='description' content='A cinematic eggshell-toned portfolio concept for Jonathan Tait, combining looping project reels with a full-bleed scroll-tied identity film.' />
+  <meta name='description' content='Portfolio site for Jonathan Tait — cinematic direction, AI-assisted campaign production, generative worldbuilding, and selected work.' />
   <style>
     :root {
       --egg:#f3efe6;
