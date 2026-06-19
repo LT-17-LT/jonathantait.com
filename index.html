@@ -105,7 +105,26 @@
     .connect-card { min-height:420px; padding:22px; display:flex; flex-direction:column; align-items:flex-start; gap:12px; }
     .connect-card p { max-width:34ch; }
     .contact-list { display:grid; gap:10px; margin-top:auto; justify-items:start; padding-top:10px; }
-    .contact-link { width:fit-content; min-height:42px; padding:10px 14px; border-radius:999px; border:1px solid var(--line); background:rgba(255,255,255,.38); display:inline-flex; align-items:center; gap:8px; }
+    .contact-link { 
+      width:fit-content; 
+      min-height:42px; 
+      padding:10px 14px; 
+      border-radius:999px; 
+      border:1px solid var(--line); 
+      background:rgba(255,255,255,.38); 
+      display:inline-flex; 
+      align-items:center; 
+      gap:8px; 
+      cursor:pointer;
+      transition:background .15s ease, border-color .15s ease;
+    }
+    .contact-link:hover {
+      background:rgba(255,255,255,.72);
+      border-color:var(--line-strong);
+    }
+    .contact-link:active {
+      transform:translateY(1px);
+    }
     .policy-link { margin-top:0; }
     @media (max-width:1100px) {
       .hero-grid, .systems-grid, .works-grid, .footer-grid, .connect-grid, .bio-card { grid-template-columns:1fr; }
@@ -372,8 +391,8 @@
             <h3>Start a conversation</h3>
             <p>If you’d like to talk about campaign visuals, cinematic AI film, generative worldbuilding, or hybrid creative direction, get in touch directly.</p>
             <div class='contact-list'>
-              <a class='contact-link' href='mailto:tait@jonathantait.com'>tait@jonathantait.com</a>
-              <a class='contact-link' href='tel:+491****7355'>+49 151 6846 7355</a>
+              <a class='contact-link' href='mailto:tait@jonathantait.com?subject=Project%20enquiry'>tait@jonathantait.com</a>
+              <a class='contact-link' href='tel:+49 151 6846 7355'>+49 151 6846 7355</a>
             </div>
             <a class='ghost-link policy-link' href='info/privacy-policy.html'>Privacy policy</a>
           </article>
