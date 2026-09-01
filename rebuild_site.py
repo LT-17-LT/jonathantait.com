@@ -1052,7 +1052,7 @@ project_css = """
     .pui{position:static;color:var(--ink);text-shadow:none}
     .ptop{position:absolute;top:var(--pad);left:var(--pad);right:var(--pad);
       color:#fff;text-shadow:0 1px 20px rgba(0,0,0,.55);z-index:3}
-    .pcred{position:static;padding:3.5vh 0 0;grid-template-columns:1fr;gap:1.1em}
+    .pcred{position:static;padding:3.5vh var(--pad) 0;grid-template-columns:1fr;gap:1.1em}
     /* No grid on a phone. Grid placement is what allowed the copy and the
        media to share a cell; plain block flow cannot overlap, and the media
        sits above its text in DOM order. */
