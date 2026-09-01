@@ -25,6 +25,12 @@
     margin:0; background:var(--bg); color:var(--ink);
     font-family:var(--sans); font-weight:400;
     overflow:hidden; overscroll-behavior:none;
+    /* The reel navigates from pointer events and never scrolls. With the
+       default touch-action the browser claims a vertical swipe as a scroll,
+       fires pointercancel, and the drag never reaches pointerup - so on a
+       phone the reel was stuck on project one. pinch-zoom (rather than none)
+       keeps two-finger zoom available. */
+    touch-action:pinch-zoom;
     -webkit-font-smoothing:antialiased;
   }
   a{color:inherit; text-decoration:none}
@@ -328,7 +334,7 @@
     addEventListener('keydown', (e) => { if (e.key === 'Escape') setOpen(false); });
   }
 
-  let downX = 0, downY = 0, dragging = false, moved = 0;
+  let downX = 0, downY = 0, dragging = false, moved = 0, swipeDone = false;
   addEventListener('pointerdown', (e) => {
     dragging = true; downX = e.clientX; downY = e.clientY; moved = 0;
   });
@@ -340,7 +346,7 @@
     if (!dragging) return;
     dragging = false;
     const d = downY - e.clientY;
-    if (Math.abs(d) > 40) { guard(d > 0 ? 1 : -1); return; }
+    if (Math.abs(d) > 40) { swipeDone = true; guard(d > 0 ? 1 : -1); return; }
     // A pointer that barely moved is a click, not a drag: the whole frame opens
     // the current project. The distance test is what keeps a drag-to-advance
     // from also navigating, and closest() stops it stealing taps meant for the
@@ -348,9 +354,23 @@
     // guard the target: a pointerup on window can carry a non-Element target,
     // and an exception here would kill the handler silently
     const el = e.target instanceof Element ? e.target : null;
-    if (moved < 6 && !(el && el.closest('a, button, .nav'))) location.href = META[cur].href;
+    if (moved < 6 && !(el && el.closest('a, button, .nav'))) { swipeDone = true; location.href = META[cur].href; }
   });
   addEventListener('pointercancel', () => { dragging = false; });
+
+  // Belt and braces: if the pointer stream is cancelled mid-swipe the block
+  // above never completes, so read the raw touch instead. swipeDone stops the
+  // two paths both firing for one gesture.
+  let touchY = 0;
+  addEventListener('touchstart', (e) => {
+    touchY = e.touches[0].clientY; swipeDone = false;
+  }, { passive: true });
+  addEventListener('touchend', (e) => {
+    if (swipeDone) return;
+    const end = e.changedTouches[0] ? e.changedTouches[0].clientY : touchY;
+    const d = touchY - end;
+    if (Math.abs(d) > 40) { dragging = false; guard(d > 0 ? 1 : -1); }
+  }, { passive: true });
 
   // cursor parallax on the film only, the chrome stays locked to the grid
   const px = document.getElementById('px');
