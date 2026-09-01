@@ -1,7 +1,12 @@
-research/
+# Kept in the repository for history, but never served publicly.
+# prototype/ holds the unreleased split landing page.
+prototype/
 versions/
+research/
+legacy/
+.claude/
+
+# Build tooling and working notes are not part of the site.
 *.py
-*.md
-__pycache__/
-.vscode/
-.git/
+ASSETS.txt
+WIX-TO-PULL.txt

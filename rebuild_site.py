@@ -1,7 +1,19 @@
-from pathlib import Path
-import hashlib, html, json, re, subprocess, urllib.request
+# jonathantait.com, static site generator
+#
+# All content lives in projects.json. Edit that file, then run:
+#     python rebuild_site.py
+#
+# To add a project to Selected Works: copy any entry in the "projects" array
+# of projects.json, change the fields (title, slug, tag, summary, media,
+# thumb, gallery, *_text), and rebuild. Array order = order on the homepage.
+# The entry with slug "bio" is special: it renders the bio page and the Bio
+# section, and never appears in Selected Works.
 
-root = Path(r'C:\Users\iam\jonathantait-cinematic-site')
+from pathlib import Path
+import datetime, hashlib, html, json, re, subprocess
+from itertools import zip_longest
+
+root = Path(__file__).resolve().parent
 projects_dir = root / 'projects'
 projects_dir.mkdir(exist_ok=True)
 thumbs_dir = root / 'generated-gallery-thumbs'
@@ -9,35 +21,36 @@ thumbs_dir.mkdir(exist_ok=True)
 info_dir = root / 'info'
 info_dir.mkdir(exist_ok=True)
 
-IMG_RE = re.compile(r'https://static\.wixstatic\.com/media/[^"\'\s<>]+?\.(?:jpg|jpeg|png|webp)', re.I)
-VIDEO_RE = re.compile(r'https://video\.wixstatic\.com/video/[^"\'\s<>]+?/file\.mp4', re.I)
-YOUTUBE_RE = re.compile(r'https://www\.youtube\.com/embed/[^"\'\s<>?]+', re.I)
+data = json.loads((root / 'projects.json').read_text(encoding='utf-8'))
+site = data['site']
+projects = data['projects']
+visible_projects = [p for p in projects if p['slug'] != 'bio' and not p.get('hidden')]
+bio_project = next(p for p in projects if p['slug'] == 'bio')
 
-def dedupe(seq):
-    out = []
-    seen = set()
-    for item in seq:
-        if item and item not in seen:
-            seen.add(item)
-            out.append(item)
-    return out
+FONTS_HTML = """<link rel='preconnect' href='https://fonts.googleapis.com' />
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin />
+<link href='https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Inter:wght@400;500;600&display=swap' rel='stylesheet' />"""
 
-def youtube_thumb(url):
-    m = re.search(r'/embed/([^/?&#]+)', url)
-    if not m:
-        return None
-    return f"https://i.ytimg.com/vi/{m.group(1)}/hqdefault.jpg"
 
-def video_thumb(url, project_slug, idx):
+# ---------------------------------------------------------------- helpers
+
+def video_thumb(url, project_slug, idx, width=320):
+    """Grab a poster frame for a gallery video via ffmpeg (cached on disk).
+
+    Width matters for hero posters: the Wix stills are portrait crops served as
+    multi-megabyte PNGs, so stretching one across a landscape hero looked both
+    wrong and soft. A frame from the video itself is the correct aspect by
+    construction, and lands as a ~100KB jpg instead."""
+    # media may be a remote URL or a site-root path like /assets/video/x.mp4;
+    # ffmpeg needs a real filesystem path for the latter
+    src = str(root / url.lstrip('/')) if url.startswith('/') else url
     digest = hashlib.sha1(url.encode('utf-8')).hexdigest()[:12]
-    out = thumbs_dir / f"{project_slug}-{idx:02d}-{digest}.jpg"
+    suffix = '' if width == 320 else f'-w{width}'
+    out = thumbs_dir / f"{project_slug}-{idx:02d}-{digest}{suffix}.jpg"
     if out.exists() and out.stat().st_size > 0:
         return out.name
-    cmd = [
-        'ffmpeg', '-y', '-hide_banner', '-loglevel', 'error',
-        '-ss', '0.2', '-i', url,
-        '-frames:v', '1', '-vf', 'scale=320:-1', str(out)
-    ]
+    cmd = ['ffmpeg', '-y', '-hide_banner', '-loglevel', 'error',
+           '-ss', '0.2', '-i', src, '-frames:v', '1', '-vf', f'scale={width}:-1', str(out)]
     try:
         subprocess.run(cmd, check=True, timeout=120)
         if out.exists() and out.stat().st_size > 0:
@@ -47,466 +60,173 @@ def video_thumb(url, project_slug, idx):
             out.unlink(missing_ok=True)
     return None
 
-def fetch_gallery_items(project):
-    poster = project.get('thumb') or project.get('media')
-    items = []
-    try:
-        req = urllib.request.Request(project['live_url'], headers={'User-Agent': 'Mozilla/5.0'})
-        raw = urllib.request.urlopen(req, timeout=30).read().decode('utf-8', 'ignore')
-        youtube = dedupe(YOUTUBE_RE.findall(raw))
-        videos = dedupe(VIDEO_RE.findall(raw))
-        images = dedupe(IMG_RE.findall(raw))
 
-        if project.get('media_type') == 'video' and project.get('media') and project['media'] not in videos:
-            videos.insert(0, project['media'])
-        if project.get('media_type') == 'image' and project.get('media') and project['media'] not in images:
-            images.insert(0, project['media'])
-        if project.get('thumb') and project['thumb'] not in images:
-            images.insert(0, project['thumb'])
+def prepare_gallery(p):
+    items = [dict(i) for i in p.get('gallery', [])]
+    if not items:
+        items = [{'type': p.get('media_type', 'image'), 'src': p.get('media'), 'thumb': p.get('thumb')}]
+    for idx, item in enumerate(items):
+        if item.get('type') != 'video':
+            continue
+        th = item.get('thumb')
+        # A bare filename names a generated poster. If that file is gone - the
+        # clip was replaced and its poster cleared - regenerate rather than
+        # emitting a reference to something that no longer exists.
+        stale = (th and not str(th).startswith(('http://', 'https://', '/', '../', './'))
+                 and not (thumbs_dir / str(th)).exists())
+        if not th or stale:
+            item['thumb'] = video_thumb(item['src'], p['slug'], idx) or p.get('thumb')
+    return items
 
-        for idx, url in enumerate(youtube[:1]):
-            items.append({'type': 'youtube', 'src': url, 'thumb': youtube_thumb(url) or poster})
-        for idx, url in enumerate(videos[:4]):
-            items.append({'type': 'video', 'src': url, 'thumb': video_thumb(url, project['slug'], idx) or poster})
-        for url in images[:14]:
-            items.append({'type': 'image', 'src': url, 'thumb': url})
-    except Exception:
-        pass
 
-    def canonical_media_key(item):
-        src = str(item.get('src') or '').split('?', 1)[0].rstrip('/')
-        if item.get('type') == 'youtube':
-            m = re.search(r'(?:v=|youtu\.be/|embed/)([A-Za-z0-9_-]{6,})', src)
-            return ('youtube', m.group(1) if m else src)
-        tail = src.rsplit('/', 1)[-1]
-        return (item.get('type'), tail or src)
+def clip_poster(url, slug, idx):
+    """Poster for one triptych cell, pulled from that clip's own first frame."""
+    name = video_thumb(url, f'{slug}-tri', idx, width=900)
+    return f'../generated-gallery-thumbs/{name}' if name else ''
 
-    cleaned = []
-    seen = set()
-    for item in items:
-        key = canonical_media_key(item)
-        if key not in seen:
-            seen.add(key)
-            cleaned.append(item)
 
-    if not cleaned:
-        cleaned = [{
-            'type': project.get('media_type', 'image'),
-            'src': project.get('media'),
-            'thumb': poster,
-        }]
-    return cleaned
+def root_url(u):
+    """Same asset addressed from the site root. The gallery helpers emit ../
+    paths for pages inside projects/; the reel and its sub-pages sit at the
+    root, where that prefix would walk out of the site."""
+    return u[3:] if u and u.startswith('../') else u
+
+
+URL_RE = re.compile(r'(https?://[^\s<>"]+|www\.[^\s<>"]+)')
+
+
+def linkify(escaped):
+    """Turn a bare URL in already-escaped copy into a real anchor. Body text is
+    html.escape()d, so without this a url in projects.json renders as dead text."""
+    def repl(m):
+        shown = m.group(0).rstrip('.,;:')
+        tail = m.group(0)[len(shown):]
+        href = shown if shown.startswith('http') else 'https://' + shown
+        return (f"<a class='inline' href='{href}' target='_blank' "
+                f"rel='noopener noreferrer'>{shown}</a>{tail}")
+    return URL_RE.sub(repl, escaped)
+
+
+def hero_poster(p):
+    """Landscape poster for a full-bleed hero. Video projects get a real frame
+    from the clip; image projects keep their still."""
+    if p.get('media_type') == 'video':
+        name = video_thumb(p['media'], p['slug'], 0, width=1280)
+        if name:
+            return f'../generated-gallery-thumbs/{name}'
+    return thumb_url(p.get('thumb'))
+
+
+def thumb_url(thumb):
+    """Bare filenames are ffmpeg-generated posters and live in
+    generated-gallery-thumbs. Anything already carrying a scheme or a path -
+    including the site-root /assets/... paths the Wix migration produced - is
+    returned untouched."""
+    if thumb and not str(thumb).startswith(('http://', 'https://', '../', './', '/')):
+        return f'../generated-gallery-thumbs/{thumb}'
+    return thumb
+
 
 def render_gallery_stage(item, title):
     safe_title = html.escape(title)
     if item['type'] == 'youtube':
-        poster = item.get('thumb') or item.get('src')
-        if poster and not str(poster).startswith(('http://', 'https://', '../', './')):
-            poster = f'../generated-gallery-thumbs/{poster}'
+        poster = thumb_url(item.get('thumb') or item.get('src'))
         return f"<img src='{poster}' alt='{safe_title} video preview' data-gallery-preview='youtube' />"
     if item['type'] == 'video':
         return f"<video src='{item['src']}' controls controlslist='nofullscreen noremoteplayback' disablepictureinpicture playsinline preload='metadata'></video>"
     return f"<img src='{item['src']}' alt='{safe_title}' />"
 
+
 def render_gallery_thumbs(items, title):
     buttons = []
     for idx, item in enumerate(items):
-        thumb = item.get('thumb') or item.get('src')
-        if thumb and not str(thumb).startswith(('http://', 'https://', '../', './')):
-            thumb = f'../generated-gallery-thumbs/{thumb}'
+        thumb = thumb_url(item.get('thumb') or item.get('src'))
         badge = 'Video' if item['type'] == 'video' else ('Film' if item['type'] == 'youtube' else f"{idx + 1:02d}")
         active = ' active' if idx == 0 else ''
         buttons.append(
             f"<button class='gallery-thumb{active}' type='button' data-gallery-thumb='{idx}' aria-label='Show {html.escape(title)} asset {idx + 1}'>"
-            f"<img src='{thumb}' alt='{html.escape(title)} preview {idx + 1}' />"
+            f"<img src='{thumb}' alt='{html.escape(title)} preview {idx + 1}' loading='lazy' />"
             f"<span>{badge}</span>"
             f"</button>"
         )
     return ''.join(buttons)
 
+
 def render_project_notes(p):
     blocks = [
-        ('Project intent', p['copy_1']),
-        ('Production approach', p['approach_text']),
-        ('Visual language', p['portfolio_text']),
-        ('Outcome', p['next_text']),
+        ('Project intent', p.get('intent_text')),
+        ('Production approach', p.get('approach_text')),
+        ('Visual language', p.get('portfolio_text')),
+        ('Outcome', p.get('next_text')),
     ]
     return ''.join(
         f"<div class='note-item'><span class='label'>{html.escape(label)}</span><p>{html.escape(copy)}</p></div>"
         for label, copy in blocks if copy
     )
 
-hero_clip = 'https://d8j0ntlcm91z4.cloudfront.net/user_2zHxsu73kQLwzkHl7I48OV6CZAC/hf_20260423_080152_0a982790-69cc-4d27-9e32-d0ad8c279685.mp4'
 
-privacy_sections = [
-    ('Contact', 'E-Mail: iam@jonathantait.com'),
-    ('Haftung für Inhalte', 'Als Diensteanbieter bin ich gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG bin ich als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen. Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werde ich diese Inhalte umgehend entfernen.'),
-    ('Haftung für Links', 'Mein Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte ich keinen Einfluss habe. Deshalb kann ich für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich. Die verlinkten Seiten wurden zum Zeitpunkt der Verlinkung auf mögliche Rechtsverstöße überprüft. Rechtswidrige Inhalte waren zum Zeitpunkt der Verlinkung nicht erkennbar. Eine permanente inhaltliche Kontrolle der verlinkten Seiten ist jedoch ohne konkrete Anhaltspunkte einer Rechtsverletzung nicht zumutbar. Bei Bekanntwerden von Rechtsverletzungen werde ich derartige Links umgehend entfernen.'),
-    ('Urheberrecht', 'Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers. Downloads und Kopien dieser Seite sind nur für den privaten, nicht kommerziellen Gebrauch gestattet. Soweit die Inhalte auf dieser Seite nicht vom Betreiber erstellt wurden, werden die Urheberrechte Dritter beachtet. Insbesondere werden Inhalte Dritter als solche gekennzeichnet. Sollten Sie trotzdem auf eine Urheberrechtsverletzung aufmerksam werden, bitte ich um einen entsprechenden Hinweis. Bei Bekanntwerden von Rechtsverletzungen werde ich derartige Inhalte umgehend entfernen.'),
-    ('Online-Streitbeilegung', 'Gemäß Art. 14 Abs. 1 ODR-VO stellt die Europäische Kommission eine Plattform zur Online-Streitbeilegung (OS) bereit: https://ec.europa.eu/consumers/odr/'),
-]
+def wrap_words(text):
+    """Wrap each word for the staggered hero reveal."""
+    out = []
+    for i, w in enumerate(text.split()):
+        out.append(f"<span class='w'><span class='wi' style='transition-delay:{90 * i + 120}ms'>{html.escape(w)}</span></span>")
+    return ' '.join(out)
 
-projects = [
-    {
-        'title': 'The Reunion',
-        'slug': 'the-reunion',
-        'live_url': 'https://www.jonathantait.com/TheReunion',
-        'media_type': 'image',
-        'media': 'https://static.wixstatic.com/media/14555f_6cc8c0bfb28d499d962c8b310f3b1e6e~mv2.jpg/v1/fill/w_1000,h_424,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_6cc8c0bfb28d499d962c8b310f3b1e6e~mv2.jpg',
-        'thumb': 'https://static.wixstatic.com/media/14555f_95e9c9d2b11642ada02786cf6fd4c69d~mv2.jpg/v1/fill/w_1000,h_424,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_95e9c9d2b11642ada02786cf6fd4c69d~mv2.jpg',
-        'tag': 'Atmosphere / narrative',
-        'summary': 'A short cinematic study of longing, memory, and the tension of something almost remembered.',
-        'copy_1': 'This page should feel like a cinematic chapter rather than a conventional case study. The strongest interpretation of The Reunion is emotional: atmosphere, pacing, and visual restraint doing the heavy lifting before any caption explains the work.',
-        'copy_2': 'Use full-bleed stills, slower transitions, and sparse copy blocks. Let the imagery hold for longer than usual, then introduce only the essential framing: brief, role, and what kind of audience response the work was designed to create.',
-        'copy_3': 'If you want to push this page further, the best upgrade is a final narrative spine: what the piece was for, what was being communicated, and which frames best represent the emotional arc.'
-    },
-    {
-        'title': 'Jeep Apparel',
-        'slug': 'jeep-apparel',
-        'live_url': 'https://www.jonathantait.com/JeepApparel',
-        'media_type': 'video',
-        'media': 'https://video.wixstatic.com/video/14555f_ab39ac0e32bb45efb0857d421afd9454/1080p/mp4/file.mp4',
-        'thumb': 'https://static.wixstatic.com/media/14555f_e9c7ac8eac134e38a750285bd00289ba~mv2.png/v1/fill/w_1000,h_1778,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_e9c7ac8eac134e38a750285bd00289ba~mv2.png',
-        'tag': 'Commercial / apparel',
-        'summary': 'A tougher, more commercial lane built around motion, utility, and bold branded confidence.',
-        'copy_1': 'Jeep Apparel should read as rugged commercial storytelling — less atmospheric than the hero film, more immediate, tactile, and campaign-led. This is a good place for stronger impact beats and clearer product-world positioning.',
-        'copy_2': 'Use the page to emphasize grit, movement, and utilitarian edge. A sharper headline, concise project framing, and a handful of well-chosen motion excerpts would make this feel like a premium outdoor/fashion commercial rather than a generic portfolio tile.',
-        'copy_3': 'The most useful final-content upgrade here would be a one-line brief, your role on the project, and a stronger hero still or clip selection that locks in the tone within the first few seconds.'
-    },
-    {
-        'title': 'Invisi Merino',
-        'slug': 'invisi-merino',
-        'live_url': 'https://www.jonathantait.com/invisimerino',
-        'media_type': 'video',
-        'media': 'https://video.wixstatic.com/video/14555f_f238e47ab7cf44d386741c1c4f93ac3d/1080p/mp4/file.mp4',
-        'thumb': 'https://static.wixstatic.com/media/14555f_963bfabcba234d779ab28bfd335b93cc~mv2.png/v1/fill/w_1000,h_1250,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_963bfabcba234d779ab28bfd335b93cc~mv2.png',
-        'tag': 'Lifestyle / performance',
-        'summary': 'A brighter performance-fashion direction that helps the portfolio breathe after darker or more sculptural sections.',
-        'copy_1': 'Invisi Merino is useful in the overall site rhythm because it brings lightness, openness, and a more lifestyle-oriented visual tone into the portfolio. It stops the site from leaning too hard into one premium-dark mood.',
-        'copy_2': 'The ideal treatment is cleaner and more breathable: generous spacing, less visual haze, and enough image scale to let the fashion/performance angle feel effortless rather than over-explained. It can act as the brighter contrast chapter in the sequence.',
-        'copy_3': 'To finish this page properly, the main missing ingredients are your final project framing, a small set of approved hero assets, and a short explanation of what made the campaign visually distinctive.'
-    },
-    {
-        'title': 'I/B/H Mens Fashion',
-        'slug': 'ibh-mens-fashion',
-        'live_url': 'https://www.jonathantait.com/IBH-MensFashion',
-        'media_type': 'image',
-        'media': 'https://static.wixstatic.com/media/14555f_a715f604326d41a19ed685d841ac87c9~mv2.jpg/v1/fill/w_1000,h_558,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_a715f604326d41a19ed685d841ac87c9~mv2.jpg',
-        'thumb': 'https://static.wixstatic.com/media/14555f_474f2750e7f3468db9613883ad4a9929~mv2.jpg/v1/fill/w_1000,h_558,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_474f2750e7f3468db9613883ad4a9929~mv2.jpg',
-        'tag': 'Editorial / menswear',
-        'summary': 'An editorial menswear page that naturally aligns with a premium, disciplined visual system.',
-        'copy_1': 'I/B/H Mens Fashion wants a more controlled luxury posture: clean image hierarchy, restrained typography, and enough negative space for the styling and silhouette to carry authority. It should feel editorial rather than cluttered.',
-        'copy_2': 'This page is strongest when it avoids trying to explain too much. A few commanding frames, a small amount of intelligent framing text, and a clear project role block will do more than a dense wall of detail.',
-        'copy_3': 'To complete it, choose the hero fashion frames you most want associated with your name and add a short note on the visual objective of the project — campaign identity, art direction, motion styling, or concept development.'
-    },
-    {
-        'title': 'I/B/H Canned Refreshment',
-        'slug': 'ibh-canned-refreshment',
-        'live_url': 'https://www.jonathantait.com/IBH-CannedRefreshment',
-        'media_type': 'video',
-        'media': 'https://video.wixstatic.com/video/14555f_314a8a4123ea4a5fa516d3d7a34cfe63/1080p/mp4/file.mp4',
-        'thumb': 'https://static.wixstatic.com/media/14555f_118eb44b20204ea094074831340fb2eb~mv2.jpg/v1/fill/w_1000,h_747,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_118eb44b20204ea094074831340fb2eb~mv2.jpg',
-        'tag': 'Beverage / launch',
-        'summary': 'Punchier, flavor-led commercial work that can inject speed and appetite into the portfolio rhythm.',
-        'copy_1': 'I/B/H Canned Refreshment is the kind of page that should feel immediate and energetic. It offers a stronger consumer-commercial cadence than the hero film and is useful for showing that your visual systems can sell as well as seduce.',
-        'copy_2': 'Let the page lean into motion, packaging, and appetite appeal. Stronger contrast, cleaner product framing, and short bursts of copy will make it feel more like a launch-world campaign than a generic content dump.',
-        'copy_3': 'The best final upgrade here would be a concise statement of the campaign’s goal, the product attitude, and which assets were intended to do the primary conversion or awareness work.'
-    },
-    {
-        'title': 'I/B/H Frozen Yoghurt',
-        'slug': 'ibh-frozen-yoghurt',
-        'live_url': 'https://www.jonathantait.com/IBH-FrozenYoghurt',
-        'media_type': 'video',
-        'media': 'https://video.wixstatic.com/video/14555f_c4e6650c8a2c4a70a9ae27861c9c9f87/1080p/mp4/file.mp4',
-        'thumb': 'https://static.wixstatic.com/media/14555f_95f8bea9fb954665b0e74c86b795ecbb~mv2.png/v1/fill/w_1000,h_747,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_95f8bea9fb954665b0e74c86b795ecbb~mv2.png',
-        'tag': 'Food / playful brand',
-        'summary': 'A lighter, more playful consumer-facing page with brighter energy and a softer emotional tone.',
-        'copy_1': 'I/B/H Frozen Yoghurt is valuable because it broadens the emotional range of the portfolio. It introduces warmth, accessibility, and a more playful food-commercial energy without needing to abandon polish.',
-        'copy_2': 'This page should feel brighter and a touch more playful than the others while still maintaining the site’s compositional discipline. It is a good place for appetite-led imagery, bouncy pacing, and a cleaner, friendlier kind of persuasion.',
-        'copy_3': 'If you want this page to land harder, the next step is a short note on the brand tone and a tighter selection of imagery that shows exactly how the visual identity was being made to feel.'
-    },
-    {
-        'title': 'Carrol Boyes',
-        'slug': 'carrol-boyes',
-        'live_url': 'https://www.jonathantait.com/CarrolBoyes',
-        'media_type': 'image',
-        'media': 'https://static.wixstatic.com/media/14555f_7200187af99a4ad58f506a88ecdc3a32~mv2.png/v1/fill/w_1000,h_1500,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_7200187af99a4ad58f506a88ecdc3a32~mv2.png',
-        'thumb': 'https://static.wixstatic.com/media/14555f_87071ee760ea49bb8d6ecc015b11ad06~mv2.png/v1/fill/w_1000,h_667,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_87071ee760ea49bb8d6ecc015b11ad06~mv2.png',
-        'tag': 'Object / premium product',
-        'summary': 'A polished product-storytelling direction that can ground the more abstract parts of the portfolio in material clarity.',
-        'copy_1': 'Carrol Boyes should feel composed, object-led, and premium. It is a useful counterweight to the more abstract identity work because it shows how cinematic discipline can still serve product clarity and tangible form.',
-        'copy_2': 'Use the page to emphasize material, silhouette, detail, and still-life confidence. Cleaner composition and tighter copy will make the project feel elevated without becoming cold or over-designed.',
-        'copy_3': 'The next level for this page would be a clearer articulation of the product world: what was being sold, how the imagery was meant to position it, and which frames best express that premium object language.'
-    },
-    {
-        'title': 'Swing Path Pro',
-        'slug': 'swing-path-pro',
-        'live_url': 'https://www.jonathantait.com/SwingPathPro',
-        'media_type': 'image',
-        'media': 'https://static.wixstatic.com/media/14555f_201fe8a3772b4d4ea2e6b9c1803efd7c~mv2.jpg/v1/fill/w_1000,h_753,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_201fe8a3772b4d4ea2e6b9c1803efd7c~mv2.jpg',
-        'thumb': 'https://static.wixstatic.com/media/14555f_a332f37bddfc430aba6e13529563c5ff~mv2.jpg/v1/fill/w_1000,h_500,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_a332f37bddfc430aba6e13529563c5ff~mv2.jpg',
-        'tag': 'Sports tech / product',
-        'summary': 'A sports-tech page with a stronger product-utility angle and more clearly functional storytelling.',
-        'copy_1': 'Swing Path Pro can bring a more product-logic-driven tone into the portfolio. That matters because it shows your visual thinking is not limited to mood or fashion — it can also serve instruction, performance, and user understanding.',
-        'copy_2': 'Treat this page with more clarity and less mystique. It should feel sharp, useful, and intentional, with graphics or image sequences that support the product story rather than competing with it.',
-        'copy_3': 'To complete the page, add the core value proposition of the product, the part of the visual system you shaped, and the assets that best communicate capability at a glance.'
-    },
-    {
-        'title': 'Dividuum',
-        'slug': 'dividuum',
-        'live_url': 'https://www.jonathantait.com/Dividuum',
-        'media_type': 'image',
-        'media': 'https://static.wixstatic.com/media/14555f_11502d0fedfe49cfbb111a1e76defa4c~mv2.jpg/v1/fill/w_1000,h_500,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_11502d0fedfe49cfbb111a1e76defa4c~mv2.jpg',
-        'thumb': 'https://static.wixstatic.com/media/14555f_1b9e337b70014d1cbe38077dda276b59~mv2.jpg/v1/fill/w_1000,h_500,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_1b9e337b70014d1cbe38077dda276b59~mv2.jpg',
-        'tag': 'Concept / digital world',
-        'summary': 'A more conceptual or digital-first lane that supports the generative and experimental edge of the portfolio.',
-        'copy_1': 'Dividuum feels like the place to let the more conceptual side of the portfolio breathe. It supports the generative, worldbuilding, and systems-thinking angle of your positioning in a way that is less bound to traditional campaign formats.',
-        'copy_2': 'This page can tolerate a little more abstraction, but it still benefits from clean hierarchy. The goal should be to make the work feel deliberate and authored rather than mysterious for its own sake.',
-        'copy_3': 'The best final refinement would be a clearer explanation of the concept — what kind of visual or narrative world the project was building, and how your approach shaped that identity.'
-    },
-    {
-        'title': 'Bio',
-        'slug': 'bio',
-        'live_url': 'https://www.jonathantait.com/bio',
-        'media_type': 'image',
-        'media': 'https://static.wixstatic.com/media/14555f_9c35a7f7ff24452e897540d1090e201e~mv2.png/v1/fill/w_1000,h_1000,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_9c35a7f7ff24452e897540d1090e201e~mv2.png',
-        'thumb': 'https://static.wixstatic.com/media/14555f_9c35a7f7ff24452e897540d1090e201e~mv2.png/v1/fill/w_1000,h_1000,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_9c35a7f7ff24452e897540d1090e201e~mv2.png',
-        'tag': 'Profile / positioning',
-        'summary': 'A profile page that should close the portfolio loop with a concise personal positioning statement and contact path.',
-        'copy_1': 'The bio page should feel like the calm endpoint after the more visual sections of the site: concise, self-assured, and clear about how you position yourself. It should anchor the portfolio rather than over-explain it.',
-        'copy_2': 'Keep the structure simple: short biography, creative/technical positioning, selected categories or clients, and a clean invitation to connect. It should read more like an authored profile than a résumé dump.',
-        'copy_3': 'When you are ready, the final version of this page just needs your actual biography, preferred contact route, and the exact framing you want future clients or collaborators to remember.'
-    },
-]
 
-for p in projects:
-    p['overview_text'] = p['summary']
-    p['hero_text'] = p['summary']
-    p['role_text'] = 'To be refined from your exact contribution.'
-    p['brief_text'] = 'To be refined from the original client or project objective.'
-    p['outcome_text'] = 'To be refined from the final result, launch, or audience response.'
-    p['approach_text'] = p['copy_2']
-    p['portfolio_text'] = p['summary']
-    p['next_text'] = p['copy_3']
-
-content_overrides = {
-    'the-reunion': {
-        'summary': 'A short cinematic study of longing, memory, and the tension of something almost remembered.',
-        'hero_text': 'Built from a simple voiceover and allowed to unfold through image-making, the piece moves like a memory rather than a fixed storyboard.',
-        'overview_text': 'The project began with a voiceover about longing, memory, and the feeling of searching for something just beyond reach. From there, the film was shaped as an emotional sequence first and a narrative explanation second.',
-        'role_text': 'Concept development, visual worldbuilding, image generation, and sequence construction for an experimental short.',
-        'brief_text': 'Create a quiet cinematic piece that could hold emotional tension without over-explaining itself, allowing atmosphere and pacing to carry the meaning.',
-        'outcome_text': 'A restrained short film where the final emotional arc emerges through accumulation, ending in a reunion that feels more psychological than literal.',
-        'copy_1': 'In this project, the aim was to build a cinematic piece where atmosphere, pacing, and restraint could carry the emotional weight before any explanation arrived.',
-        'approach_text': 'The project began with a voiceover that established tone and emotional direction. From there, still images were developed in MidJourney and gradually extended into a sequence, with new scenes introduced to bridge transitions and let the narrative reveal itself over time.',
-        'portfolio_text': 'In this project, the visual language leans into atmosphere, tonal restraint, and slow emotional pacing. The imagery is allowed to breathe, giving the piece a sense of authorship that sits apart from more overtly campaign-led work.',
-        'next_text': 'The result is a short film built through a hybrid workflow spanning MidJourney, NanoBanana, ComfyUI, and DaVinci Resolve, where exploration remained part of the method rather than something hidden behind the finish.'
-    },
-    'jeep-apparel': {
-        'summary': 'Campaign-led visual development for Jeep Apparel South Africa, built around grit, utility, and outdoor brand energy.',
-        'hero_text': 'The work combines client-supplied product photography with AI-built environments and digital human models to create campaign-ready stills and motion.',
-        'overview_text': 'This project is less about pure atmosphere and more about brand-world construction: building imagery that feels rugged, immediate, and aligned with Jeep Apparel’s outdoor identity.',
-        'role_text': 'Visual development, environment direction, compositing logic, and campaign image generation for an ongoing branded content system.',
-        'brief_text': 'Create campaign-ready imagery and short-form motion that extends Jeep Apparel into a larger, more cinematic outdoor lifestyle world.',
-        'outcome_text': 'An adaptable production approach for stills and motion that can iterate quickly while keeping the tone cohesive across environments, models, and product framing.',
-        'copy_1': 'In this project, the aim was to build a tougher, more commercially direct campaign language around grit, utility, and outdoor brand energy.',
-        'approach_text': 'Garments are photographed by the client first, then carried into digitally constructed scenes where virtual talent, atmosphere, and location design are shaped around the campaign tone. The environments move between outdoor landscape language and tighter editorial interiors depending on the visual objective.',
-        'portfolio_text': 'In this project, we connected cinematic taste with practical brand execution. Product, styling, motion, and mood are all shaped to feel campaign-ready while still holding onto an authored visual identity.',
-        'next_text': 'The result is a flexible stills-and-motion workflow built with MidJourney, generative editing tools, and DaVinci Resolve, making it possible to test multiple campaign directions without the weight of a conventional location-heavy shoot.'
-    },
-    'invisi-merino': {
-        'summary': 'A Mother’s Day campaign for Invisi Merino built through a compressed AI-assisted production workflow.',
-        'hero_text': 'What would normally require a far slower commercial pipeline was developed here into campaign-ready stills and motion over roughly twenty-five hours.',
-        'overview_text': 'The project explored how a soft, grounded campaign world could be developed quickly without sacrificing cohesion, using generative workflows to accelerate location testing, casting logic, and atmosphere design.',
-        'role_text': 'Campaign worldbuilding, character selection, environment development, visual refinement, and motion-led creative direction.',
-        'brief_text': 'Develop a Mother’s Day campaign that feels warm, editorial, and emotionally grounded while testing how AI-assisted production can compress the timeline of a traditional commercial shoot.',
-        'outcome_text': 'Thirty final images and three twenty-second cinematic videos delivered through a fast, iterative pipeline.',
-        'copy_1': 'In this project, the aim was to build a softer and more open campaign world that could hold warmth, lightness, and emotional clarity without losing visual discipline.',
-        'approach_text': 'The campaign was built by first establishing tone, then refining digital characters, environments, and locations until the work aligned with the brand’s soft and grounded identity. Generative tools made it possible to test alternate worlds and styling directions quickly, without the usual bottlenecks of physical scouting and pre-production.',
-        'portfolio_text': 'In this project, the visual language balances softness and polish with production efficiency. Rapid iteration was used to refine tone, unify the imagery, and open up more viable campaign directions rather than flattening the brand into sameness.',
-        'next_text': 'The result is a campaign set of editorial stills and cinematic motion pieces, where AI generation and post-production are used to keep the work visually coherent while staying flexible during development.'
-    },
-    'ibh-mens-fashion': {
-        'summary': 'A self-initiated menswear concept from the INSERT BRAND HERE sandbox, built with the posture of a real commercial brief.',
-        'hero_text': 'This series is where fashion image-making, casting logic, environment design, and campaign structure are tested without waiting for a client brief to authorise the experiment.',
-        'overview_text': 'INSERT BRAND HERE functions as a live laboratory for fully digital campaign building. The work is treated seriously, following the same arc a commercial job would: concept, iteration, image-world building, refinement, and final stills or motion.',
-        'role_text': 'Concept creation, visual direction, casting logic, environment design, and finishing across a self-initiated menswear campaign study.',
-        'brief_text': 'Build a fully digital menswear campaign world that feels premium, authored, and commercially plausible.',
-        'outcome_text': 'A disciplined editorial-fashion study that expands the portfolio’s luxury and silhouette-led range while remaining part of an ongoing experimental series.',
-        'copy_1': 'In this project, the aim was to build a menswear campaign world that feels controlled, premium, and commercially believable inside the INSERT BRAND HERE sandbox.',
-        'approach_text': 'Each INSERT BRAND HERE piece follows a recognisable commercial structure: develop a concept, explore model and location types, build digital characters and environments, place product, refine the visual language, and resolve the work into stills and short cinematic sequences.',
-        'portfolio_text': 'In this project, the visual language leans on editorial restraint, silhouette, and image hierarchy rather than over-explanation. The emphasis stays on fashion authority, luxury posture, and controlled composition.',
-        'next_text': 'The result is a self-initiated fashion study that treats experimentation as part of the authored practice, not as material that only becomes valid once attached to a client brief.'
-    },
-    'ibh-canned-refreshment': {
-        'summary': 'A consumer-facing launch concept from the INSERT BRAND HERE series, shaped around speed, appetite, and punchier brand energy.',
-        'hero_text': 'This is the more immediate, product-led side of the sandbox: a space to test how generative workflows can drive packaging-first campaign imagery with stronger consumer-commercial cadence.',
-        'overview_text': 'Although it sits inside the same INSERT BRAND HERE framework, this project pushes toward launch-world commercial energy: faster reads, clearer appetite appeal, and more direct persuasion.',
-        'role_text': 'Concept creation, pack-world visual direction, digital environment development, and campaign image exploration within a self-initiated test series.',
-        'brief_text': 'Build a beverage campaign concept that feels sharp, flavour-led, and commercially legible at first glance.',
-        'outcome_text': 'A more energetic consumer-commercial chapter that broadens the portfolio beyond fashion and atmosphere into packaging and launch logic.',
-        'copy_1': 'In this project, the aim was to build a faster, more product-led campaign language around flavour, packaging, and immediate commercial energy.',
-        'approach_text': 'Like the rest of the sandbox, the work follows a commercial progression from concept to iterations, model and location testing, environment building, product placement, and final still or motion execution. Here, that process is biased toward speed, contrast, and product-first readability.',
-        'portfolio_text': 'In this project, the visual language moves toward appetite appeal, product clarity, and launch-world pace. The work stays polished, but it is shaped to read faster and feel more immediately consumer-facing.',
-        'next_text': 'The result is a beverage concept that extends the INSERT BRAND HERE series into a sharper launch-oriented space, using the visible product cues and pacing of the work itself to define the project more specifically.'
-    },
-    'ibh-frozen-yoghurt': {
-        'summary': 'A lighter, more playful INSERT BRAND HERE concept built around warmth, appetite, and consumer-friendly tone.',
-        'hero_text': 'Where some of the portfolio leans sculptural or moody, this page opens the emotional range with something brighter, friendlier, and more overtly accessible.',
-        'overview_text': 'Frozen Yoghurt pushes the INSERT BRAND HERE sandbox toward softness and approachability, giving the portfolio a food-led chapter that still feels visually composed.',
-        'role_text': 'Concept creation, brand-world visual direction, environment development, and campaign image exploration within a self-initiated series.',
-        'brief_text': 'Develop a playful food-commercial concept that feels polished, appetite-led, and emotionally open rather than overly stylised.',
-        'outcome_text': 'A warmer, more inviting commercial study that broadens the portfolio’s tone without sacrificing compositional control.',
-        'copy_1': 'In this project, the aim was to build a warmer, more playful food-commercial world without losing the compositional control of the wider portfolio.',
-        'approach_text': 'The same underlying INSERT BRAND HERE framework is used here—concept, iteration, worldbuilding, product integration, and finishing—but the execution leans toward brightness, softness, and a more playful persuasive rhythm.',
-        'portfolio_text': 'In this project, the visual language is built around brightness, softness, and a more inviting persuasive rhythm. The polish comes through charm, clarity, and appetite-led imagery rather than severity.',
-        'next_text': 'The result is a lighter commercial chapter within the INSERT BRAND HERE series, framed here through the specific tone, colour, and appetite cues visible in the work itself.'
-    },
-    'carrol-boyes': {
-        'summary': 'A premium object-led campaign world built around sculptural tableware, ritual, and digitally extended product storytelling.',
-        'hero_text': 'Real product photography became the anchor for a larger hybrid AI workflow, extending the objects into atmospheres that still remained recognisably Carrol Boyes.',
-        'overview_text': 'This project begins with tangible product truth and then carefully expands outward, using digital construction to create still-life scenes that feel atmospheric without losing object integrity.',
-        'role_text': 'Visual development, environment extension, product-world direction, and image refinement around real studio-shot product assets.',
-        'brief_text': 'Create a premium visual world for sculptural tableware that balances realism, atmosphere, and recognisable brand character.',
-        'outcome_text': 'More than one hundred images and a supporting video set created through a hybrid production approach rooted in real product photography.',
-        'copy_1': 'In this project, the aim was to build a premium object-led visual world where product truth and atmosphere could exist together without competing.',
-        'approach_text': 'Each frame began with studio-shot product photography, which was then extended into digitally built environments through a hybrid AI workflow. The emphasis stayed on material, silhouette, and ritual—allowing the objects to remain central even as the atmosphere around them grew more stylised.',
-        'portfolio_text': 'In this project, the visual language stays close to material, silhouette, and finish. The work remains atmospheric, but it is shaped to respect recognisable form and the brand fidelity of the physical object.',
-        'next_text': 'The result is a hybrid product story where digital extension never abandons the discipline of the physical object, allowing atmosphere to build without losing accuracy.'
-    },
-    'swing-path-pro': {
-        'summary': 'Ongoing visual development for a golf training product, built around clarity, movement, and product understanding.',
-        'hero_text': 'This page shifts away from mystique and toward usefulness, showing how the same image-making discipline can support a more functional product story.',
-        'overview_text': 'Swing Path Pro is about building a visual language for a training device without losing the sense of polish or authored composition present elsewhere in the site.',
-        'role_text': 'Product visual development, motion testing, supporting image generation, and ongoing system refinement.',
-        'brief_text': 'Create a growing image and motion library that explains the product clearly while staying aligned with the evolving quality of contemporary generative tools.',
-        'outcome_text': 'An expanding product-world asset set that helps communicate movement, positioning, and capability with more clarity than a pure mood-led treatment would allow.',
-        'copy_1': 'In this project, the aim was to build a clearer and more functional product language that could communicate movement, positioning, and utility without losing visual polish.',
-        'approach_text': 'The product is animated in Blender to explore movement and positional logic, while supporting imagery is developed through tools such as MidJourney and Nano Banana Pro. The direction has remained intentionally measured, allowing the image system to improve alongside the underlying model quality.',
-        'portfolio_text': 'In this project, the visual language is shaped around clarity, product understanding, and performance storytelling. The work stays considered and composed, but it is designed to support comprehension rather than mystique.',
-        'next_text': 'The result is an evolving image and motion library that can mature with the product itself, using restraint and consistency rather than novelty for novelty’s sake.'
-    },
-    'dividuum': {
-        'summary': 'A generative music video built with German composer Benjamin Richter, where the visual world evolved alongside the tools themselves.',
-        'hero_text': 'Because the project began before the current wave of image-editing models matured, the work had to evolve in dialogue with the technology rather than simply through a fixed pre-planned pipeline.',
-        'overview_text': 'Dividuum sits closest to worldbuilding: a project where mood, character, sequence, and visual identity emerged gradually through experimentation and revision.',
-        'role_text': 'Visual concept development, sequence-building, image generation, and editorial refinement for a music-video collaboration.',
-        'brief_text': 'Create a visual world for Benjamin Richter’s track that could adapt as the available tools improved, without losing coherence or authorship.',
-        'outcome_text': 'A music video shaped through iterative rebuilding, where improved character consistency and image-editing capability directly influenced the final sequences.',
-        'copy_1': 'In this project, the aim was to build a fully felt digital world for a music-video collaboration, allowing concept, sequence, and atmosphere to evolve together.',
-        'approach_text': 'The piece was built through a hybrid workflow combining MidJourney, NanoBanana, ComfyUI, and DaVinci Resolve. As better editing and consistency became possible, earlier sequences were revisited, rebuilt, and folded back into the final structure.',
-        'portfolio_text': 'In this project, the visual language is built through sequence logic as much as single frames. Character, mood, and continuity are developed across the piece so the world feels sustained rather than assembled from isolated images.',
-        'next_text': 'The result is a music video shaped through repeated experimentation and rebuilding, where the evolving capabilities of the tools became part of the project’s final structure rather than an invisible background condition.'
-    },
-    'bio': {
-        'summary': 'From moving image and post-production into generative systems and physical making, Jonathan Tait’s practice is centred on building images that feel grounded, atmospheric, and believable.',
-        'hero_text': 'His work spans cinematic direction, AI-assisted campaign production, and synthetic worldbuilding, using tools such as ComfyUI, Unreal Engine, Blender, and generative image systems. That digital process is balanced by hands-on experimentation in painting, sculpting, folded paper, and poured resin.',
-        'overview_text': 'Across both, the focus stays the same: careful attention to light, composition, mood, and material truth.',
-
-        'brief_text': '',
-        'outcome_text': '',
-        'copy_1': 'In this project, the aim was to frame the practice as one continuous enquiry into image-making, atmosphere, and perception rather than as a résumé-style list of tools or roles.',
-        'approach_text': 'Generative workflows now sit at the centre of the practice, using tools such as ComfyUI, Unreal Engine, Blender, and cloud-based models to create work that feels plausible, tactile, and grounded rather than overtly synthetic. The digital process is balanced by physical making that keeps the eye trained on how materials, light, and surface behave in the real world.',
-        'portfolio_text': 'In this project, the visual language is quieter and more reflective, bringing the portfolio’s different chapters back into one authored practice shaped by perception, atmosphere, and material awareness.',
-        'next_text': 'The result is a profile page that closes the loop between moving image, generative systems, and physical making, holding them together through a consistent attention to light, surface, and felt reality.'
-    }
-}
-
-for p in projects:
-    p.update(content_overrides.get(p['slug'], {}))
-    p['gallery_items'] = fetch_gallery_items(p)
-
-hero_media = [
-    {'type': 'video', 'src': 'https://video.wixstatic.com/video/14555f_ab39ac0e32bb45efb0857d421afd9454/1080p/mp4/file.mp4'},
-    {'type': 'video', 'src': 'https://video.wixstatic.com/video/14555f_f238e47ab7cf44d386741c1c4f93ac3d/1080p/mp4/file.mp4'},
-    {'type': 'video', 'src': 'https://video.wixstatic.com/video/14555f_314a8a4123ea4a5fa516d3d7a34cfe63/1080p/mp4/file.mp4'},
-    {'type': 'video', 'src': 'https://video.wixstatic.com/video/14555f_c4e6650c8a2c4a70a9ae27861c9c9f87/1080p/mp4/file.mp4'},
-    {'type': 'image', 'src': 'https://static.wixstatic.com/media/14555f_a715f604326d41a19ed685d841ac87c9~mv2.jpg/v1/fill/w_1000,h_558,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_a715f604326d41a19ed685d841ac87c9~mv2.jpg'},
-    {'type': 'image', 'src': 'https://static.wixstatic.com/media/14555f_7200187af99a4ad58f506a88ecdc3a32~mv2.png/v1/fill/w_1000,h_1500,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_7200187af99a4ad58f506a88ecdc3a32~mv2.png'},
-]
-
-bars_html = []
-visible_projects = projects[:-1]
-for i, p in enumerate(visible_projects):
-    thumb_style = f"background-image:url('{p['thumb']}');"
-    bars_html.append(f"""
-      <a class='project-bar' href='projects/{p['slug']}.html' data-title='{html.escape(p['title'])}' data-copy='{html.escape(p['summary'])}' data-tag='{html.escape(p['tag'])}'>
-        <span class='bar-thumb' style=\"{thumb_style}\"></span>
-        <span class='bar-text'>
-          <span class='bar-topline'>{html.escape(p['tag'])}</span>
-          <strong>{html.escape(p['title'])}</strong>
-          <span>{html.escape(p['summary'])}</span>
-        </span>
-        <span class='bar-arrow'>Open</span>
-      </a>
-    """)
-    if i < len(visible_projects) - 1:
-        bars_html.append("""
-      <div class='project-bar spacer-bar' aria-hidden='true'></div>
-    """)
-
-cards_html = []
-for p in projects[:-1]:
-    cards_html.append(f"""
-      <a class='work-card' href='projects/{p['slug']}.html' aria-label='Open {html.escape(p['title'])}'>
-        <div class='work-thumb' style="background-image:url('{p['thumb']}')"></div>
-        <div class='work-copy'>
-          <div class='kicker'>{html.escape(p['tag'])}</div>
-          <h3>{html.escape(p['title'])}</h3>
-          <p>{html.escape(p['summary'])}</p>
-        </div>
-      </a>
-    """)
-
-bio_project = projects[-1]
-connect_html = f"""
-    <section id='connect'>
-      <div class='shell'>
-        <div class='section-head'>
-          <div class='eyebrow'>Bio / connect</div>
-          <h2>Bio</h2>
-        </div>
-        <div class='connect-grid'>
-          <article class='panel bio-card'>
-            <div class='bio-media' style=\"background-image:url('{bio_project['thumb']}')\"></div>
-            <div class='bio-copy'>
-              <div class='kicker'>{html.escape(bio_project['tag'])}</div>
-              <h3>{html.escape(bio_project['title'])}</h3>
-              <p>{html.escape(bio_project['summary'])}</p>
-              <p>The work moves between cinematic image-making, generative workflows, and tactile experimentation while staying anchored to light, composition, and authored feeling.</p>
-              <a class='ghost-link' href='projects/bio.html'>Open full bio page</a>
-            </div>
-          </article>
-          <article class='panel connect-card'>
-            <div class='kicker'>Connect</div>
-            <h3>Start a conversation</h3>
-            <p>If you’d like to talk about campaign visuals, cinematic AI film, generative worldbuilding, or hybrid creative direction, get in touch directly.</p>
-            <div class='contact-list'>
-              <a class='contact-link' href='mailto:tait@jonathantait.com'>tait@jonathantait.com</a>
-              <a class='contact-link' href='tel:+491****7355'>+49 151 6846 7355</a>
-            </div>
-            <a class='ghost-link policy-link' href='info/privacy-policy.html'>Privacy policy</a>
-          </article>
-        </div>
-      </div>
-    </section>
-"""
+# ---------------------------------------------------------------- homepage
 
 hero_media_html = []
-for i, m in enumerate(hero_media):
+for i, m in enumerate(site['hero_media']):
     cls = 'hero-media-item active' if i == 0 else 'hero-media-item'
     if m['type'] == 'video':
         hero_media_html.append(f"<video class='{cls}' data-hero-item muted autoplay loop playsinline preload='metadata'><source src='{m['src']}' type='video/mp4' /></video>")
     else:
         hero_media_html.append(f"<div class='{cls}' data-hero-item style=\"background-image:url('{m['src']}')\"></div>")
 
+marquee_inner = ''.join(
+    f"<span class='mq-item'>{html.escape(t)}</span><span class='mq-dot' aria-hidden='true'></span>"
+    for t in site['marquee']
+)
+marquee_html = f"<div class='mq-track'>{marquee_inner}{marquee_inner}</div>"
+
+services_html = []
+n_services = len(site['services'])
+for i, s in enumerate(site['services']):
+    active = ' active' if i == 0 else ''
+    services_html.append(f"""
+              <div class='service-slide{active}' data-service-slide>
+                <div class='overlay-kicker'>Services {i + 1:02d} / {n_services:02d}</div>
+                <h3 class='overlay-title'>{html.escape(s['title'])}</h3>
+                <p class='overlay-copy'>{html.escape(s['copy'])}</p>
+              </div>""")
+
+works_html = []
+for i, p in enumerate(visible_projects):
+    works_html.append(f"""
+          <a class='work-row reveal' href='projects/{p['slug']}.html' aria-label='Open {html.escape(p['title'])}' data-preview="{html.escape(p['thumb'], quote=True)}">
+            <span class='work-num'>{i + 1:02d}</span>
+            <span class='work-thumb'><span style="background-image:url('{p['thumb']}')"></span></span>
+            <span class='work-copy'>
+              <span class='kicker'>{html.escape(p['tag'])}</span>
+              <span class='work-title'>{html.escape(p['title'])}</span>
+              <span class='work-summary'>{html.escape(p['summary'])}</span>
+            </span>
+            <span class='work-arrow' aria-hidden='true'>&#8599;</span>
+          </a>""")
+
 index_html = """<!DOCTYPE html>
 <html lang='en'>
 <head>
   <meta charset='UTF-8' />
   <meta name='viewport' content='width=device-width, initial-scale=1.0' />
-  <title>Jonathan Tait — Generative AI Creative Technologist</title>
-  <meta name='description' content='Portfolio site for Jonathan Tait — cinematic direction, AI-assisted campaign production, generative worldbuilding, and selected work.' />
+  <title>__TITLE__</title>
+  <meta name='description' content='__DESC__' />
+  <meta property='og:type' content='website' />
+  <meta property='og:title' content='__TITLE__' />
+  <meta property='og:description' content='__DESC__' />
+  <meta property='og:image' content='__POSTER__' />
+  <meta name='twitter:card' content='summary_large_image' />
+  __FONTS__
   <style>
     :root {
       --egg:#f3efe6;
@@ -521,25 +241,15 @@ index_html = """<!DOCTYPE html>
       --shadow:0 24px 72px rgba(68,48,28,.12);
       --radius:28px;
       --max:1360px;
-      --nav-h:74px;
-      --bars-top-pad:76px;
-      --bars-bottom-pad:3vh;
-      --bars-gap:12px;
-      --intro-pad-y:14px;
-      --intro-pad-x:18px;
-      --intro-radius:24px;
-      --bar-min-height:0px;
-      --bar-pad-y:9px;
-      --bar-pad-x:14px;
-      --bar-radius:22px;
-      --bar-thumb-width:104px;
+      --serif:'Fraunces',Georgia,'Times New Roman',serif;
+      --sans:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     }
     * { box-sizing:border-box; }
     html { scroll-behavior:smooth; }
     body {
       margin:0;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: linear-gradient(180deg, var(--egg) 0%, #f7f4ee 35%, var(--egg-2) 100%);
+      font-family:var(--sans);
+      background:linear-gradient(180deg, var(--egg) 0%, #f7f4ee 35%, var(--egg-2) 100%);
       color:var(--ink);
       line-height:1.5;
     }
@@ -547,213 +257,251 @@ index_html = """<!DOCTYPE html>
     img, video { display:block; max-width:100%; }
     .shell { width:min(calc(100% - 32px), var(--max)); margin:0 auto; }
     .full-bleed { width:100vw; margin-left:calc(50% - 50vw); }
+    ::selection { background:var(--gold-soft); color:var(--ink); }
+
+    /* ---------- nav ---------- */
     .site-nav {
       position:fixed; top:14px; left:50%; transform:translateX(-50%); z-index:60;
-      width:min(calc(100% - 24px), var(--max)); min-height:var(--nav-h); display:flex; align-items:center; gap:16px;
-      padding:12px 18px; border:1px solid rgba(255,255,255,.55); border-radius:999px; background:rgba(248,245,239,.78);
-      backdrop-filter: blur(18px) saturate(120%); box-shadow:0 10px 40px rgba(61,45,29,.08);
+      width:min(calc(100% - 24px), var(--max)); min-height:64px; display:flex; align-items:center; gap:16px;
+      padding:10px 18px; border:1px solid rgba(255,255,255,.55); border-radius:999px; background:rgba(248,245,239,.72);
+      backdrop-filter:blur(18px) saturate(120%); box-shadow:0 10px 40px rgba(61,45,29,.08);
+      transition:box-shadow .3s ease, background .3s ease, top .3s ease;
     }
-    .brand-mark { font-size:1rem; font-weight:500; letter-spacing:.24em; text-transform:uppercase; color:rgba(23,21,19,.82); white-space:nowrap; }
-    .nav-links { display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; margin-left:auto; }
-    .nav-links a, .button { min-height:44px; padding:10px 15px; border-radius:999px; border:1px solid var(--line); background:rgba(255,255,255,.42); display:inline-flex; align-items:center; gap:8px; transition:transform .18s ease, background .18s ease, border-color .18s ease; }
-
-    .nav-links a:hover, .button:hover, .work-card:hover { transform:translateY(-1px); background:#fffaf4; border-color:var(--line-strong); }
+    .site-nav.scrolled { top:10px; background:rgba(248,245,239,.92); box-shadow:0 14px 44px rgba(61,45,29,.14); }
+    .brand-mark { font-size:.98rem; font-weight:500; letter-spacing:.24em; text-transform:uppercase; color:rgba(23,21,19,.85); white-space:nowrap; }
+    .nav-links { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; margin-left:auto; }
+    .nav-links a, .button {
+      min-height:42px; padding:9px 15px; border-radius:999px; border:1px solid var(--line);
+      background:rgba(255,255,255,.42); display:inline-flex; align-items:center; gap:8px;
+      transition:transform .18s ease, background .18s ease, border-color .18s ease;
+    }
+    .nav-links a:hover, .button:hover { transform:translateY(-1px); background:#fffaf4; border-color:var(--line-strong); }
     .button.primary { background:linear-gradient(135deg,#d3a977,#b88348); color:white; border-color:transparent; box-shadow:0 14px 26px rgba(184,131,72,.18); }
-    .hero { position:relative; min-height:100svh; padding:118px 0 40px; overflow:clip; display:grid; align-items:end; }
+
+    /* ---------- hero ---------- */
+    .hero { position:relative; min-height:100svh; padding:118px 0 26px; overflow:clip; display:grid; align-items:end; }
     .hero-media { position:absolute; inset:0; z-index:1; overflow:hidden; background:#1a1612; }
-    .hero-media::after { content:''; position:absolute; inset:0; background:linear-gradient(180deg,rgba(248,245,239,.12) 0%, rgba(248,245,239,.22) 12%, rgba(243,239,230,.44) 52%, rgba(243,239,230,.9) 100%); }
+    .hero-media::after { content:''; position:absolute; inset:0; background:linear-gradient(180deg,rgba(248,245,239,.12) 0%, rgba(248,245,239,.2) 12%, rgba(243,239,230,.42) 52%, rgba(243,239,230,.92) 100%); }
     .hero-media-item { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity 1.4s ease; filter:saturate(1.02) contrast(1.02) brightness(.88); background-size:cover; background-position:center; }
     .hero-media-item.active { opacity:1; }
-    .hero-content { position:relative; z-index:3; display:grid; gap:26px; }
-    .eyebrow { display:inline-flex; align-items:center; gap:10px; width:fit-content; padding:8px 12px; border-radius:999px; background:rgba(255,255,255,.52); border:1px solid rgba(255,255,255,.62); color:rgba(23,21,19,.64); text-transform:uppercase; letter-spacing:.16em; font-size:.78rem; }
+    .hero-content { position:relative; z-index:3; display:grid; gap:22px; }
+    .eyebrow {
+      display:inline-flex; align-items:center; gap:10px; width:fit-content; padding:8px 12px; border-radius:999px;
+      background:rgba(255,255,255,.52); border:1px solid rgba(255,255,255,.62); color:rgba(23,21,19,.64);
+      text-transform:uppercase; letter-spacing:.16em; font-size:.76rem;
+    }
     .eyebrow::before { content:''; width:8px; height:8px; border-radius:999px; background:var(--gold); }
-    .hero-grid { display:grid; grid-template-columns:minmax(0,1fr); gap:18px; align-items:end; max-width:780px; }
-    h1 { margin:0; max-width:10.5ch; font-size:clamp(3.3rem,8vw,7.4rem); line-height:.92; letter-spacing:-.06em; text-wrap:balance; }
-    .lede { margin:18px 0 0; max-width:44rem; color:var(--ink-soft); font-size:clamp(1rem,1.7vw,1.25rem); }
-    .panel, .work-card { background:rgba(255,255,255,.56); border:1px solid rgba(255,255,255,.68); border-radius:var(--radius); box-shadow:var(--shadow); backdrop-filter:blur(14px); }
-    .section-copy, .overlay-copy, .work-copy p { color:var(--ink-soft); }
-    .hero-actions, .statline { display:flex; flex-wrap:wrap; gap:12px; }
-    .statline span { padding:10px 12px; border-radius:999px; background:rgba(255,255,255,.48); border:1px solid rgba(23,21,19,.08); font-size:.92rem; }
-    section { padding:30px 0 14px; }
-    .section-head { display:grid; gap:14px; margin-bottom:20px; }
-    h2 { margin:0; font-size:clamp(2.1rem,4vw,4.1rem); line-height:.95; letter-spacing:-.05em; }
-    .film-spread { position:relative; min-height:170svh; }
+    h1.hero-title {
+      margin:0; max-width:11ch; font-family:var(--serif); font-weight:380;
+      font-size:clamp(3.2rem,8.6vw,8rem); line-height:.94; letter-spacing:-.03em; text-wrap:balance;
+    }
+    .js h1.hero-title .w { display:inline-block; overflow:hidden; vertical-align:top; }
+    .js h1.hero-title .wi { display:inline-block; transform:translateY(112%); transition:transform .9s cubic-bezier(.19,1,.22,1); }
+    .js .hero-in h1.hero-title .wi { transform:none; }
+    .hero-lede { margin:16px 0 0; max-width:46rem; color:var(--ink-soft); font-size:clamp(1rem,1.6vw,1.22rem); }
+    .hero-actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:20px; }
+    .js .hero-fade { opacity:0; transform:translateY(14px); transition:opacity .9s ease .55s, transform .9s ease .55s; }
+    .js .hero-in .hero-fade { opacity:1; transform:none; }
+    .hero-foot { display:flex; justify-content:space-between; align-items:flex-end; gap:16px; padding-top:26px; }
+    .hero-note { color:rgba(23,21,19,.6); font-size:.86rem; text-transform:uppercase; letter-spacing:.14em; display:inline-flex; align-items:center; gap:10px; }
+    .hero-note::before { content:''; width:8px; height:8px; border-radius:999px; background:#7aa05a; box-shadow:0 0 0 4px rgba(122,160,90,.18); }
+    .scroll-cue { display:inline-flex; align-items:center; gap:10px; color:rgba(23,21,19,.58); font-size:.8rem; text-transform:uppercase; letter-spacing:.18em; }
+    .scroll-cue i { position:relative; width:1px; height:44px; background:rgba(23,21,19,.22); overflow:hidden; display:block; }
+    .scroll-cue i::after { content:''; position:absolute; left:0; top:-50%; width:100%; height:50%; background:var(--ink); animation:cue 1.8s ease-in-out infinite; }
+    @keyframes cue { 0% { top:-50%; } 100% { top:110%; } }
+
+    /* ---------- marquee ---------- */
+    .marquee { overflow:hidden; border-top:1px solid var(--line); border-bottom:1px solid var(--line); padding:20px 0; background:rgba(255,255,255,.28); }
+    .mq-track { display:flex; align-items:center; gap:34px; width:max-content; animation:mq 42s linear infinite; }
+    .mq-item { font-family:var(--serif); font-style:italic; font-weight:340; font-size:clamp(1.4rem,2.6vw,2.3rem); letter-spacing:-.02em; color:rgba(23,21,19,.78); white-space:nowrap; }
+    .mq-dot { width:9px; height:9px; border-radius:999px; background:var(--gold); flex:0 0 auto; }
+    @keyframes mq { to { transform:translateX(-50%); } }
+
+    /* ---------- sections ---------- */
+    section { padding:34px 0 16px; }
+    .section-head { display:grid; gap:14px; margin-bottom:26px; }
+    h2.display {
+      margin:0; font-family:var(--serif); font-weight:380;
+      font-size:clamp(2.4rem,5vw,4.8rem); line-height:.96; letter-spacing:-.03em;
+    }
+    h2.display em { font-style:italic; color:var(--gold); }
+    .section-copy { color:var(--ink-soft); }
+    .kicker { color:rgba(23,21,19,.52); text-transform:uppercase; letter-spacing:.16em; font-size:.74rem; }
+
+    /* ---------- film / services (scroll-tied) ---------- */
+    .film-spread { position:relative; min-height:260svh; }
     .film-stage { position:sticky; top:86px; height:min(calc(100svh - 104px), max(240px, calc(100vw * 9 / 21))); overflow:hidden; background:#0f0e10; }
     .film-stage video { width:100%; height:100%; object-fit:cover; filter:saturate(1.04) contrast(1.04) brightness(.84); }
     .film-stage::after { content:''; position:absolute; inset:0; background:linear-gradient(180deg,rgba(10,10,12,.14) 0%, rgba(10,10,12,.18) 20%, rgba(10,10,12,.44) 100%); pointer-events:none; }
     .film-overlay { position:absolute; inset:0; z-index:3; pointer-events:none; display:flex; justify-content:flex-end; align-items:flex-end; }
-    .overlay-panel { position:absolute; right:max(16px, calc((100vw - var(--max)) / 2 + 16px)); left:auto; bottom:74px; top:auto; transform:none; width:min(460px,calc(100% - 32px)); padding:0; border:none; background:transparent; box-shadow:none; color:var(--egg); }
+    .overlay-panel { position:absolute; right:max(16px, calc((100vw - var(--max)) / 2 + 16px)); bottom:74px; width:min(460px,calc(100% - 32px)); color:var(--egg); }
     .timeline-bar { height:3px; border-radius:999px; background:rgba(243,239,230,.22); overflow:hidden; margin-bottom:18px; }
     .timeline-fill { height:100%; width:0%; background:linear-gradient(90deg,rgba(232,202,165,.92),rgba(255,244,224,.96)); }
-    .service-stack { position:relative; min-height:162px; }
+    .service-stack { position:relative; min-height:172px; }
     .service-slide { position:absolute; inset:0; opacity:0; transform:translateY(18px); transition:opacity .45s ease, transform .45s ease; }
     .service-slide.active { opacity:1; transform:none; }
-    .overlay-kicker { color:rgba(243,239,230,.72); text-transform:uppercase; letter-spacing:.18em; font-size:.76rem; }
-    .overlay-title { margin:8px 0 8px; font-size:clamp(1.9rem,2.8vw,3rem); line-height:.92; letter-spacing:-.05em; max-width:10ch; text-wrap:balance; }
-    .overlay-copy { max-width:28ch; color:rgba(243,239,230,.92); font-size:clamp(1rem,1.35vw,1.14rem); line-height:1.42; text-shadow:0 8px 28px rgba(0,0,0,.32); }
-    .systems-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; }
-    .panel { padding:18px; display:grid; gap:10px; }
-    .panel h3, .work-copy h3, .footer-card h3 { margin:0; font-size:1.08rem; letter-spacing:-.03em; }
-    .works-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
-    .work-card { overflow:hidden; display:grid; grid-template-columns:180px 1fr; gap:0; position:relative; }
-    .work-thumb { min-height:210px; background-size:cover; background-position:center; }
-    .work-copy { padding:18px; display:grid; gap:10px; align-content:center; }
-    .kicker { color:rgba(23,21,19,.52); text-transform:uppercase; letter-spacing:.16em; font-size:.74rem; }
-    .ghost-link { width:fit-content; min-height:42px; padding:10px 14px; border-radius:999px; border:1px solid var(--line); background:rgba(255,255,255,.38); display:inline-flex; align-items:center; gap:8px; }
-    .connect-grid { display:grid; grid-template-columns:1.08fr .92fr; gap:16px; }
-    .bio-card { overflow:hidden; padding:0; display:grid; grid-template-columns:minmax(240px,.9fr) 1.1fr; gap:0; }
-    .bio-media { min-height:420px; background-size:cover; background-position:center; }
-    .bio-copy { padding:22px; display:grid; gap:12px; align-content:center; }
-    .connect-card { min-height:420px; padding:22px; display:flex; flex-direction:column; align-items:flex-start; gap:12px; }
-    .connect-card p { max-width:34ch; }
-    .contact-list { display:grid; gap:10px; margin-top:auto; justify-items:start; padding-top:10px; }
-    .contact-link { width:fit-content; min-height:42px; padding:10px 14px; border-radius:999px; border:1px solid var(--line); background:rgba(255,255,255,.38); display:inline-flex; align-items:center; gap:8px; }
-    .policy-link { margin-top:0; }
+    .overlay-kicker { color:rgba(243,239,230,.72); text-transform:uppercase; letter-spacing:.18em; font-size:.74rem; }
+    .overlay-title { margin:10px 0 8px; font-family:var(--serif); font-weight:380; font-size:clamp(2rem,3vw,3.2rem); line-height:.94; letter-spacing:-.02em; max-width:11ch; text-wrap:balance; }
+    .overlay-copy { margin:0; max-width:30ch; color:rgba(243,239,230,.92); font-size:clamp(1rem,1.35vw,1.14rem); line-height:1.42; text-shadow:0 8px 28px rgba(0,0,0,.32); }
+
+    /* ---------- selected works ---------- */
+    .works-list { display:grid; border-top:1px solid var(--line-strong); }
+    .work-row {
+      display:grid; grid-template-columns:56px 148px minmax(0,1fr) auto; gap:24px; align-items:center;
+      padding:24px 10px; border-bottom:1px solid var(--line-strong); position:relative;
+      transition:background .35s ease, padding .35s ease;
+    }
+    .work-row:hover { background:rgba(255,255,255,.55); padding-left:22px; padding-right:16px; }
+    .work-num { font-family:var(--serif); font-style:italic; font-size:1.15rem; color:rgba(23,21,19,.42); }
+    .work-thumb { width:148px; aspect-ratio:4/3; border-radius:16px; overflow:hidden; display:block; }
+    .work-thumb span { display:block; width:100%; height:100%; background-size:cover; background-position:center; transition:transform .6s cubic-bezier(.19,1,.22,1); }
+    .work-row:hover .work-thumb span { transform:scale(1.07); }
+    .work-copy { display:grid; gap:6px; min-width:0; }
+    .work-title { font-family:var(--serif); font-weight:400; font-size:clamp(1.7rem,3.2vw,3rem); line-height:1; letter-spacing:-.02em; }
+    .work-summary { color:var(--ink-soft); max-width:62ch; font-size:.98rem; }
+    .work-arrow {
+      width:54px; height:54px; border-radius:999px; border:1px solid var(--line-strong);
+      display:grid; place-items:center; font-size:1.25rem; color:rgba(23,21,19,.7);
+      transition:transform .35s ease, background .35s ease, color .35s ease, border-color .35s ease;
+    }
+    .work-row:hover .work-arrow { background:linear-gradient(135deg,#d3a977,#b88348); border-color:transparent; color:white; transform:rotate(45deg); }
+    #workPreview {
+      position:fixed; z-index:80; width:min(380px,30vw); aspect-ratio:16/10; border-radius:18px;
+      background-size:cover; background-position:center; pointer-events:none; opacity:0; transform:scale(.9);
+      transition:opacity .25s ease, transform .25s ease; box-shadow:0 30px 80px rgba(20,14,8,.35);
+      top:0; left:0; will-change:transform;
+    }
+    #workPreview.on { opacity:1; transform:scale(1); }
+
+    /* ---------- bio ---------- */
+    .panel { background:rgba(255,255,255,.56); border:1px solid rgba(255,255,255,.68); border-radius:var(--radius); box-shadow:var(--shadow); backdrop-filter:blur(14px); }
+    .bio-card { overflow:hidden; padding:0; display:grid; grid-template-columns:minmax(240px,.85fr) 1.15fr; gap:0; }
+    .bio-media { min-height:440px; background-size:cover; background-position:center; }
+    .bio-copy { padding:30px; display:grid; gap:14px; align-content:center; }
+    .bio-copy h3 { margin:0; font-family:var(--serif); font-weight:400; font-size:clamp(1.5rem,2.4vw,2.2rem); letter-spacing:-.02em; }
+    .bio-copy p { margin:0; color:var(--ink-soft); }
+    .ghost-link { width:fit-content; min-height:42px; padding:10px 16px; border-radius:999px; border:1px solid var(--line); background:rgba(255,255,255,.38); display:inline-flex; align-items:center; gap:8px; transition:background .2s ease, border-color .2s ease; }
+    .ghost-link:hover { background:#fffaf4; border-color:var(--line-strong); }
+
+    /* ---------- footer / contact ---------- */
+    .site-footer {
+      margin-top:56px; background:linear-gradient(180deg,#1e1a15 0%, #141109 100%);
+      color:var(--egg); border-radius:44px 44px 0 0; padding:92px 0 34px; position:relative; overflow:clip;
+    }
+    .site-footer::before { content:''; position:absolute; inset:-40% -20% auto; height:80%; background:radial-gradient(ellipse at 30% 0%, rgba(184,131,72,.22), transparent 60%); pointer-events:none; }
+    .footer-kicker { display:inline-flex; align-items:center; gap:10px; width:fit-content; padding:8px 12px; border-radius:999px; border:1px solid rgba(243,239,230,.22); color:rgba(243,239,230,.72); text-transform:uppercase; letter-spacing:.16em; font-size:.76rem; }
+    .footer-kicker::before { content:''; width:8px; height:8px; border-radius:999px; background:var(--gold-soft); }
+    .footer-title { margin:22px 0 10px; font-family:var(--serif); font-weight:380; font-size:clamp(2.9rem,8.4vw,7.4rem); line-height:.95; letter-spacing:-.03em; max-width:12ch; }
+    .footer-title em { font-style:italic; color:var(--gold-soft); }
+    .footer-copy { margin:0; max-width:44rem; color:rgba(243,239,230,.72); font-size:clamp(1rem,1.5vw,1.15rem); }
+    .contact-list { display:flex; flex-wrap:wrap; gap:12px; margin-top:30px; }
+    .contact-link {
+      min-height:52px; padding:14px 22px; border-radius:999px; border:1px solid rgba(243,239,230,.28);
+      background:rgba(243,239,230,.06); display:inline-flex; align-items:center; gap:10px; cursor:pointer;
+      font-size:clamp(1rem,1.6vw,1.25rem); transition:background .2s ease, border-color .2s ease, transform .2s ease;
+    }
+    .contact-link:hover { background:rgba(243,239,230,.14); border-color:rgba(243,239,230,.5); transform:translateY(-2px); }
+    .contact-link:active { transform:translateY(0); }
+    .contact-link.primary-mail { background:linear-gradient(135deg,#d3a977,#b88348); border-color:transparent; color:#1c150c; font-weight:500; }
+    .contact-link.primary-mail:hover { background:linear-gradient(135deg,#ddb385,#c08d51); }
+    .footer-meta { display:flex; flex-wrap:wrap; gap:14px; justify-content:space-between; align-items:center; margin-top:72px; padding-top:22px; border-top:1px solid rgba(243,239,230,.14); color:rgba(243,239,230,.55); font-size:.86rem; }
+    .footer-meta a { color:rgba(243,239,230,.75); border-bottom:1px solid rgba(243,239,230,.25); padding-bottom:2px; transition:color .2s ease, border-color .2s ease; }
+    .footer-meta a:hover { color:var(--egg); border-color:rgba(243,239,230,.6); }
+
+    /* ---------- reveals ---------- */
+    .js .reveal { opacity:0; transform:translateY(26px); transition:opacity .8s ease, transform .8s cubic-bezier(.19,1,.22,1); }
+    .js .reveal.in-view { opacity:1; transform:none; }
+
+    /* ---------- responsive ---------- */
     @media (max-width:1100px) {
-      .hero-grid, .systems-grid, .works-grid, .footer-grid, .connect-grid, .bio-card { grid-template-columns:1fr; }
-      .work-card { grid-template-columns:1fr; }
-      .work-thumb { min-height:260px; }
-      .bio-media, .connect-card { min-height:320px; }
+      .bio-card { grid-template-columns:1fr; }
+      .bio-media { min-height:320px; }
     }
     @media (max-width:780px) {
       .site-nav {
-        position:static;
-        transform:none;
-        width:min(calc(100% - 20px),var(--max));
-        margin:12px auto 0;
-        padding:12px 14px;
-        border-radius:28px;
-        display:grid;
-        grid-template-columns:1fr;
-        gap:10px;
-        align-items:start;
+        position:static; transform:none; width:min(calc(100% - 20px),var(--max));
+        margin:12px auto 0; padding:12px 14px; border-radius:28px;
+        display:grid; grid-template-columns:1fr; gap:10px; align-items:start;
       }
+      .site-nav.scrolled { top:auto; }
       .brand-mark { font-size:.92rem; letter-spacing:.2em; }
-      .nav-links {
-        margin-left:0;
-        gap:8px;
-        flex-wrap:nowrap;
-        justify-content:flex-start;
-        width:100%;
-      }
-      .nav-links a {
-        min-height:40px;
-        padding:8px 12px;
-        font-size:.94rem;
-        white-space:nowrap;
-      }
-      .hero {
-        min-height:78svh;
-        padding:18px 0 10px;
-      }
-      .hero-content {
-        gap:14px;
-        padding-bottom:92px;
-      }
-      .hero-grid { max-width:100%; }
-      h1 {
-        max-width:9.5ch;
-        font-size:clamp(2.8rem,10vw,4.2rem);
-        line-height:.9;
-      }
-      .hero-actions { gap:8px; }
-      .hero-actions .button {
-        min-height:38px;
-        padding:8px 12px;
-      }
-      .film-spread {
-        min-height:220svh;
-        padding-top:8px;
-      }
-      .film-stage {
-        position:sticky;
-        top:12px;
-        height:860px;
-      }
-      .film-stage::after {
-        background:linear-gradient(180deg,rgba(10,10,12,.1) 0%, rgba(10,10,12,.12) 22%, rgba(10,10,12,.28) 58%, rgba(10,10,12,.58) 100%);
-      }
-      .overlay-panel {
-        left:auto;
-        right:16px;
-        width:min(320px, calc(100% - 32px));
-        bottom:22px;
-      }
-      .service-stack { min-height:176px; }
-      .overlay-title {
-        max-width:12ch;
-        font-size:clamp(1.7rem,7.3vw,2.3rem);
-      }
-      .overlay-copy {
-        max-width:24ch;
-        font-size:1rem;
-        line-height:1.38;
-      }
-      #selected-work {
-        padding-top:18px;
-      }
-      #selected-work .section-head {
-        margin-bottom:16px;
-      }
+      .nav-links { margin-left:0; gap:8px; flex-wrap:nowrap; justify-content:flex-start; width:100%; overflow-x:auto; }
+      .nav-links a { min-height:40px; padding:8px 12px; font-size:.94rem; white-space:nowrap; }
+      .hero { min-height:82svh; padding:20px 0 12px; }
+      h1.hero-title { max-width:10ch; font-size:clamp(2.9rem,11vw,4.4rem); }
+      .hero-actions .button { min-height:40px; padding:9px 13px; }
+      .hero-foot { padding-top:18px; }
+      .scroll-cue { display:none; }
+      .film-spread { min-height:320svh; padding-top:8px; }
+      .film-stage { position:sticky; top:12px; height:860px; }
+      .film-stage::after { background:linear-gradient(180deg,rgba(10,10,12,.1) 0%, rgba(10,10,12,.12) 22%, rgba(10,10,12,.28) 58%, rgba(10,10,12,.58) 100%); }
+      .overlay-panel { right:16px; width:min(320px, calc(100% - 32px)); bottom:22px; }
+      .service-stack { min-height:186px; }
+      .overlay-title { max-width:12ch; font-size:clamp(1.8rem,7.4vw,2.4rem); }
+      .overlay-copy { max-width:26ch; font-size:1rem; line-height:1.38; }
+      #selected-work { padding-top:20px; }
+      .work-row { grid-template-columns:minmax(0,1fr); gap:12px; padding:20px 6px; }
+      .work-row:hover { padding-left:6px; padding-right:6px; }
+      .work-num { display:none; }
+      .work-thumb { width:100%; aspect-ratio:16/9; }
+      .work-arrow { display:none; }
+      #workPreview { display:none; }
+      .footer-meta { margin-top:44px; }
     }
-    @media (prefers-reduced-motion: reduce) { html { scroll-behavior:auto; } .nav-links a, .button, .hero-media-item, .service-slide { transition:none; } }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior:auto; }
+      .nav-links a, .button, .hero-media-item, .service-slide, .work-thumb span, .work-arrow { transition:none; }
+      .mq-track { animation:none; }
+      .scroll-cue i::after { animation:none; }
+      .js .reveal, .js h1.hero-title .wi, .js .hero-fade { opacity:1; transform:none; transition:none; }
+      #workPreview { display:none; }
+    }
   </style>
 </head>
 <body>
-  <nav class='site-nav'>
+  <nav class='site-nav' id='siteNav'>
     <div class='brand-mark'>Jonathan Tait</div>
     <div class='nav-links'>
       <a href='#film'>Services</a>
       <a href='#selected-work'>Work</a>
-      <a href='#connect'>Connect</a>
+      <a href='#bio'>Bio</a>
+      <a href='#connect'>Contact</a>
     </div>
   </nav>
-  <header class='hero'>
+  <header class='hero' id='heroTop'>
     <div class='hero-media'>
-      HERO_MEDIA_HTML
+      __HERO_MEDIA__
     </div>
     <div class='shell hero-content'>
-      <div class='hero-grid'>
-        <div>
-          <h1>Generative AI Creative Technologist</h1>
-          <div class='hero-actions'>
-            <a class='button primary' href='#film'>Open services</a>
-            <a class='button' href='#selected-work'>Selected work</a>
-          </div>
+      <div>
+        <div class='eyebrow hero-fade' style='transition-delay:.15s'>Jonathan Tait Portfolio</div>
+        <h1 class='hero-title'>__HERO_TITLE__</h1>
+        <p class='hero-lede hero-fade'>__HERO_LEDE__</p>
+        <div class='hero-actions hero-fade'>
+          <a class='button primary' href='#film'>Open services</a>
+          <a class='button' href='#selected-work'>Selected work</a>
         </div>
+      </div>
+      <div class='hero-foot hero-fade'>
+        <span class='hero-note'>Available for select projects</span>
+        <span class='scroll-cue'>Scroll <i></i></span>
       </div>
     </div>
   </header>
   <main>
+    <div class='marquee full-bleed' aria-hidden='true'>
+      __MARQUEE__
+    </div>
     <section id='film' class='full-bleed film-spread'>
       <div class='film-stage'>
-        <video id='scrollVideo' muted playsinline preload='metadata' poster='POSTER_IMAGE'>
-          <source src='HERO_CLIP' type='video/mp4' />
+        <video id='scrollVideo' muted playsinline preload='metadata' poster='__POSTER__'>
+          <source src='__FILM_CLIP__' type='video/mp4' />
         </video>
         <div class='film-overlay'>
           <div class='overlay-panel'>
             <div class='timeline-bar'><div id='timelineFill' class='timeline-fill'></div></div>
             <div class='service-stack' aria-live='polite'>
-              <div class='service-slide active' data-service-slide>
-                <div class='overlay-kicker'>Services</div>
-                <h2 class='overlay-title'>AI Campaign Creative</h2>
-                <p class='overlay-copy'>Campaign stills and short-form motion built for launch-world brand storytelling.</p>
-              </div>
-              <div class='service-slide' data-service-slide>
-                <div class='overlay-kicker'>Services</div>
-                <h2 class='overlay-title'>Generative Worldbuilding</h2>
-                <p class='overlay-copy'>Concept, look development, casting, and environments for authored visual worlds.</p>
-              </div>
-              <div class='service-slide' data-service-slide>
-                <div class='overlay-kicker'>Services</div>
-                <h2 class='overlay-title'>Cinematic AI Film</h2>
-                <p class='overlay-copy'>Short films, brand motion, and narrative sequences shaped through atmosphere and pacing.</p>
-              </div>
-              <div class='service-slide' data-service-slide>
-                <div class='overlay-kicker'>Services</div>
-                <h2 class='overlay-title'>Hybrid&nbsp;Creative<br>Direction</h2>
-                <p class='overlay-copy'>End-to-end AI production systems connecting concept, tooling, and final finish.</p>
-              </div>
+              __SERVICES__
             </div>
           </div>
         </div>
@@ -761,19 +509,59 @@ index_html = """<!DOCTYPE html>
     </section>
     <section id='selected-work'>
       <div class='shell'>
-        <div class='section-head'>
+        <div class='section-head reveal'>
           <div class='eyebrow'>Selected work</div>
-          <h2>Selected work</h2>
+          <h2 class='display'>Selected <em>work</em></h2>
         </div>
-        <div class='works-grid'>
-          CARDS_HTML
+        <div class='works-list' id='worksList'>
+          __WORKS__
         </div>
       </div>
     </section>
-    CONNECT_HTML
+    <section id='bio'>
+      <div class='shell'>
+        <div class='section-head reveal'>
+          <div class='eyebrow'>Bio</div>
+          <h2 class='display'>Behind the <em>images</em></h2>
+        </div>
+        <article class='panel bio-card reveal'>
+          <div class='bio-media' style="background-image:url('__BIO_IMAGE__')"></div>
+          <div class='bio-copy'>
+            <div class='kicker'>__BIO_TAG__</div>
+            <h3>Jonathan Tait</h3>
+            <p>__BIO_SUMMARY__</p>
+            <p>The work moves between cinematic image-making, generative workflows, and tactile experimentation while staying anchored to light, composition, and authored feeling.</p>
+            <a class='ghost-link' href='projects/bio.html'>Open full bio page</a>
+          </div>
+        </article>
+      </div>
+    </section>
   </main>
+  <footer class='site-footer full-bleed' id='connect'>
+    <div class='shell'>
+      <div class='footer-kicker reveal'>Connect</div>
+      <h2 class='footer-title reveal'>Start a <em>conversation</em>.</h2>
+      <p class='footer-copy reveal'>Campaign visuals, cinematic AI film, generative worldbuilding, or hybrid creative direction. Get in touch directly.</p>
+      <div class='contact-list reveal'>
+        <a class='contact-link primary-mail' href='mailto:__EMAIL__?subject=Project%20enquiry'>__EMAIL__</a>
+      </div>
+      <div class='footer-meta'>
+        <span>© __YEAR__ Jonathan Tait</span>
+        <a href='info/privacy-policy.html'>Privacy policy</a>
+        <a href='#heroTop'>Back to top ↑</a>
+      </div>
+    </div>
+  </footer>
+  <div id='workPreview' aria-hidden='true'></div>
   <script>
     (() => {
+      document.documentElement.classList.add('js');
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      /* hero entrance */
+      requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.add('hero-in')));
+
+      /* hero media rotation */
       const heroItems = Array.from(document.querySelectorAll('[data-hero-item]'));
       let heroIndex = 0;
       if (heroItems.length > 1) {
@@ -783,6 +571,14 @@ index_html = """<!DOCTYPE html>
           heroItems[heroIndex].classList.add('active');
         }, 4200);
       }
+
+      /* nav state */
+      const nav = document.getElementById('siteNav');
+      const onNav = () => nav.classList.toggle('scrolled', window.scrollY > 40);
+      onNav();
+      window.addEventListener('scroll', onNav, { passive:true });
+
+      /* scroll-tied film + services */
       const scrollVideo = document.getElementById('scrollVideo');
       const spread = document.getElementById('film');
       const fill = document.getElementById('timelineFill');
@@ -816,19 +612,96 @@ index_html = """<!DOCTYPE html>
       update();
       window.addEventListener('scroll', update, { passive:true });
       window.addEventListener('resize', update);
+
+      /* scroll reveals */
+      const revealEls = Array.from(document.querySelectorAll('.reveal'));
+      if ('IntersectionObserver' in window && !reduced) {
+        const io = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('in-view');
+              io.unobserve(entry.target);
+            }
+          });
+        }, { rootMargin:'0px 0px -8% 0px', threshold:0.05 });
+        revealEls.forEach((el, i) => {
+          el.style.transitionDelay = `${Math.min(i % 4, 3) * 60}ms`;
+          io.observe(el);
+        });
+      } else {
+        revealEls.forEach((el) => el.classList.add('in-view'));
+      }
+
+      /* floating work preview (fine pointers only) */
+      const preview = document.getElementById('workPreview');
+      const worksList = document.getElementById('worksList');
+      const finePointer = window.matchMedia('(pointer: fine)').matches;
+      if (preview && worksList && finePointer && !reduced) {
+        let px = 0, py = 0, tx = 0, ty = 0, raf = null;
+        const loop = () => {
+          px += (tx - px) * 0.16;
+          py += (ty - py) * 0.16;
+          preview.style.transform = `translate(${px}px, ${py}px) scale(${preview.classList.contains('on') ? 1 : 0.9})`;
+          raf = requestAnimationFrame(loop);
+        };
+        worksList.addEventListener('pointermove', (e) => {
+          const w = preview.offsetWidth || 360;
+          const h = preview.offsetHeight || 225;
+          tx = Math.min(e.clientX + 28, window.innerWidth - w - 20);
+          ty = Math.min(Math.max(e.clientY - h / 2, 16), window.innerHeight - h - 16);
+          if (raf === null) { px = tx; py = ty; loop(); }
+        });
+        worksList.querySelectorAll('.work-row').forEach((row) => {
+          row.addEventListener('pointerenter', () => {
+            const src = row.getAttribute('data-preview');
+            if (!src) return;
+            preview.style.backgroundImage = `url('${src}')`;
+            preview.classList.add('on');
+          });
+          row.addEventListener('pointerleave', () => preview.classList.remove('on'));
+        });
+        worksList.addEventListener('pointerleave', () => preview.classList.remove('on'));
+      }
+
+      /* ensure the email pill reliably opens the email client */
+      document.querySelectorAll(".contact-link[href^='mailto:']").forEach((link) => {
+        link.addEventListener('click', function () {
+          const href = this.getAttribute('href');
+          if (href && href.indexOf('mailto:') === 0) window.location.href = href;
+        });
+      });
     })();
   </script>
 </body>
 </html>
 """
 
-index_html = index_html.replace('HERO_MEDIA_HTML', ''.join(hero_media_html))
-index_html = index_html.replace('POSTER_IMAGE', projects[0]['thumb'])
-index_html = index_html.replace('HERO_CLIP', hero_clip)
-index_html = index_html.replace('BARS_HTML', ''.join(bars_html))
-index_html = index_html.replace('CARDS_HTML', ''.join(cards_html))
-index_html = index_html.replace('CONNECT_HTML', connect_html)
-(root / 'index.html').write_text(index_html, encoding='utf-8')
+replacements = {
+    '__TITLE__': html.escape(site['title'], quote=True),
+    '__DESC__': html.escape(site['description'], quote=True),
+    '__FONTS__': FONTS_HTML,
+    '__HERO_MEDIA__': ''.join(hero_media_html),
+    '__HERO_TITLE__': wrap_words(site['hero_headline']),
+    '__HERO_LEDE__': html.escape(site['hero_lede']),
+    '__MARQUEE__': marquee_html,
+    '__POSTER__': site['film_poster'],
+    '__FILM_CLIP__': site['film_clip'],
+    '__SERVICES__': ''.join(services_html),
+    '__WORKS__': ''.join(works_html),
+    '__BIO_IMAGE__': bio_project['thumb'],
+    '__BIO_TAG__': html.escape(bio_project['tag']),
+    '__BIO_SUMMARY__': html.escape(bio_project['summary']),
+    '__EMAIL__': site['email'],
+    '__YEAR__': '2026',
+}
+for key, value in replacements.items():
+    index_html = index_html.replace(key, value)
+legacy_dir = root / 'legacy'
+legacy_dir.mkdir(exist_ok=True)
+(legacy_dir / 'index.html').write_text(index_html, encoding='utf-8')
+
+
+# ---------------------------------------------------------------- shared page css
 
 page_css = """
 :root{
@@ -845,6 +718,7 @@ page_css = """
   --shadow:0 24px 72px rgba(68,48,28,.11);
   --project-hero-h:520px;
   --project-meta-h:520px;
+  --serif:'Fraunces',Georgia,'Times New Roman',serif;
 }
 *{box-sizing:border-box}
 body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:linear-gradient(180deg,var(--egg),#f8f5ef 40%,var(--egg2));color:var(--ink);line-height:1.56}
@@ -853,7 +727,8 @@ img,video{display:block;max-width:100%}
 button{font:inherit}
 .shell{width:min(calc(100% - 32px),1220px);margin:0 auto}
 .nav{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 0;background:linear-gradient(180deg,rgba(244,239,230,.95),rgba(244,239,230,.76),transparent)}
-.nav a,.btn,.gallery-btn{min-height:44px;padding:11px 15px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.5);display:inline-flex;align-items:center;gap:8px}
+.nav a,.btn,.gallery-btn{min-height:44px;padding:11px 15px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.5);display:inline-flex;align-items:center;gap:8px;transition:background .2s ease,border-color .2s ease}
+.nav a:hover,.btn:hover,.gallery-btn:hover{background:#fffaf4;border-color:rgba(23,21,19,.2)}
 .btn.primary{background:linear-gradient(135deg,var(--gold-soft),var(--gold));color:white;border-color:transparent}
 .hero{display:grid;grid-template-columns:1.02fr .98fr;gap:20px;padding:22px 0}
 .card{background:rgba(255,255,255,.56);border:1px solid rgba(255,255,255,.68);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
@@ -864,9 +739,9 @@ button{font:inherit}
 .copy{align-content:center;overflow:auto}
 .eyebrow{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;width:fit-content;border:1px solid rgba(23,21,19,.08);background:rgba(255,255,255,.52);text-transform:uppercase;letter-spacing:.16em;font-size:.76rem;color:var(--muted)}
 .eyebrow::before{content:'';width:8px;height:8px;border-radius:999px;background:var(--gold)}
-h1{margin:0;font-size:clamp(2.9rem,5vw,5.2rem);line-height:.94;letter-spacing:-.05em}
-h2{margin:0;font-size:clamp(1.3rem,2vw,1.86rem);letter-spacing:-.04em}
-h3{margin:0;font-size:clamp(1.15rem,1.7vw,1.5rem);letter-spacing:-.03em}
+h1{margin:0;font-family:var(--serif);font-weight:380;font-size:clamp(2.9rem,5vw,5.2rem);line-height:.94;letter-spacing:-.03em}
+h2{margin:0;font-family:var(--serif);font-weight:400;font-size:clamp(1.4rem,2.1vw,2rem);letter-spacing:-.02em}
+h3{margin:0;font-family:var(--serif);font-weight:400;font-size:clamp(1.2rem,1.8vw,1.6rem);letter-spacing:-.02em}
 p{margin:0;color:var(--muted)}
 .label{display:block;color:rgba(23,21,19,.52);text-transform:uppercase;letter-spacing:.16em;font-size:.72rem}
 .meta-grid{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);gap:16px;align-items:start}
@@ -909,6 +784,17 @@ p{margin:0;color:var(--muted)}
 @media (max-width:980px){.hero,.meta-grid{grid-template-columns:1fr}.hero>.card,.summary-card,.gallery-card{height:auto}.media{min-height:360px}.copy{overflow:visible}.summary-scroll{overflow:visible;padding-right:0}.gallery-stage{height:auto;aspect-ratio:16/10}.gallery-thumb{flex-basis:88px}.gallery-lightbox .gallery-thumb{flex-basis:96px}}
 """
 
+
+# ---------------------------------------------------------------- privacy page
+
+privacy_sections = [
+    ('Contact', f"E-Mail: {site['email']}"),
+    ('Haftung für Inhalte', 'Als Diensteanbieter bin ich gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG bin ich als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen. Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werde ich diese Inhalte umgehend entfernen.'),
+    ('Haftung für Links', 'Mein Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte ich keinen Einfluss habe. Deshalb kann ich für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich. Die verlinkten Seiten wurden zum Zeitpunkt der Verlinkung auf mögliche Rechtsverstöße überprüft. Rechtswidrige Inhalte waren zum Zeitpunkt der Verlinkung nicht erkennbar. Eine permanente inhaltliche Kontrolle der verlinkten Seiten ist jedoch ohne konkrete Anhaltspunkte einer Rechtsverletzung nicht zumutbar. Bei Bekanntwerden von Rechtsverletzungen werde ich derartige Links umgehend entfernen.'),
+    ('Urheberrecht', 'Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers. Downloads und Kopien dieser Seite sind nur für den privaten, nicht kommerziellen Gebrauch gestattet. Soweit die Inhalte auf dieser Seite nicht vom Betreiber erstellt wurden, werden die Urheberrechte Dritter beachtet. Insbesondere werden Inhalte Dritter als solche gekennzeichnet. Sollten Sie trotzdem auf eine Urheberrechtsverletzung aufmerksam werden, bitte ich um einen entsprechenden Hinweis. Bei Bekanntwerden von Rechtsverletzungen werde ich derartige Inhalte umgehend entfernen.'),
+    ('Online-Streitbeilegung', 'Gemäß Art. 14 Abs. 1 ODR-VO stellt die Europäische Kommission eine Plattform zur Online-Streitbeilegung (OS) bereit: https://ec.europa.eu/consumers/odr/'),
+]
+
 privacy_cards = ''.join(
     f"<article class='card wide-card narrative-card'><div class='eyebrow'>{html.escape(title)}</div><p>{html.escape(copy)}</p></article>"
     for title, copy in privacy_sections
@@ -918,14 +804,15 @@ privacy_page = f"""<!DOCTYPE html>
 <head>
 <meta charset='UTF-8' />
 <meta name='viewport' content='width=device-width, initial-scale=1.0' />
-<title>Privacy policy — Jonathan Tait</title>
+<title>Privacy policy · Jonathan Tait</title>
 <meta name='description' content='Privacy policy and legal information for Jonathan Tait.' />
+{FONTS_HTML}
 <style>{page_css}</style>
 </head>
 <body>
 <div class='shell'>
 <nav class='nav'>
-  <a href='../index.html#connect'>← Back to homepage</a>
+  <a href='../index.html'>← Back to reel</a>
 </nav>
 <section class='hero' style='grid-template-columns:1fr;gap:16px'>
   <div class='card copy' style='min-height:auto'>
@@ -933,36 +820,35 @@ privacy_page = f"""<!DOCTYPE html>
     <h1 style='max-width:none'>Privacy policy</h1>
     <p>Privacy policy and legal information for Jonathan Tait.</p>
     <div style='display:flex;gap:12px;flex-wrap:wrap'>
-      <a class='btn' href='../index.html#connect'>Back to connect</a>
+      <a class='btn' href='../contact.html'>Back to contact</a>
     </div>
   </div>
 </section>
 <section class='section-stack'>{privacy_cards}</section>
-
 </div>
 </body>
 </html>"""
 (info_dir / 'privacy-policy.html').write_text(privacy_page, encoding='utf-8')
 
-def render_bio_profile_page(p, prev_slug, next_slug):
+
+# ---------------------------------------------------------------- bio page
+
+def render_bio_profile_page(p):
     bio_extra_paragraph = f"<p>{html.escape(p['brief_text'])} {html.escape(p['outcome_text'])}</p>" if (p.get('brief_text') or p.get('outcome_text')) else ''
     page = f"""<!DOCTYPE html>
 <html lang='en'>
 <head>
 <meta charset='UTF-8' />
 <meta name='viewport' content='width=device-width, initial-scale=1.0' />
-<title>{html.escape(p['title'])} — Jonathan Tait</title>
+<title>{html.escape(p['title'])} · Jonathan Tait</title>
 <meta name='description' content='{html.escape(p['summary'])}' />
+{FONTS_HTML}
 <style>{page_css}</style>
 </head>
 <body>
 <div class='shell'>
 <nav class='nav'>
-  <a href='../index.html#connect'>← Back to homepage</a>
-  <div style='display:flex;gap:10px;flex-wrap:wrap'>
-    <a href='{prev_slug}.html'>Prev</a>
-    <a href='{next_slug}.html'>Next</a>
-  </div>
+  <a href='../info.html'>← Back to info</a>
 </nav>
 <section class='section-stack' style='padding-top:22px'>
   <div class='card' style='padding:0;overflow:hidden'>
@@ -976,7 +862,7 @@ def render_bio_profile_page(p, prev_slug, next_slug):
     <p>{html.escape(p['overview_text'])}</p>
     {bio_extra_paragraph}
     <div style='display:flex;gap:12px;flex-wrap:wrap'>
-      <a class='btn' href='../index.html#film'>Back to services</a>
+      <a class='btn' href='../contact.html'>Get in touch</a>
     </div>
   </article>
 </section>
@@ -985,213 +871,1201 @@ def render_bio_profile_page(p, prev_slug, next_slug):
 </html>"""
     (projects_dir / f"{p['slug']}.html").write_text(page, encoding='utf-8')
 
-for idx, p in enumerate(projects):
-    prev_slug = projects[idx-1]['slug'] if idx > 0 else projects[-1]['slug']
-    next_slug = projects[(idx+1) % len(projects)]['slug']
-    if p['slug'] == 'bio':
-        render_bio_profile_page(p, prev_slug, next_slug)
-        continue
-    media_html = f"<video src='{p['media']}' autoplay muted loop playsinline></video>" if p['media_type'] == 'video' else f"<img src='{p['media']}' alt='{html.escape(p['title'])}' />"
-    extra_title = 'Profile / positioning' if p['slug'] == 'bio' else p['tag']
-    gallery_items_json = json.dumps(p['gallery_items'])
-    gallery_stage_html = render_gallery_stage(p['gallery_items'][0], p['title'])
-    gallery_thumbs_html = render_gallery_thumbs(p['gallery_items'], p['title'])
-    project_notes_html = render_project_notes(p)
-    page = f"""<!DOCTYPE html>
-<html lang='en'>
+
+render_bio_profile_page(bio_project)
+
+
+# ---------------------------------------------------------------- project pages
+# Long-scroll case study in the same editorial register as the digital reel:
+# full-bleed hero film, a big statement on the light ground, then media blocks
+# offset alternately left and right against a narrow text column on the
+# opposite side, a horizontal gallery strip, and the next project.
+#
+# The asymmetry is the whole point, media never sits full width in the body,
+# so the eye keeps crossing the page instead of sliding straight down it.
+
+project_css = """
+  *,*::before,*::after{box-sizing:border-box}
+  :root{
+    --bg:#e0dee1; --ink:#181818; --mute:rgba(24,24,24,.55); --line:rgba(24,24,24,.16);
+    --serif:'Fraunces',Georgia,serif;
+    --sans:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
+    --pad:2.2vw;
+    --sm:clamp(11px,.72vw,14px);
+    --out:cubic-bezier(.16,1,.3,1);
+  }
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+    -webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  .lbl{font-size:var(--sm);text-transform:uppercase;letter-spacing:.06em}
+
+  /* ---- hero ---- */
+  .phero{position:relative;height:100svh;min-height:520px;overflow:hidden;background:#111}
+  .phero video,.phero img{width:100%;height:100%;object-fit:cover;display:block}
+  .phero .tri{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr)}
+  .phero .tri video{width:100%;height:100%;object-fit:cover;display:block}
+  @media (max-width:760px){
+    .phero .tri{grid-template-columns:1fr}
+    .phero .tri video:not(:first-child){display:none}
+  }
+  .phero::after{content:'';position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(180deg,rgba(0,0,0,.5),rgba(0,0,0,.05) 30%,rgba(0,0,0,.1) 55%,rgba(0,0,0,.65))}
+  .pui{position:absolute;inset:0;color:#fff;z-index:2;text-shadow:0 1px 20px rgba(0,0,0,.5)}
+  .pui a{pointer-events:auto}
+  .ptop{position:absolute;top:var(--pad);left:var(--pad);right:var(--pad);
+    display:flex;justify-content:space-between;gap:1em}
+  .ptop .r{display:flex;gap:1.4em}
+  .ptop a{position:relative}
+  .ptop a::after{content:'';position:absolute;left:0;bottom:-3px;height:1px;width:100%;
+    background:currentColor;transform:scaleX(0);transform-origin:100% 50%;transition:transform .45s var(--out)}
+  .ptop a:hover::after{transform:scaleX(1);transform-origin:0 50%}
+  /* title / focus / year stacked centre, exactly as small as the nav */
+  .pstack{position:absolute;top:var(--pad);left:50%;transform:translateX(-50%);
+    text-align:center;display:grid;gap:.25em;white-space:nowrap}
+  .pcred{position:absolute;left:var(--pad);right:var(--pad);bottom:calc(var(--pad) + 1vh);
+    display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.5vw;max-width:1100px}
+  .pcred .k{opacity:.66;margin-bottom:.5em}
+  .pcred .v{font-size:clamp(13px,.95vw,17px);line-height:1.4}
+
+  /* ---- embedded film ---- */
+  .film{padding:7vh var(--pad) 0;max-width:1500px;margin:0 auto}
+  .film .k{margin-bottom:1em;opacity:.55}
+  .filmwrap{position:relative;aspect-ratio:16/9;background:#000;overflow:hidden}
+  .filmwrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+
+  /* ---- lede ---- */
+  .lede{padding:14vh var(--pad) 10vh;max-width:1240px;margin:0 auto}
+  .lede p{margin:0;font-size:clamp(19px,1.65vw,30px);line-height:1.34;letter-spacing:-.01em}
+
+  /* ---- alternating blocks ---- */
+  .blk{padding:6vh var(--pad);display:grid;gap:2vw 3vw;align-items:center;
+    grid-template-columns:repeat(12,minmax(0,1fr))}
+  /* grid-row is explicit on purpose. Auto-placement is sparse: once the media
+     is placed in columns 5-13, the cursor has passed column 4, so the text
+     could not fit beside it and was pushed onto a second row - which is why it
+     sat below the pictures instead of level with them. */
+  .blk .m{grid-column:5 / 13; grid-row:1}
+  .blk .t{grid-column:1 / 4; grid-row:1}
+  .blk.flip .m{grid-column:1 / 9; grid-row:1}
+  .blk.flip .t{grid-column:10 / 13; grid-row:1}
+  /* Media is capped against the VIEWPORT height, not just its column width.
+     A portrait clip at 62% column width is taller than the screen, which is
+     what was running off the top and bottom on scroll. width/height auto keeps
+     the real aspect and lets whichever limit binds first do the work. */
+  .blk .m{display:grid;grid-auto-flow:column;gap:1vw;
+    justify-content:center;align-items:center;max-height:78svh}
+  .blk .m video,.blk .m img{display:block;background:#d4d2d5;
+    width:auto;height:auto;max-width:100%;max-height:78svh}
+  /* a pair shares the column, so each needs to sit shorter to stay in frame */
+  .blk .m.pair video,.blk .m.pair img{max-height:66svh}
+
+  /* full-width plate: breaks the left/right rhythm partway down. Every frame
+     here is the same portrait ratio, so the rows line up without masonry. */
+  .gridband{padding:7vh var(--pad);display:grid;gap:1.1vw;
+    grid-template-columns:repeat(3,minmax(0,1fr));max-width:1500px;margin:0 auto}
+  .gridband img{width:100%;height:auto;display:block;background:#d4d2d5}
+  .blk .t p{margin:0;font-size:clamp(14px,1.02vw,18px);line-height:1.62;color:var(--ink)}
+  a.inline{border-bottom:1px solid var(--line);padding-bottom:.05em;
+    transition:border-color .35s var(--out)}
+  a.inline:hover{border-color:var(--ink)}
+  .blk .t .k{margin-bottom:1em;opacity:.55}
+
+  /* ---- horizontal strip ----
+     Native overflow scrolling with snap, not a pointer-drag handler. Trackpad,
+     shift+wheel, touch and the keyboard all drive it for free, and there is no
+     custom drag fighting the browser or swallowing clicks. */
+  .strip{position:relative}
+  .stripsticky{position:sticky;top:0;height:100svh;overflow:hidden;
+    display:flex;align-items:center}
+  .stripsticky:focus-visible{outline:1px solid var(--ink);outline-offset:-4px}
+  .striprow{display:flex;gap:1.2vw;padding-left:var(--pad);width:max-content;
+    align-items:center;will-change:transform}
+  /* one common height, natural widths, a tall still can no longer tower over
+     a wide one, and nothing exceeds the viewport */
+  /* The cell sizes to its picture. The pre-load guard belongs on the MEDIA,
+     which has a real intrinsic ratio, not on the figure, a figure has none, so
+     `auto` there never resolved and every cell stayed a 3:2 landscape box with
+     a portrait image rattling around inside it. */
+  .striprow figure{margin:0;flex:0 0 auto;height:min(56svh,620px);width:auto}
+  .striprow img,.striprow video{height:100%;width:auto;max-width:none;display:block;
+    background:#d4d2d5;aspect-ratio:auto 9/16}
+
+  /* Touch and reduced-motion get a plain scroller instead. Pinning the page and
+     repurposing scroll direction is miserable on a phone, and it is exactly the
+     kind of motion a reduced-motion preference is asking us not to do. */
+  @media (max-width:860px), (prefers-reduced-motion:reduce){
+    .strip{height:auto !important;padding:6vh 0}
+    .stripsticky{position:static;height:auto;overflow-x:auto;overflow-y:hidden;
+      scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain}
+    .stripsticky::-webkit-scrollbar{display:none}
+    .striprow{transform:none !important;padding:0 var(--pad)}
+    .striprow figure{scroll-snap-align:center}
+  }
+  /* click-to-play clip */
+  .clip{position:relative}
+  .clip .play{position:absolute;inset:0;width:100%;height:100%;padding:0;border:0;
+    background:transparent;cursor:pointer;display:grid;place-items:center}
+  .clip .play span{width:clamp(48px,4.4vw,72px);aspect-ratio:1;border-radius:50%;
+    background:rgba(255,255,255,.92);display:block;position:relative;
+    transition:transform .4s var(--out),opacity .35s var(--out)}
+  .clip .play span::after{content:'';position:absolute;top:50%;left:56%;
+    transform:translate(-50%,-50%);
+    border-left:.9em solid var(--ink);border-top:.55em solid transparent;border-bottom:.55em solid transparent}
+  .clip .play:hover span{transform:scale(1.09)}
+  .clip .play:focus-visible{outline:2px solid #fff;outline-offset:-8px}
+  /* hidden while running, back on hover so the same control pauses it */
+  .clip.playing .play span{opacity:0;transform:scale(.82)}
+  .clip.playing .play:hover span,.clip.playing .play:focus-visible span{opacity:1;transform:scale(1)}
+  .striphint{padding:0 var(--pad) 6vh;opacity:.5}
+  @media (hover:none){ .striphint{display:none} }
+
+  /* ---- next ---- */
+  .nextp{position:relative;height:62svh;min-height:360px;overflow:hidden;display:block;background:#111}
+  .nextp img{width:100%;height:100%;object-fit:cover;display:block;
+    transform:scale(1.02);transition:transform 1.1s var(--out)}
+  .nextp:hover img{transform:scale(1.07)}
+  .nextp::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,.42)}
+  .nextp .cap{position:absolute;inset:0;z-index:2;color:#fff;display:grid;
+    place-content:center;text-align:center;gap:.7em;text-shadow:0 1px 20px rgba(0,0,0,.5)}
+  .nextp .cap strong{font-weight:400;font-size:clamp(24px,3.4vw,56px);letter-spacing:-.02em}
+
+  /* ---- reveal ----
+     gated behind .js so the default state is VISIBLE. Hiding content by
+     default and relying on script to bring it back means no-JS (and any
+     error before the observer is wired) renders an empty case study. */
+  .js .rv{opacity:0;transform:translateY(26px);transition:opacity .9s var(--out),transform .9s var(--out)}
+  .js .rv.in{opacity:1;transform:none}
+
+  @media (max-width:860px){
+    :root{--pad:5vw}
+    .pstack{display:none}
+    /* On a phone the hero stops being a cropped full-bleed frame and simply
+       shows the picture. A landscape still cover-fitted into a portrait screen
+       survives at about a quarter of its width, which destroys the composition;
+       natural aspect keeps every hero readable whatever shape it is. The
+       credits then flow underneath instead of sitting on top of nothing. */
+    .phero{height:auto;min-height:0;background:var(--bg)}
+    .phero img,.phero video{width:100%;height:auto;object-fit:contain}
+    .phero .tri{position:static;grid-template-columns:1fr}
+    .phero::after{display:none}
+    .pui{position:static;color:var(--ink);text-shadow:none}
+    .ptop{position:absolute;top:var(--pad);left:var(--pad);right:var(--pad);
+      color:#fff;text-shadow:0 1px 20px rgba(0,0,0,.55);z-index:3}
+    .pcred{position:static;padding:3.5vh 0 0;grid-template-columns:1fr;gap:1.1em}
+    .blk{grid-template-columns:1fr;padding:5vh var(--pad)}
+    .blk .m{grid-auto-flow:row;gap:2vh}
+    .blk .m.pair video,.blk .m.pair img{max-height:52svh}
+    .gridband{grid-template-columns:repeat(2,minmax(0,1fr));padding:5vh var(--pad)}
+    .blk .m,.blk .t,.blk.flip .m,.blk.flip .t{grid-column:1; grid-row:auto}
+    .striprow figure{width:82vw}
+  }
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    .rv{opacity:1;transform:none;transition:none}
+    .nextp img,.nextp:hover img{transform:none;transition:none}
+  }
+"""
+
+project_js = """
+  // reveal on entry, with a straight bail-out if the browser can't observe
+  if (!('IntersectionObserver' in window)) {
+    document.querySelectorAll('.rv').forEach((el) => el.classList.add('in'));
+    document.documentElement.classList.remove('js');
+    return;
+  }
+  const io = new IntersectionObserver((es) => {
+    es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { rootMargin: '0px 0px -12% 0px' });
+  document.querySelectorAll('.rv').forEach((el) => io.observe(el));
+
+  // Same freeze as the reel: observer callbacks are not guaranteed to land
+  // before first paint, and anything already on screen would sit at opacity 0
+  // until a resize forced re-evaluation. Sweep directly instead of trusting it.
+  function sweep() {
+    document.querySelectorAll('.rv:not(.in)').forEach((el) => {
+      const r = el.getBoundingClientRect();
+      if (r.top < innerHeight * 0.92 && r.bottom > 0) el.classList.add('in');
+    });
+  }
+  sweep();
+  addEventListener('load', sweep);
+
+  // body videos only run while on screen, a dozen autoplaying clips will
+  // stall a laptop for footage nobody is looking at
+  const vio = new IntersectionObserver((es) => {
+    es.forEach((e) => {
+      const v = e.target;
+      if (e.isIntersecting) { const p = v.play(); if (p) p.catch(() => {}); } else v.pause();
+    });
+  }, { threshold: 0.25 });
+  document.querySelectorAll('video[data-inview]').forEach((v) => vio.observe(v));
+
+  // ---- sticky sideways belt ----
+  // Duplicated BEFORE the clip handlers are wired below, so the clones get
+  // their own listeners rather than being dead copies.
+  const strip = document.querySelector('.strip');
+  const sticky = strip && strip.querySelector('.stripsticky');
+  const row = strip && strip.querySelector('.striprow');
+  const flat = matchMedia('(max-width:860px), (prefers-reduced-motion:reduce)');
+
+  if (row && row.children.length) {
+    [...row.children].forEach((n) => row.appendChild(n.cloneNode(true)));
+
+    let half = 0, speed = 1, tick = false;
+
+    function measure() {
+      if (flat.matches) { strip.style.height = ''; row.style.transform = ''; half = 0; return; }
+      const style = getComputedStyle(row);
+      const gap = parseFloat(style.columnGap) || 0;
+      // one full set, including the gap that trails it, miss this and the
+      // wrap lands a gap-width off and visibly jumps every cycle
+      half = (row.scrollWidth + gap) / 2;
+      // Cap the pinned stretch. A 16-item gallery at 1:1 would hold the page
+      // for ~15000px; instead the belt runs faster than the scroll so one full
+      // set always passes within a few viewports.
+      // BELT_SPEED scales how far the belt moves per pixel of page scroll.
+      // Halving it means twice the scroll for the same travel, so the pinned
+      // stretch doubles, that is inherent, not a side effect worth tuning out.
+      const BELT_SPEED = 0.5;
+      const travel = Math.min(half, innerHeight * 3.2) / BELT_SPEED;
+      speed = half / travel;
+      strip.style.height = Math.round(travel + innerHeight) + 'px';
+      place();
+    }
+
+    function place() {
+      if (flat.matches || !half) return;
+      const top = strip.getBoundingClientRect().top;
+      const travel = strip.offsetHeight - innerHeight;
+      const scrolled = Math.min(Math.max(-top, 0), Math.max(travel, 0));
+      row.style.transform = 'translate3d(' + -((scrolled * speed) % half).toFixed(2) + 'px,0,0)';
+    }
+
+    addEventListener('scroll', () => {
+      if (tick) return;
+      tick = true;
+      requestAnimationFrame(() => { place(); tick = false; });
+    }, { passive: true });
+
+    addEventListener('resize', measure);
+    flat.addEventListener('change', measure);
+    addEventListener('load', measure);
+    measure();
+  }
+
+  document.querySelectorAll('.strip .clip').forEach((fig) => {
+    const v = fig.querySelector('video');
+    const btn = fig.querySelector('.play');
+
+    const stopOthers = () => document.querySelectorAll('.strip .clip').forEach((o) => {
+      if (o === fig) return;
+      o.querySelector('video').pause();
+      o.classList.remove('playing');
+    });
+
+    btn.addEventListener('click', () => {
+      if (!v.paused) { v.pause(); fig.classList.remove('playing'); return; }
+      stopOthers();                       // never two clips talking at once
+      const mark = () => fig.classList.add('playing');
+      // a click is user intent, so sound is allowed, but fall back to muted
+      // rather than silently doing nothing if the browser still refuses
+      v.play().then(mark).catch(() => { v.muted = true; v.play().then(mark).catch(() => {}); });
+    });
+
+    v.addEventListener('ended', () => fig.classList.remove('playing'));
+    v.addEventListener('pause', () => fig.classList.remove('playing'));
+  });
+"""
+
+
+PROJECT_TMPL = """<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset='UTF-8' />
-<meta name='viewport' content='width=device-width, initial-scale=1.0' />
-<title>{html.escape(p['title'])} — Jonathan Tait</title>
-<meta name='description' content='{html.escape(p['summary'])}' />
-<style>{page_css}</style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>__TITLE__ · Jonathan Tait</title>
+<meta name="description" content="__DESC__">
+__FONTS__
+<script>document.documentElement.classList.add('js')</script>
+<style>__CSS__</style>
 </head>
 <body>
-<div class='shell'>
-<nav class='nav'>
-  <a href='../index.html#selected-work'>← Back to homepage</a>
-  <div style='display:flex;gap:10px;flex-wrap:wrap'>
-    <a href='{prev_slug}.html'>Prev</a>
-    <a href='{next_slug}.html'>Next</a>
 
-</nav>
-<section class='hero'>
-  <div class='card media'>{media_html}</div>
-  <div class='card copy'>
-    <div class='eyebrow'>{html.escape(extra_title)}</div>
-    <h1>{html.escape(p['title'])}</h1>
-    <p>{html.escape(p['summary'])}</p>
-    <p>{html.escape(p['hero_text'])}</p>
-    <div style='display:flex;gap:12px;flex-wrap:wrap'>
-      <a class='btn' href='../index.html#film'>Back to services</a>
+<header class="phero">
+  __HERO__
+  <div class="pui">
+    <div class="ptop lbl">
+      <a href="../index.html">&#8592; Index</a>
+      <span class="r">
+        <a href="__PREV__.html">Prev</a>
+        <a href="__NEXT__.html">Next</a>
+      </span>
     </div>
-
-</section>
-<section class='meta-grid'>
-  <article class='card meta-card summary-card'>
-    <div class='eyebrow'>Overview</div>
-    <div class='summary-scroll'>
-      <h3>Project at a glance</h3>
-      <p>{html.escape(p['overview_text'])}</p>
-      <div class='frame-list'>
-        <div class='frame-item'><span class='label'>Role</span><p>{html.escape(p['role_text'])}</p></div>
-        <div class='frame-item'><span class='label'>Brief</span><p>{html.escape(p['brief_text'])}</p></div>
-        <div class='frame-item'><span class='label'>Outcome</span><p>{html.escape(p['outcome_text'])}</p></div>
-      </div>
+    <div class="pstack lbl">
+      <span>__TITLE__</span>
+      <span>__TAG__</span>
+      <span>__YEAR__</span>
     </div>
-  </article>
-  <article class='card gallery-card'>
-    <div class='gallery-stage-wrap'>
-      <div class='gallery-stage' id='galleryStage'>{gallery_stage_html}</div>
+    <div class="pcred">
+      <div><div class="k lbl">Role</div><div class="v">__ROLE__</div></div>
+      <div><div class="k lbl">Focus</div><div class="v">__TAG__</div></div>
+      <div><div class="k lbl">Year</div><div class="v">__YEAR__</div></div>
     </div>
-    <div class='gallery-toolbar'>
-      <div class='gallery-controls'>
-        <button class='gallery-btn' type='button' id='galleryPrev'>Prev</button>
-        <button class='gallery-btn' type='button' id='galleryNext'>Next</button>
-        <div class='gallery-count'><span id='galleryCurrent'>1</span> / <span id='galleryTotal'>{len(p['gallery_items'])}</span></div>
-      </div>
-      <button class='gallery-btn' type='button' id='galleryExpand'>Expand</button>
-    </div>
-    <div class='gallery-strip'>{gallery_thumbs_html}</div>
-  </article>
-</section>
-<section class='section-stack'>
-  <article class='card wide-card narrative-card'>
-    <div class='eyebrow'>Case-study overview</div>
-    <h2>Project notes</h2>
-    <div class='note-stack'>{project_notes_html}</div>
-  </article>
-</section>
-</div>
-<div class='gallery-lightbox' id='galleryLightbox' aria-hidden='true'>
-  <div class='gallery-lightbox-inner'>
-    <div class='gallery-lightbox-top'>
-      <div class='eyebrow'>Expanded view</div>
-      <div class='gallery-controls'>
-        <div class='gallery-count'><span id='lightboxCurrent'>1</span> / <span id='lightboxTotal'>{len(p['gallery_items'])}</span></div>
-        <button class='gallery-btn' type='button' id='lightboxClose'>Close</button>
-      </div>
-    </div>
-    <div class='gallery-lightbox-stage' id='galleryLightboxStage'>
-      <button class='gallery-btn gallery-lightbox-nav prev' type='button' id='lightboxPrev'>Prev</button>
-      <button class='gallery-btn gallery-lightbox-nav next' type='button' id='lightboxNext'>Next</button>
-    </div>
-    <div class='gallery-lightbox-strip' id='galleryLightboxStrip'>{gallery_thumbs_html}</div>
   </div>
-</div>
-<script id='galleryData' type='application/json'>{gallery_items_json}</script>
+</header>
+
+__FILM__
+
+<section class="lede"><p class="rv">__LEDE__</p></section>
+
+__BLOCKS__
+
+<section class="strip">
+  <div class="stripsticky" tabindex="0" role="region" aria-label="__TITLE__ gallery">
+    <div class="striprow">__STRIP__</div>
+  </div>
+</section>
+
+<a class="nextp" href="__NEXT__.html">
+  <img src="__NEXT_THUMB__" alt="__NEXT_TITLE__" loading="lazy">
+  <span class="cap">
+    <span class="lbl">Next project</span>
+    <strong>__NEXT_TITLE__</strong>
+  </span>
+</a>
+
 <script>
-(() => {{
-  const dataEl = document.getElementById('galleryData');
-  const stage = document.getElementById('galleryStage');
-  const lightbox = document.getElementById('galleryLightbox');
-  const lightboxStage = document.getElementById('galleryLightboxStage');
-  if (!dataEl || !stage || !lightbox || !lightboxStage) return;
-  const items = JSON.parse(dataEl.textContent);
-  const thumbs = Array.from(document.querySelectorAll('.gallery-strip [data-gallery-thumb]'));
-  const lightboxThumbs = Array.from(document.querySelectorAll('.gallery-lightbox-strip [data-gallery-thumb]'));
-  const prev = document.getElementById('galleryPrev');
-  const next = document.getElementById('galleryNext');
-  const expand = document.getElementById('galleryExpand');
-  const current = document.getElementById('galleryCurrent');
-  const total = document.getElementById('galleryTotal');
-  const lightboxCurrent = document.getElementById('lightboxCurrent');
-  const lightboxTotal = document.getElementById('lightboxTotal');
-  const lightboxPrev = document.getElementById('lightboxPrev');
-  const lightboxNext = document.getElementById('lightboxNext');
-  const lightboxClose = document.getElementById('lightboxClose');
-  const title = {json.dumps(p['title'])};
-  let index = 0;
-
-  const stageMarkup = (item) => {{
-    if (!item) return '';
-    if (item.type === 'youtube') {{
-      return `<img src="${{item.thumb || item.src}}" alt="${{title}} video preview" data-gallery-preview="youtube" />`;
-    }}
-    if (item.type === 'video') {{
-      return `<video src="${{item.src}}" controls controlslist="nofullscreen noremoteplayback" disablepictureinpicture playsinline preload="metadata"></video>`;
-    }}
-    return `<img src="${{item.src}}" alt="${{title}}" />`;
-  }};
-
-  const lightboxMarkup = (item) => {{
-    if (!item) return '';
-    if (item.type === 'youtube') {{
-      return `<iframe src="${{item.src}}?rel=0&modestbranding=1" title="${{title}} video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>`;
-    }}
-    if (item.type === 'video') {{
-      return `<video src="${{item.src}}" controls controlslist="nofullscreen noremoteplayback" disablepictureinpicture playsinline preload="metadata"></video>`;
-    }}
-    return `<img src="${{item.src}}" alt="${{title}}" />`;
-  }};
-
-  const syncState = () => {{
-    current.textContent = String(index + 1);
-    total.textContent = String(items.length);
-    lightboxCurrent.textContent = String(index + 1);
-    lightboxTotal.textContent = String(items.length);
-    thumbs.forEach((thumb, i) => thumb.classList.toggle('active', i === index));
-    lightboxThumbs.forEach((thumb, i) => thumb.classList.toggle('active', i === index));
-  }};
-
-  const renderStage = () => {{
-    const item = items[index];
-    stage.innerHTML = stageMarkup(item);
-    const prevBtn = lightboxStage.querySelector('#lightboxPrev');
-    const nextBtn = lightboxStage.querySelector('#lightboxNext');
-    lightboxStage.innerHTML = lightboxMarkup(item);
-    lightboxStage.appendChild(prevBtn);
-    lightboxStage.appendChild(nextBtn);
-    syncState();
-  }};
-
-  const setIndex = (nextIndex) => {{
-    if (!items.length) return;
-    index = (nextIndex + items.length) % items.length;
-    renderStage();
-  }};
-
-  const openLightbox = () => {{
-    lightbox.classList.add('open');
-    lightbox.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
-    renderStage();
-  }};
-
-  const closeLightbox = () => {{
-    lightbox.classList.remove('open');
-    lightbox.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
-  }};
-
-  stage.addEventListener('click', (event) => {{
-    const media = stage.firstElementChild;
-    if (!media) return;
-    if (media.tagName === 'IMG' || media.tagName === 'IFRAME') {{
-      openLightbox();
-    }}
-  }});
-
-  thumbs.forEach((thumb, thumbIndex) => thumb.addEventListener('click', () => setIndex(thumbIndex)));
-  lightboxThumbs.forEach((thumb, thumbIndex) => thumb.addEventListener('click', () => setIndex(thumbIndex)));
-  prev?.addEventListener('click', () => setIndex(index - 1));
-  next?.addEventListener('click', () => setIndex(index + 1));
-  expand?.addEventListener('click', openLightbox);
-  lightboxPrev?.addEventListener('click', () => setIndex(index - 1));
-  lightboxNext?.addEventListener('click', () => setIndex(index + 1));
-  lightboxClose?.addEventListener('click', closeLightbox);
-  lightbox?.addEventListener('click', (event) => {{ if (event.target === lightbox) closeLightbox(); }});
-  document.addEventListener('keydown', (event) => {{
-    if (!lightbox.classList.contains('open')) return;
-    if (event.key === 'Escape') closeLightbox();
-    if (event.key === 'ArrowLeft') setIndex(index - 1);
-    if (event.key === 'ArrowRight') setIndex(index + 1);
-  }});
-  renderStage();
-}})();
+(() => {
+__JS__
+})();
 </script>
 </body>
 </html>"""
+
+
+def media_tag(item, title, inview=True, lazy=True):
+    """One gallery item as a tag. Videos carry a poster so the strip has
+    something to show before anything is fetched."""
+    poster = thumb_url(item.get('thumb')) or ''
+    if item.get('type') == 'video':
+        pa = f" poster='{html.escape(poster, quote=True)}'" if poster else ''
+        iv = " data-inview='1'" if inview else ''
+        return (f"<video src='{html.escape(item['src'], quote=True)}'{pa}{iv} "
+                f"muted loop playsinline preload='none'></video>")
+    # lazy is opt-out: an image sized width:auto/height:auto has NO box until it
+    # loads, so a lazy one computes 0x0, never intersects the viewport, and the
+    # loader never fires, it stays invisible forever. Anything sized that way
+    # must load eagerly.
+    lz = " loading='lazy'" if lazy else " decoding='async'"
+    return (f"<img src='{html.escape(item['src'], quote=True)}' "
+            f"alt='{html.escape(title, quote=True)}'{lz} />")
+
+
+def strip_item(item, title):
+    """Strip cell. Clips are click-to-play in place; the button covers the whole
+    cell so pointer and keyboard both drive it without a second control."""
+    if item.get('type') != 'video':
+        return f"<figure>{media_tag(item, title, inview=False)}</figure>"
+    poster = thumb_url(item.get('thumb')) or ''
+    pa = f" poster='{html.escape(poster, quote=True)}'" if poster else ''
+    return (
+        f"<figure class='clip'>"
+        f"<video src='{html.escape(item['src'], quote=True)}'{pa} playsinline preload='none'></video>"
+        f"<button class='play' type='button' aria-label='Play clip from {html.escape(title, quote=True)}'>"
+        f"<span></span></button>"
+        f"</figure>"
+    )
+
+
+for idx, p in enumerate(visible_projects):
+    prev_slug = visible_projects[idx - 1]['slug']
+    next_p = visible_projects[(idx + 1) % len(visible_projects)]
+    gallery_items = prepare_gallery(p)
+
+    # the case study may run a different trio to the reel, so opening a project
+    # does not just replay the frame you clicked from
+    page_set = p.get('page_media_set') or p.get('media_set')
+    if page_set:
+        # same vertical thirds as the reel, so the case study opens on the
+        # frame people just clicked rather than a different crop of it
+        cells = ''.join(
+            f"<video src='{html.escape(u, quote=True)}' "
+            f"poster='{html.escape(clip_poster(u, p['slug'], k), quote=True)}' "
+            f"autoplay muted loop playsinline></video>"
+            for k, u in enumerate(page_set)
+        )
+        hero_media = f"<div class='tri'>{cells}</div>"
+    elif p['media_type'] == 'video':
+        hero_media = (f"<video src='{p['media']}' poster='{hero_poster(p)}' "
+                      f"autoplay muted loop playsinline></video>")
+    else:
+        hero_media = f"<img src='{p['media']}' alt='{html.escape(p['title'], quote=True)}' />" 
+
+    # pair the written sections with gallery media, alternating side each time
+    sections = [(k, p.get(f'{k}_text', '')) for k in
+                ('brief', 'approach', 'outcome', 'intent', 'portfolio')]
+    sections = [(k, v) for k, v in sections if v]
+
+    # motion up top, stills through the body, motion again at the foot, so the
+    # written sections take images only and every clip is saved for the strip
+    # youtube entries are neither stills nor local clips. Left in the stills
+    # pool they rendered as <img src="youtube.com/embed/..."> - a broken image.
+    films = [i for i in gallery_items if i.get('type') == 'youtube']
+    stills = [i for i in gallery_items if i.get('type') not in ('video', 'youtube')]
+    clips = [i for i in gallery_items if i.get('type') == 'video']
+
+    # Interleave newly added local stills with the older library so no run of
+    # blocks comes from a single shoot, five frames from one set in a row reads
+    # as one campaign rather than a body of work.
+    fresh = [s for s in stills if str(s.get('src', '')).startswith('/assets/')]
+    older = [s for s in stills if not str(s.get('src', '')).startswith('/assets/')]
+    if fresh and older:
+        mixed = []
+        for a, b in zip_longest(fresh, older):
+            if a: mixed.append(a)
+            if b: mixed.append(b)
+        stills = mixed
+
+    # Two frames per section. A single portrait image fills barely a third of
+    # its column, so a lone one leaves most of the row empty.
+    PATTERN = [2, 2, 2, 2, 2]
+    GRID_N = 6
+    need = sum(PATTERN[i % len(PATTERN)] for i in range(len(sections)))
+    # explicit tail tiles, appended below the grid's own rows
+    extra = [{'type': 'image', 'src': u} for u in p.get('grid_extra', [])]
+    # only interrupt with a grid if the strip still has something left afterwards
+    use_grid = len(stills) - need >= GRID_N + 4 or bool(extra)
+
+    # The band draws from a fixed offset, and the blocks draw from everything
+    # else. Previously both walked the same cursor, so changing the block
+    # pattern silently re-dealt the band's contents.
+    GRID_AT = 3
+    grid_items = stills[GRID_AT:GRID_AT + GRID_N] if use_grid else []
+    pool = (stills[:GRID_AT] + stills[GRID_AT + GRID_N:]) if use_grid else stills
+
+    blocks, cursor = [], 0
+    for i, (key, text) in enumerate(sections):
+        n = PATTERN[i % len(PATTERN)]
+        items = pool[cursor:cursor + n]
+        cursor += len(items)
+        cells = ''.join(media_tag(it, p['title'], lazy=False) for it in items)
+        pair = ' pair' if len(items) > 1 else ''
+        media = f"<div class='m{pair} rv'>{cells}</div>" if items else ''
+        flip = ' flip' if i % 2 else ''
+        blocks.append(
+            f"<section class='blk{flip}'>{media}"
+            f"<div class='t rv'><div class='k lbl'>{html.escape(key.title())}</div>"
+            f"<p>{linkify(html.escape(text))}</p></div></section>"
+        )
+        # a full-width plate partway down, breaking the left/right rhythm
+        if use_grid and i == 1:
+            tiles = ''.join(
+                f"<img src='{html.escape(it['src'], quote=True)}' "
+                f"alt='{html.escape(p['title'], quote=True)}' loading='lazy' />"
+                for it in grid_items + extra)
+            blocks.append(f"<section class='gridband rv'>{tiles}</section>")
+
+    # clips lead the strip, then whatever stills the body did not spend
+    # every frame on the page also appears here, so the belt is the whole
+    # gallery rather than the offcuts
+    strip_items = clips + stills + extra
+    strip = ''.join(strip_item(it, p['title']) for it in (strip_items or stills))
+
+    film_html = ''
+    if films:
+        vid = films[0]['src'].rstrip('/').split('/')[-1].split('?')[0]
+        # nocookie host and rel=0: no tracking cookie before playback, and no
+        # unrelated channels recommended over the top of the work at the end
+        film_html = (
+            "<section class='film rv'>"
+            "<div class='k lbl'>Film</div>"
+            "<div class='filmwrap'>"
+            f"<iframe src='https://www.youtube-nocookie.com/embed/{html.escape(vid, quote=True)}?rel=0' "
+            f"title='{html.escape(p['title'], quote=True)}' loading='lazy' allowfullscreen "
+            "allow='accelerometer; encrypted-media; picture-in-picture; fullscreen'></iframe>"
+            "</div></section>"
+        )
+
+    year = p.get('year', '')
+    page = PROJECT_TMPL
+    for k, v in {
+        '__TITLE__': html.escape(p['title'], quote=True),
+        '__DESC__': html.escape(p['summary'], quote=True),
+        '__FONTS__': FONTS_HTML,
+        '__CSS__': project_css,
+        '__JS__': project_js,
+        '__HERO__': hero_media,
+        '__TAG__': html.escape(p['tag']),
+        '__YEAR__': html.escape(year),
+        '__ROLE__': html.escape(p.get('role_text', '')),
+        '__LEDE__': linkify(html.escape(p.get('overview_text') or p['summary'])),
+        '__FILM__': film_html,
+        '__BLOCKS__': ''.join(blocks),
+        '__STRIP__': strip,
+        '__PREV__': prev_slug,
+        '__NEXT__': next_p['slug'],
+        '__NEXT_TITLE__': html.escape(next_p['title']),
+        '__NEXT_THUMB__': thumb_url(next_p['thumb']),
+    }.items():
+        page = page.replace(k, v)
     (projects_dir / f"{p['slug']}.html").write_text(page, encoding='utf-8')
 
-print(json.dumps({'index': str(root/'index.html'), 'project_pages_written': len(projects)}, indent=2))
+
+# ---------------------------------------------------------------- digital side
+# A fixed-viewport, one-project-at-a-time reel. The page itself never scrolls:
+# the wheel/drag/arrow keys advance between projects and the film behind wipes
+# through. Layout is the editorial 4-column bar, index / category / title /
+# year, over full-bleed media.
+#
+# Any project can carry an optional "year": "2025" in projects.json; the column
+# is simply left blank for the ones that don't.
+#
+# ponytail: transitions are Web Animations API on clip-path + transform, which
+# the compositor handles on its own. A shader dissolve would need every clip
+# pushed through a WebGL texture, real cost, real iOS autoplay pain, and this
+# reads the same at speed. Revisit only if a displacement wipe is specifically
+# wanted.
+
+digital_dir = root
+
+digital_slides = []
+for i, p in enumerate(visible_projects):
+    # digital/ and projects/ are both one level deep, so ../ resolves for both
+    poster = html.escape(root_url(hero_poster(p)) or '', quote=True)
+    # A project may carry media_set: several portrait clips shown as vertical
+    # thirds instead of one cropped landscape frame. 9:16 footage fills a third
+    # almost exactly, so nothing gets cropped away.
+    media_set = p.get('media_set')
+    if media_set:
+        cells = []
+        for k, u in enumerate(media_set):
+            ps = html.escape(root_url(clip_poster(u, p['slug'], k)) or '', quote=True)
+            cells.append(f'<video data-src="{html.escape(u, quote=True)}" data-poster="{ps}" '
+                         f'muted loop playsinline preload="none"></video>')
+        inner = f'<div class="tri">{"".join(cells)}</div>'
+    elif p['media_type'] == 'video':
+        # poster is deferred too: a `poster` attribute fetches immediately, so
+        # leaving 11 of them inline pulled every project's still on first load
+        inner = (f'<video data-src="{html.escape(p["media"], quote=True)}" data-poster="{poster}" '
+                 f'muted loop playsinline preload="none"></video>')
+    else:
+        inner = f'<img data-src="{html.escape(p["media"], quote=True)}" data-poster="{poster}" alt="">'
+    digital_slides.append(f'<div class="slide" data-i="{i}">{inner}</div>')
+
+digital_meta = json.dumps([{
+    'n': f'{i + 1:02d}',
+    'tag': p['tag'],
+    'title': p['title'],
+    'year': p.get('year', ''),
+    'href': f"projects/{p['slug']}.html",
+} for i, p in enumerate(visible_projects)], ensure_ascii=False)
+
+digital_html = """<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>__TITLE__ · Digital</title>
+<meta name="description" content="__DESC__">
+__FONTS__
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  :root{
+    --bg:#e0dee1; --ink:#181818; --over:#fff;
+    --serif:'Fraunces',Georgia,serif;
+    --sans:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
+    --pad:2.2vw;
+    --sm:clamp(10px,.70vw,16px);
+    --lg:clamp(15px,1.25vw,29px);
+    --ease:cubic-bezier(.76,0,.24,1);
+    --out:cubic-bezier(.16,1,.3,1);
+  }
+  html,body{height:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:var(--sans); font-weight:400;
+    overflow:hidden; overscroll-behavior:none;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit; text-decoration:none}
+
+  /* ---- film: full-bleed, one active at a time ---- */
+  .film{position:fixed; inset:0; overflow:hidden; background:#111; cursor:pointer}
+  .parallax{position:absolute; inset:-3%; will-change:transform}
+  .slide{position:absolute; inset:0; overflow:hidden; opacity:0; visibility:hidden; will-change:transform}
+  .slide.on{opacity:1; visibility:visible}
+  .slide video,.slide img{width:100%; height:100%; object-fit:cover; display:block}
+  /* triptych: three portrait clips as vertical thirds */
+  .tri{position:absolute; inset:0; display:grid; grid-template-columns:repeat(3,1fr)}
+  .tri video{width:100%; height:100%; object-fit:cover; display:block}
+  /* stagger the drift so the three panels never breathe in lockstep */
+  .slide.on .tri video:nth-child(2){animation-delay:-6s}
+  .slide.on .tri video:nth-child(3){animation-delay:-12s}
+  @media (max-width:760px){
+    /* three portrait clips side by side on a phone is 125px each, show one */
+    .tri{grid-template-columns:1fr}
+    .tri video:not(:first-child){display:none}
+  }
+  /* slow drift so a held frame never reads as a still. Uses the standalone
+     `scale` property, NOT transform, the wipe animates transform on this same
+     element and the two must compose instead of clobbering each other. */
+  .slide.on video,.slide.on img,.slide.on .tri video{animation:drift 18s var(--out) infinite alternate}
+  @keyframes drift{from{scale:1.02}to{scale:1.09}}
+  .film::after{content:''; position:absolute; inset:0; pointer-events:none;
+    background:linear-gradient(180deg,rgba(0,0,0,.42),rgba(0,0,0,0) 26%,rgba(0,0,0,0) 62%,rgba(0,0,0,.46))}
+
+  /* ---- chrome ---- */
+  .ui{position:fixed; inset:0; color:var(--over); pointer-events:none;
+    text-transform:uppercase; font-size:var(--sm); letter-spacing:.04em;
+    /* the film underneath is arbitrary, never trust it to be dark */
+    text-shadow:0 1px 20px rgba(0,0,0,.55)}
+  .ui a,.ui button{pointer-events:auto}
+
+  .mark{position:absolute; top:var(--pad); left:var(--pad); font-weight:500; letter-spacing:.08em}
+  .tagline{position:absolute; top:var(--pad); left:50%; transform:translateX(-50%);
+    display:flex; gap:.6em; align-items:center; white-space:nowrap}
+  .count{position:absolute; top:var(--pad); right:var(--pad); font-variant-numeric:tabular-nums}
+
+  /* the editorial bar, the whole row is the link to the project */
+  .bar{position:absolute; top:58%; left:0; right:0; padding:0 var(--pad);
+    display:grid; grid-template-columns:7ch minmax(0,1fr) minmax(0,1fr) 7ch;
+    align-items:baseline; gap:1.5vw; isolation:isolate}
+  /* localised scrim: holds the row legible without flattening the whole frame */
+  .bar::before{content:''; position:absolute; z-index:-1; left:0; right:0; top:-2.6em; bottom:-2em;
+    background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,.42) 32%,rgba(0,0,0,.42) 68%,rgba(0,0,0,0))}
+  /* a little vertical slack so the wipe never clips ascenders or descenders */
+  .cell{overflow:hidden; padding:.18em 0; margin:-.18em 0}
+  .cell span{display:block; will-change:transform}
+  .cell.big{font-size:var(--lg); letter-spacing:.01em}
+  .cell.yr{text-align:right; font-variant-numeric:tabular-nums}
+  .bar:hover .cell.big span{opacity:.62; transition:opacity .4s}
+
+  .nav{position:absolute; left:var(--pad); bottom:var(--pad); display:grid; gap:.35em}
+  .nav a{width:max-content; position:relative}
+  .nav a::after{content:''; position:absolute; left:0; bottom:-2px; height:1px; width:100%;
+    background:currentColor; transform:scaleX(0); transform-origin:100% 50%; transition:transform .45s var(--out)}
+  .nav a:hover::after{transform:scaleX(1); transform-origin:0 50%}
+
+  .hint{position:absolute; bottom:var(--pad); left:50%; transform:translateX(-50%); opacity:.72}
+  .ticks{position:absolute; right:var(--pad); bottom:var(--pad); display:grid; gap:.5em}
+  .tick{width:22px; height:1px; background:currentColor; opacity:.3; transition:opacity .4s,width .4s var(--out)}
+  .tick.on{opacity:1; width:38px}
+
+  .burger{display:none}
+
+  @media (max-width:760px){
+    :root{--pad:5vw; --sm:12px; --lg:17px}
+    .tagline{display:none}
+    /* the gesture hint and the counter both go: the meta bar already shows the
+       index, and touch users do not need to be told to scroll */
+    .hint{display:none}
+    .count{display:none}
+
+    .burger{display:grid; position:absolute; top:var(--pad); right:var(--pad);
+      width:40px; height:40px; place-content:center; gap:7px; padding:0;
+      background:none; border:0; color:inherit; cursor:pointer; z-index:30}
+    .burger span{display:block; width:22px; height:1px; background:currentColor;
+      transition:transform .35s var(--out), opacity .25s var(--out)}
+    .burger[aria-expanded="true"] span:first-child{transform:translateY(4px) rotate(45deg)}
+    .burger[aria-expanded="true"] span:last-child{transform:translateY(-4px) rotate(-45deg)}
+
+    .nav{position:fixed; inset:0; display:grid; place-content:center; gap:1.6em;
+      background:rgba(12,12,14,.94); opacity:0; visibility:hidden; z-index:25;
+      pointer-events:none; transition:opacity .35s var(--out), visibility .35s}
+    .nav.open{opacity:1; visibility:visible; pointer-events:auto}
+    .nav a{font-size:1.5rem; letter-spacing:.04em; text-align:center}
+    .nav a::after{display:none}
+    .bar{top:auto; bottom:24vh; grid-template-columns:5ch minmax(0,1fr); gap:.5em 1em}
+    /* place every cell explicitly, or the title falls into the 5ch index
+       column and gets clipped by the wipe's overflow:hidden */
+    .cell.num{grid-column:1; grid-row:1}
+    .cell.tag{grid-column:2; grid-row:1}
+    .cell.ttl{grid-column:1/-1; grid-row:2}
+    .cell.yr{grid-column:1/-1; grid-row:3; text-align:left}
+    .ticks{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .slide.on video,.slide.on img{animation:none}
+  }
+  noscript .bar{position:static}
+</style>
+</head>
+<body>
+
+<div class="film"><div class="parallax" id="px">__SLIDES__</div></div>
+
+<div class="ui">
+  <div class="mark">__MARK__</div>
+  <div class="tagline"><span>__TAGLINE__</span></div>
+  <div class="count"><span id="cNow">01</span> &#8202;/&#8202; <span id="cAll">01</span></div>
+
+  <a class="bar" id="bar" href="#">
+    <span class="cell num"><span id="fNum">01</span></span>
+    <span class="cell big tag"><span id="fTag"></span></span>
+    <span class="cell big ttl"><span id="fTtl"></span></span>
+    <span class="cell yr"><span id="fYr"></span></span>
+  </a>
+
+  <button class="burger" type="button" aria-expanded="false"
+          aria-controls="reelNav" aria-label="Open menu"><span></span><span></span></button>
+  <nav class="nav" id="reelNav">
+    <a href="projects.html">Projects</a>
+    <a href="info.html">Info</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+
+  <div class="hint">Scroll / drag / click to enter</div>
+  <div class="ticks" id="ticks"></div>
+</div>
+
+<script>
+(() => {
+  const META = __META__;
+  const slides = [...document.querySelectorAll('.slide')];
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const bar = document.getElementById('bar');
+  const F = { n: fNum, tag: fTag, ttl: fTtl, yr: fYr };
+  let cur = 0, lock = false, first = true;
+
+  document.getElementById('cAll').textContent = String(META.length).padStart(2, '0');
+
+  const ticks = META.map((_, i) => {
+    const t = document.createElement('div');
+    t.className = 'tick';
+    document.getElementById('ticks').appendChild(t);
+    return t;
+  });
+
+  /* only the active clip and its neighbours ever get a src, 11 videos
+     loading at once would stall the first paint for no benefit */
+  function mount(i) {
+    for (const j of [i, (i + 1) % META.length, (i - 1 + META.length) % META.length]) {
+      for (const m of slides[j].querySelectorAll('video, img')) {
+      if (m.tagName === 'VIDEO') {
+        if (m.dataset.poster) { m.poster = m.dataset.poster; delete m.dataset.poster; }
+        if (m.dataset.src) { m.src = m.dataset.src; delete m.dataset.src; }
+      } else if (m.dataset.src) {
+        // stills take the full-size file, not the thumbnail, this is a
+        // full-bleed hero, and the poster-sized crop reads soft at that scale
+        m.src = m.dataset.src;
+        delete m.dataset.src;
+        delete m.dataset.poster;
+      }
+      }
+    }
+  }
+
+  function play(i) {
+    slides.forEach((s, j) => {
+      // a triptych slide holds three, so drive them all rather than the first
+      s.querySelectorAll('video').forEach((v) => {
+        if (j === i) { const p = v.play(); if (p) p.catch(() => {}); }
+        else v.pause();
+      });
+    });
+  }
+
+  /* each column wipes out upward, swaps its text at the turn, then wipes back
+     in, staggered left to right so the row reads as one movement */
+  function swap(el, text, delay, immediate) {
+    if (reduced) { el.textContent = text; return; }
+    // on first paint there is nothing to wipe out, going straight to the
+    // reveal saves ~600ms of an empty headline row
+    if (immediate) {
+      el.textContent = text;
+      // THE freeze bug: a forwards-filling animation created before the browser
+      // has produced its first frame sticks at its START keyframe, opacity 0 -
+      // so the whole row sat invisible until a resize forced a repaint. Setting
+      // the text first and only animating from inside rAF means a frame is
+      // provably being produced, and if it never is the text is already there.
+      requestAnimationFrame(() => {
+        el.animate(
+          [{ transform: 'translateY(115%)', opacity: 0 }, { transform: 'translateY(0)', opacity: 1 }],
+          { duration: 560, delay, easing: 'cubic-bezier(.16,1,.3,1)', fill: 'forwards' });
+      });
+      return;
+    }
+    el.animate(
+      [{ transform: 'translateY(0)', opacity: 1 }, { transform: 'translateY(-115%)', opacity: 0 }],
+      { duration: 400, delay, easing: 'cubic-bezier(.76,0,.24,1)', fill: 'forwards' });
+    // committed on a timer, not onfinish: a hidden tab freezes the animation
+    // timeline entirely, and the row must never be left showing stale copy
+    clearTimeout(el._t);
+    el._t = setTimeout(() => {
+      el.textContent = text;
+      el.animate(
+        [{ transform: 'translateY(115%)', opacity: 0 }, { transform: 'translateY(0)', opacity: 1 }],
+        { duration: 560, easing: 'cubic-bezier(.16,1,.3,1)', fill: 'forwards' });
+    }, delay + 400);
+  }
+
+  function show(next, dir) {
+    const inEl = slides[next], outEl = slides[cur];
+    mount(next);
+
+    inEl.style.zIndex = 2; outEl.style.zIndex = 1;
+    inEl.classList.add('on');
+
+    if (!reduced && next !== cur) {
+      // Wipe built from two counter-running transforms rather than clip-path:
+      // the slide slides in while its media slides the opposite way by the same
+      // amount, so the picture reads as stationary behind a moving edge. Both
+      // are transforms, so the compositor owns the whole thing, animating
+      // clip-path on a full-viewport video repaints on the main thread instead.
+      const opt = { duration: 1050, easing: 'cubic-bezier(.76,0,.24,1)', fill: 'forwards' };
+      const inner = inEl.firstElementChild;
+      inEl.animate(
+        [{ transform: 'translateY(' + (dir > 0 ? 100 : -100) + '%)' },
+         { transform: 'translateY(0%)' }], opt);
+      inner.animate(
+        [{ transform: 'translateY(' + (dir > 0 ? -100 : 100) + '%)' },
+         { transform: 'translateY(0%)' }], opt);
+      outEl.animate(
+        [{ transform: 'scale(1)', opacity: 1 },
+         { transform: 'scale(.94) translateY(' + (dir > 0 ? -3 : 3) + '%)', opacity: .55 }],
+        { duration: 1050, easing: 'cubic-bezier(.76,0,.24,1)', fill: 'forwards' });
+      // same reason as the text: never leave a slide mounted because an
+      // animation the browser froze was the only thing that would unmount it
+      clearTimeout(outEl._t);
+      outEl._t = setTimeout(() => {
+        if (cur !== +outEl.dataset.i) outEl.classList.remove('on');
+      }, 1050);
+    } else if (next !== cur) {
+      outEl.classList.remove('on');
+    }
+
+    const m = META[next];
+    swap(F.n, m.n, 0, first);
+    swap(F.tag, m.tag, 60, first);
+    swap(F.ttl, m.title, 120, first);
+    swap(F.yr, m.year, 180, first);
+    first = false;
+
+    bar.setAttribute('href', m.href);
+    document.getElementById('cNow').textContent = m.n;
+    ticks.forEach((t, i) => t.classList.toggle('on', i === next));
+
+    cur = next;
+    play(next);
+  }
+
+  function go(dir) {
+    show((cur + dir + META.length) % META.length, dir);
+  }
+
+  /* one project per gesture: without the lock a single trackpad flick fires
+     a dozen wheel events and rips through the whole reel */
+  function guard(dir) {
+    if (lock) return;
+    lock = true;
+    setTimeout(() => { lock = false; }, reduced ? 120 : 1100);
+    go(dir);
+  }
+
+  addEventListener('wheel', (e) => {
+    const d = Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+    if (Math.abs(d) < 6) return;
+    guard(d > 0 ? 1 : -1);
+  }, { passive: true });
+
+  addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') guard(1);
+    if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') guard(-1);
+  });
+
+  // hamburger: mobile only, but the listeners are harmless at any width
+  const burger = document.querySelector('.burger');
+  const navEl = document.getElementById('reelNav');
+  if (burger && navEl) {
+    const setOpen = (v) => {
+      navEl.classList.toggle('open', v);
+      burger.setAttribute('aria-expanded', v ? 'true' : 'false');
+      burger.setAttribute('aria-label', v ? 'Close menu' : 'Open menu');
+    };
+    burger.addEventListener('click', () => setOpen(!navEl.classList.contains('open')));
+    // tapping the backdrop closes; tapping a link just navigates
+    navEl.addEventListener('click', (e) => { if (e.target === navEl) setOpen(false); });
+    addEventListener('keydown', (e) => { if (e.key === 'Escape') setOpen(false); });
+  }
+
+  let downX = 0, downY = 0, dragging = false, moved = 0;
+  addEventListener('pointerdown', (e) => {
+    dragging = true; downX = e.clientX; downY = e.clientY; moved = 0;
+  });
+  addEventListener('pointermove', (e) => {
+    if (!dragging) return;
+    moved = Math.max(moved, Math.hypot(e.clientX - downX, e.clientY - downY));
+  });
+  addEventListener('pointerup', (e) => {
+    if (!dragging) return;
+    dragging = false;
+    const d = downY - e.clientY;
+    if (Math.abs(d) > 40) { guard(d > 0 ? 1 : -1); return; }
+    // A pointer that barely moved is a click, not a drag: the whole frame opens
+    // the current project. The distance test is what keeps a drag-to-advance
+    // from also navigating, and closest() stops it stealing taps meant for the
+    // nav, the meta bar, or any other control.
+    // guard the target: a pointerup on window can carry a non-Element target,
+    // and an exception here would kill the handler silently
+    const el = e.target instanceof Element ? e.target : null;
+    if (moved < 6 && !(el && el.closest('a, button, .nav'))) location.href = META[cur].href;
+  });
+  addEventListener('pointercancel', () => { dragging = false; });
+
+  // cursor parallax on the film only, the chrome stays locked to the grid
+  const px = document.getElementById('px');
+  let tx = 0, ty = 0, cx = 0, cy = 0;
+  addEventListener('pointermove', (e) => {
+    tx = (e.clientX / innerWidth - .5) * -22;
+    ty = (e.clientY / innerHeight - .5) * -14;
+  });
+  (function drift() {
+    cx += (tx - cx) * .05; cy += (ty - cy) * .05;
+    px.style.transform = 'translate3d(' + cx.toFixed(2) + 'px,' + cy.toFixed(2) + 'px,0)';
+    requestAnimationFrame(drift);
+  })();
+
+  show(0, 1);
+})();
+</script>
+</body>
+</html>"""
+
+for key, value in {
+    '__TITLE__': html.escape(site['title'], quote=True),
+    '__DESC__': html.escape(site['description'], quote=True),
+    '__FONTS__': FONTS_HTML,
+    '__SLIDES__': ''.join(digital_slides),
+    '__MARK__': html.escape(site['name']),
+    '__TAGLINE__': html.escape(site['hero_lede'].split('.')[0]),
+    '__EMAIL__': site['email'],
+    '__META__': digital_meta,
+}.items():
+    digital_html = digital_html.replace(key, value)
+(digital_dir / 'index.html').write_text(digital_html, encoding='utf-8')
+
+# ---------------------------------------------------------------- digital sub-pages
+# Projects grid, Info and Contact. Info and Contact are deliberate mirrors of
+# each other, statement left / image right, then image left / statement right -
+# so the pair reads as one spread rather than two unrelated pages.
+#
+# Palette is warm bone and a warm near-black taken from the existing site ink,
+# not the cool grey of the reference. Backgrounds are Jonathan's own stills.
+
+SUB_CSS = """
+  *,*::before,*::after{box-sizing:border-box}
+  :root{
+    --bg:#e7e2d9; --ink:#171513;
+    --mute:rgba(23,21,19,.58); --line:rgba(23,21,19,.16);
+    --serif:'Fraunces',Georgia,serif;
+    --sans:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
+    --pad:2.2vw;
+    --sm:clamp(11px,.72vw,15px);
+    --out:cubic-bezier(.16,1,.3,1);
+  }
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+    -webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  .lbl{font-size:var(--sm);text-transform:uppercase;letter-spacing:.06em}
+
+  .bar{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;
+    align-items:center;gap:1em;padding:var(--pad);background:var(--bg)}
+  .bar nav{display:flex;gap:1.6em}
+  .bar a{position:relative}
+  .bar a::after{content:'';position:absolute;left:0;bottom:-3px;height:1px;width:100%;
+    background:currentColor;transform:scaleX(0);transform-origin:100% 50%;
+    transition:transform .45s var(--out)}
+  .bar a:hover::after,.bar a[aria-current]::after{transform:scaleX(1);transform-origin:0 50%}
+
+  /* ---- projects grid ---- */
+  .grid{padding:4vh var(--pad) 12vh;display:grid;gap:3.2vw 1.6vw;
+    grid-template-columns:repeat(5,minmax(0,1fr))}
+  .card figure{margin:0 0 1.1em;overflow:hidden;aspect-ratio:4/5;background:#d9d3c8}
+  .card img{width:100%;height:100%;object-fit:cover;display:block;
+    transform:scale(1.01);transition:transform 1s var(--out)}
+  .card:hover img{transform:scale(1.07)}
+  .card .yr{color:var(--mute);margin-bottom:.7em}
+  .card h2{margin:0;font-size:clamp(15px,1.15vw,26px);font-weight:400;
+    text-transform:uppercase;letter-spacing:.01em;line-height:1.15}
+  .card .cl{margin-top:.35em;color:var(--mute);font-size:clamp(12px,.85vw,19px);
+    text-transform:uppercase}
+
+  /* ---- info / contact spread ---- */
+  .spread{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:3vw;padding:0 var(--pad) 6vh;align-items:start}
+  .spread .shot{margin:0;aspect-ratio:2/3;overflow:hidden;background:#d9d3c8;
+    position:sticky;top:14vh}
+  .spread .shot img{width:100%;height:100%;object-fit:cover;display:block}
+  .spread.flip .shot{order:-1}
+  .say{margin:0 0 1.2em;font-size:clamp(30px,3.9vw,80px);line-height:1.02;
+    letter-spacing:-.025em;text-transform:uppercase;font-weight:400;text-wrap:balance}
+  .lede{margin:0 0 3vh;font-size:clamp(15px,1.15vw,23px);line-height:1.5;max-width:46ch}
+  .cols{display:grid;grid-template-columns:minmax(0,1.9fr) minmax(0,1fr);gap:2vw}
+  .cols h3{margin:0 0 .9em;font-size:var(--sm);text-transform:uppercase;
+    letter-spacing:.06em;color:var(--mute);font-weight:400}
+  .cols p{margin:0 0 1.4em;font-size:clamp(13px,.95vw,18px);line-height:1.62}
+  .cols li{list-style:none;font-size:clamp(13px,.95vw,18px);line-height:1.9}
+  .cols ul{margin:0;padding:0}
+  /* cross-link to the other half of the practice */
+  .cross{display:flex;align-items:center;justify-content:space-between;gap:1em;
+    padding:.9em 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .cross .arw{transition:transform .5s var(--out)}
+  .cross:hover .arw{transform:translateX(.45em)}
+  .crossnote{margin:.9em 0 0;color:var(--mute);
+    font-size:clamp(12px,.85vw,16px);line-height:1.5}
+
+  .big-mail{display:inline-block;margin:0 0 3vh;font-size:clamp(19px,2.1vw,42px);
+    letter-spacing:-.02em;border-bottom:1px solid var(--line);padding-bottom:.12em}
+  .big-mail:hover{border-color:var(--ink)}
+
+  /* ---- foot ---- */
+  .foot{border-top:1px solid var(--line);margin:0 var(--pad);
+    padding:4vh 0 6vh;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2vw}
+  .foot h3{margin:0 0 1.1em;font-size:var(--sm);text-transform:uppercase;
+    letter-spacing:.06em;color:var(--mute);font-weight:400}
+  .foot a,.foot span{display:block;line-height:1.9;font-size:clamp(13px,.95vw,18px)}
+
+  @media (max-width:1100px){ .grid{grid-template-columns:repeat(3,minmax(0,1fr))} }
+  @media (max-width:760px){
+    :root{--pad:5vw}
+    .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:2.4vh 4vw}
+    .spread{grid-template-columns:1fr;gap:4vh}
+    .spread .shot{position:static;aspect-ratio:4/5}
+    .spread.flip .shot{order:0}
+    .cols{grid-template-columns:1fr;gap:3vh}
+    .foot{grid-template-columns:1fr;gap:3vh}
+    .bar nav{gap:1.1em}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .card img,.card:hover img{transform:none;transition:none}
+    .spread .shot{position:static}
+  }
+"""
+
+
+def sub_page(title, body, current):
+    items = (
+        ('reel', 'index.html', 'Reel'),
+        ('projects', 'projects.html', 'Projects'),
+        ('info', 'info.html', 'Info'),
+        ('contact', 'contact.html', 'Contact'),
+    )
+    links = []
+    for key, href, label in items:
+        cur = ' aria-current="page"' if key == current else ''
+        links.append(f'<a href="{href}"{cur}>{label}</a>')
+    nav = ''.join(links)
+    foot = f"""
+<footer class="foot lbl">
+  <div><h3>Elsewhere</h3>
+    <a href="https://www.instagram.com/jonathantait_digital/" target="_blank" rel="noopener noreferrer">Instagram</a>
+    <a href="https://www.linkedin.com/in/iamjonathantait/" target="_blank" rel="noopener noreferrer">LinkedIn</a></div>
+  <div><h3>Enquiries</h3><a href="mailto:{site['email']}">{site['email']}</a></div>
+  <div><h3>Based</h3><span>{html.escape(site.get('location', ''))}</span>
+    <span>&#169; {html.escape(str(datetime.date.today().year))} Jonathan Tait</span></div>
+</footer>"""
+    page = """<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>__PT__ · Jonathan Tait</title>
+<meta name="description" content="__DESC__">
+__FONTS__
+<style>__CSS__</style>
+</head>
+<body>
+<header class="bar lbl">
+  <a href="index.html">__MARK__</a>
+  <nav>__NAV__</nav>
+</header>
+__BODY__
+__FOOT__
+</body>
+</html>"""
+    for k, v in {
+        '__PT__': html.escape(title, quote=True),
+        '__DESC__': html.escape(site['description'], quote=True),
+        '__FONTS__': FONTS_HTML,
+        '__CSS__': SUB_CSS,
+        '__MARK__': html.escape(site['name']),
+        '__NAV__': nav,
+        '__BODY__': body,
+        '__FOOT__': foot,
+    }.items():
+        page = page.replace(k, v)
+    return page
+
+
+# ---- projects grid
+cards = ''.join(
+    f'<a class="card" href="projects/{p["slug"]}.html">'
+    f'<figure><img src="{html.escape(root_url(thumb_url(p["thumb"])), quote=True)}" '
+    f'alt="{html.escape(p["title"], quote=True)}" loading="lazy"></figure>'
+    f'<div class="yr lbl">{html.escape(p.get("year", ""))}</div>'
+    f'<h2>{html.escape(p["title"])}</h2>'
+    f'<div class="cl">{html.escape(p["tag"])}</div></a>'
+    for p in visible_projects
+)
+(digital_dir / 'projects.html').write_text(
+    sub_page('Projects', f'<main class="grid">{cards}</main>', 'projects'), encoding='utf-8')
+
+# ---- info: statement left, still right
+# ponytail: one constant for the physical-side destination. There is no physical
+# section built yet, so this points at the split landing, the agreed doorway to
+# it. Repoint here once those pages exist and every link follows.
+PHYSICAL_HREF = '../prototype/split.html'
+
+info_body = f"""
+<main class="spread">
+  <div>
+    <h1 class="say">{html.escape(site['hero_headline'])}</h1>
+    <p class="lede">{html.escape(site['hero_lede'])}</p>
+    <div class="cols">
+      <div>
+        <h3>Practice</h3>
+        <p>{html.escape(bio_project['summary'])}</p>
+        <p>{html.escape(bio_project['overview_text'])}</p>
+      </div>
+      <div>
+        <h3>Based</h3>
+        <ul><li>{html.escape(site.get('location', ''))}</li></ul>
+      </div>
+    </div>
+  </div>
+  <figure class="shot"><img src="{html.escape(root_url(thumb_url(bio_project['thumb'])), quote=True)}"
+    alt="{html.escape(bio_project['title'], quote=True)}" loading="lazy"></figure>
+</main>"""
+(digital_dir / 'info.html').write_text(sub_page('Info', info_body, 'info'), encoding='utf-8')
+
+# ---- contact: mirrored, still left
+contact_shot = visible_projects[0]
+contact_body = f"""
+<main class="spread flip">
+  <figure class="shot"><img src="{html.escape(root_url(thumb_url(contact_shot['thumb'])), quote=True)}"
+    alt="{html.escape(contact_shot['title'], quote=True)}" loading="lazy"></figure>
+  <div>
+    <h1 class="say">Let&#8217;s make something</h1>
+    <a class="big-mail" href="mailto:{site['email']}">{site['email']}</a>
+    <div class="cols">
+      <div>
+        <h3>Commissions</h3>
+        <p>Campaign work, cinematic direction and generative worldbuilding, from a
+        loose idea through to delivered stills and motion.</p>
+        <p>Tell me what you are making, roughly when you need it, and any
+        references you are working from. That is usually enough to start.</p>
+      </div>
+      <div><h3>Based</h3><ul><li>{html.escape(site.get('location', ''))}</li></ul></div>
+    </div>
+  </div>
+</main>"""
+(digital_dir / 'contact.html').write_text(sub_page('Contact', contact_body, 'contact'), encoding='utf-8')
+
+
+print(json.dumps({
+    'index': str(root / 'index.html'),
+    'digital': str(digital_dir / 'index.html'),
+    'project_pages_written': len(visible_projects) + 1,
+    'projects_on_homepage': [p['slug'] for p in visible_projects],
+}, indent=2))

@@ -1,10 +1,16 @@
+# personal Claude Code config (launch.json is kept - it is project setup)
+.claude/settings.local.json
+
+# scratch and temp
+_wixtmp/
+_cand.html
+.tmp_*
+
+# working screenshots from review sessions
+desktop-home-check.png
+mobile-home-full.png
+mobile-home-top.png
+
+# python
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
-.vscode/
-.vercel/
-.env
-.env.*
-Thumbs.db
-.DS_Store

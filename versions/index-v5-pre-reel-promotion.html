@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset='UTF-8' />
+  <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+  <title>Jonathan Tait — Generative AI Creative Technologist</title>
+  <meta name='description' content='Portfolio of Jonathan Tait — cinematic direction, AI-assisted campaign production, generative worldbuilding, and selected work.' />
+  <meta property='og:type' content='website' />
+  <meta property='og:title' content='Jonathan Tait — Generative AI Creative Technologist' />
+  <meta property='og:description' content='Portfolio of Jonathan Tait — cinematic direction, AI-assisted campaign production, generative worldbuilding, and selected work.' />
+  <meta property='og:image' content='https://static.wixstatic.com/media/14555f_95e9c9d2b11642ada02786cf6fd4c69d~mv2.jpg/v1/fill/w_1000,h_424,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_95e9c9d2b11642ada02786cf6fd4c69d~mv2.jpg' />
+  <meta name='twitter:card' content='summary_large_image' />
+  <link rel='preconnect' href='https://fonts.googleapis.com' />
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin />
+<link href='https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Inter:wght@400;500;600&display=swap' rel='stylesheet' />
+  <style>
+    :root {
+      --egg:#f3efe6;
+      --egg-2:#ebe4d7;
+      --ink:#171513;
+      --ink-soft:rgba(23,21,19,.72);
+      --line:rgba(23,21,19,.12);
+      --line-strong:rgba(23,21,19,.18);
+      --gold:#b88348;
+      --gold-soft:#e8caa5;
+      --panel:rgba(255,255,255,.54);
+      --shadow:0 24px 72px rgba(68,48,28,.12);
+      --radius:28px;
+      --max:1360px;
+      --serif:'Fraunces',Georgia,'Times New Roman',serif;
+      --sans:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body {
+      margin:0;
+      font-family:var(--sans);
+      background:linear-gradient(180deg, var(--egg) 0%, #f7f4ee 35%, var(--egg-2) 100%);
+      color:var(--ink);
+      line-height:1.5;
+    }
+    a { color:inherit; text-decoration:none; }
+    img, video { display:block; max-width:100%; }
+    .shell { width:min(calc(100% - 32px), var(--max)); margin:0 auto; }
+    .full-bleed { width:100vw; margin-left:calc(50% - 50vw); }
+    ::selection { background:var(--gold-soft); color:var(--ink); }
+
+    /* ---------- nav ---------- */
+    .site-nav {
+      position:fixed; top:14px; left:50%; transform:translateX(-50%); z-index:60;
+      width:min(calc(100% - 24px), var(--max)); min-height:64px; display:flex; align-items:center; gap:16px;
+      padding:10px 18px; border:1px solid rgba(255,255,255,.55); border-radius:999px; background:rgba(248,245,239,.72);
+      backdrop-filter:blur(18px) saturate(120%); box-shadow:0 10px 40px rgba(61,45,29,.08);
+      transition:box-shadow .3s ease, background .3s ease, top .3s ease;
+    }
+    .site-nav.scrolled { top:10px; background:rgba(248,245,239,.92); box-shadow:0 14px 44px rgba(61,45,29,.14); }
+    .brand-mark { font-size:.98rem; font-weight:500; letter-spacing:.24em; text-transform:uppercase; color:rgba(23,21,19,.85); white-space:nowrap; }
+    .nav-links { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; margin-left:auto; }
+    .nav-links a, .button {
+      min-height:42px; padding:9px 15px; border-radius:999px; border:1px solid var(--line);
+      background:rgba(255,255,255,.42); display:inline-flex; align-items:center; gap:8px;
+      transition:transform .18s ease, background .18s ease, border-color .18s ease;
+    }
+    .nav-links a:hover, .button:hover { transform:translateY(-1px); background:#fffaf4; border-color:var(--line-strong); }
+    .button.primary { background:linear-gradient(135deg,#d3a977,#b88348); color:white; border-color:transparent; box-shadow:0 14px 26px rgba(184,131,72,.18); }
+
+    /* ---------- hero ---------- */
+    .hero { position:relative; min-height:100svh; padding:118px 0 26px; overflow:clip; display:grid; align-items:end; }
+    .hero-media { position:absolute; inset:0; z-index:1; overflow:hidden; background:#1a1612; }
+    .hero-media::after { content:''; position:absolute; inset:0; background:linear-gradient(180deg,rgba(248,245,239,.12) 0%, rgba(248,245,239,.2) 12%, rgba(243,239,230,.42) 52%, rgba(243,239,230,.92) 100%); }
+    .hero-media-item { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity 1.4s ease; filter:saturate(1.02) contrast(1.02) brightness(.88); background-size:cover; background-position:center; }
+    .hero-media-item.active { opacity:1; }
+    .hero-content { position:relative; z-index:3; display:grid; gap:22px; }
+    .eyebrow {
+      display:inline-flex; align-items:center; gap:10px; width:fit-content; padding:8px 12px; border-radius:999px;
+      background:rgba(255,255,255,.52); border:1px solid rgba(255,255,255,.62); color:rgba(23,21,19,.64);
+      text-transform:uppercase; letter-spacing:.16em; font-size:.76rem;
+    }
+    .eyebrow::before { content:''; width:8px; height:8px; border-radius:999px; background:var(--gold); }
+    h1.hero-title {
+      margin:0; max-width:11ch; font-family:var(--serif); font-weight:380;
+      font-size:clamp(3.2rem,8.6vw,8rem); line-height:.94; letter-spacing:-.03em; text-wrap:balance;
+    }
+    .js h1.hero-title .w { display:inline-block; overflow:hidden; vertical-align:top; }
+    .js h1.hero-title .wi { display:inline-block; transform:translateY(112%); transition:transform .9s cubic-bezier(.19,1,.22,1); }
+    .js .hero-in h1.hero-title .wi { transform:none; }
+    .hero-lede { margin:16px 0 0; max-width:46rem; color:var(--ink-soft); font-size:clamp(1rem,1.6vw,1.22rem); }
+    .hero-actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:20px; }
+    .js .hero-fade { opacity:0; transform:translateY(14px); transition:opacity .9s ease .55s, transform .9s ease .55s; }
+    .js .hero-in .hero-fade { opacity:1; transform:none; }
+    .hero-foot { display:flex; justify-content:space-between; align-items:flex-end; gap:16px; padding-top:26px; }
+    .hero-note { color:rgba(23,21,19,.6); font-size:.86rem; text-transform:uppercase; letter-spacing:.14em; display:inline-flex; align-items:center; gap:10px; }
+    .hero-note::before { content:''; width:8px; height:8px; border-radius:999px; background:#7aa05a; box-shadow:0 0 0 4px rgba(122,160,90,.18); }
+    .scroll-cue { display:inline-flex; align-items:center; gap:10px; color:rgba(23,21,19,.58); font-size:.8rem; text-transform:uppercase; letter-spacing:.18em; }
+    .scroll-cue i { position:relative; width:1px; height:44px; background:rgba(23,21,19,.22); overflow:hidden; display:block; }
+    .scroll-cue i::after { content:''; position:absolute; left:0; top:-50%; width:100%; height:50%; background:var(--ink); animation:cue 1.8s ease-in-out infinite; }
+    @keyframes cue { 0% { top:-50%; } 100% { top:110%; } }
+
+    /* ---------- marquee ---------- */
+    .marquee { overflow:hidden; border-top:1px solid var(--line); border-bottom:1px solid var(--line); padding:20px 0; background:rgba(255,255,255,.28); }
+    .mq-track { display:flex; align-items:center; gap:34px; width:max-content; animation:mq 42s linear infinite; }
+    .mq-item { font-family:var(--serif); font-style:italic; font-weight:340; font-size:clamp(1.4rem,2.6vw,2.3rem); letter-spacing:-.02em; color:rgba(23,21,19,.78); white-space:nowrap; }
+    .mq-dot { width:9px; height:9px; border-radius:999px; background:var(--gold); flex:0 0 auto; }
+    @keyframes mq { to { transform:translateX(-50%); } }
+
+    /* ---------- sections ---------- */
+    section { padding:34px 0 16px; }
+    .section-head { display:grid; gap:14px; margin-bottom:26px; }
+    h2.display {
+      margin:0; font-family:var(--serif); font-weight:380;
+      font-size:clamp(2.4rem,5vw,4.8rem); line-height:.96; letter-spacing:-.03em;
+    }
+    h2.display em { font-style:italic; color:var(--gold); }
+    .section-copy { color:var(--ink-soft); }
+    .kicker { color:rgba(23,21,19,.52); text-transform:uppercase; letter-spacing:.16em; font-size:.74rem; }
+
+    /* ---------- film / services (scroll-tied) ---------- */
+    .film-spread { position:relative; min-height:260svh; }
+    .film-stage { position:sticky; top:86px; height:min(calc(100svh - 104px), max(240px, calc(100vw * 9 / 21))); overflow:hidden; background:#0f0e10; }
+    .film-stage video { width:100%; height:100%; object-fit:cover; filter:saturate(1.04) contrast(1.04) brightness(.84); }
+    .film-stage::after { content:''; position:absolute; inset:0; background:linear-gradient(180deg,rgba(10,10,12,.14) 0%, rgba(10,10,12,.18) 20%, rgba(10,10,12,.44) 100%); pointer-events:none; }
+    .film-overlay { position:absolute; inset:0; z-index:3; pointer-events:none; display:flex; justify-content:flex-end; align-items:flex-end; }
+    .overlay-panel { position:absolute; right:max(16px, calc((100vw - var(--max)) / 2 + 16px)); bottom:74px; width:min(460px,calc(100% - 32px)); color:var(--egg); }
+    .timeline-bar { height:3px; border-radius:999px; background:rgba(243,239,230,.22); overflow:hidden; margin-bottom:18px; }
+    .timeline-fill { height:100%; width:0%; background:linear-gradient(90deg,rgba(232,202,165,.92),rgba(255,244,224,.96)); }
+    .service-stack { position:relative; min-height:172px; }
+    .service-slide { position:absolute; inset:0; opacity:0; transform:translateY(18px); transition:opacity .45s ease, transform .45s ease; }
+    .service-slide.active { opacity:1; transform:none; }
+    .overlay-kicker { color:rgba(243,239,230,.72); text-transform:uppercase; letter-spacing:.18em; font-size:.74rem; }
+    .overlay-title { margin:10px 0 8px; font-family:var(--serif); font-weight:380; font-size:clamp(2rem,3vw,3.2rem); line-height:.94; letter-spacing:-.02em; max-width:11ch; text-wrap:balance; }
+    .overlay-copy { margin:0; max-width:30ch; color:rgba(243,239,230,.92); font-size:clamp(1rem,1.35vw,1.14rem); line-height:1.42; text-shadow:0 8px 28px rgba(0,0,0,.32); }
+
+    /* ---------- selected works ---------- */
+    .works-list { display:grid; border-top:1px solid var(--line-strong); }
+    .work-row {
+      display:grid; grid-template-columns:56px 148px minmax(0,1fr) auto; gap:24px; align-items:center;
+      padding:24px 10px; border-bottom:1px solid var(--line-strong); position:relative;
+      transition:background .35s ease, padding .35s ease;
+    }
+    .work-row:hover { background:rgba(255,255,255,.55); padding-left:22px; padding-right:16px; }
+    .work-num { font-family:var(--serif); font-style:italic; font-size:1.15rem; color:rgba(23,21,19,.42); }
+    .work-thumb { width:148px; aspect-ratio:4/3; border-radius:16px; overflow:hidden; display:block; }
+    .work-thumb span { display:block; width:100%; height:100%; background-size:cover; background-position:center; transition:transform .6s cubic-bezier(.19,1,.22,1); }
+    .work-row:hover .work-thumb span { transform:scale(1.07); }
+    .work-copy { display:grid; gap:6px; min-width:0; }
+    .work-title { font-family:var(--serif); font-weight:400; font-size:clamp(1.7rem,3.2vw,3rem); line-height:1; letter-spacing:-.02em; }
+    .work-summary { color:var(--ink-soft); max-width:62ch; font-size:.98rem; }
+    .work-arrow {
+      width:54px; height:54px; border-radius:999px; border:1px solid var(--line-strong);
+      display:grid; place-items:center; font-size:1.25rem; color:rgba(23,21,19,.7);
+      transition:transform .35s ease, background .35s ease, color .35s ease, border-color .35s ease;
+    }
+    .work-row:hover .work-arrow { background:linear-gradient(135deg,#d3a977,#b88348); border-color:transparent; color:white; transform:rotate(45deg); }
+    #workPreview {
+      position:fixed; z-index:80; width:min(380px,30vw); aspect-ratio:16/10; border-radius:18px;
+      background-size:cover; background-position:center; pointer-events:none; opacity:0; transform:scale(.9);
+      transition:opacity .25s ease, transform .25s ease; box-shadow:0 30px 80px rgba(20,14,8,.35);
+      top:0; left:0; will-change:transform;
+    }
+    #workPreview.on { opacity:1; transform:scale(1); }
+
+    /* ---------- bio ---------- */
+    .panel { background:rgba(255,255,255,.56); border:1px solid rgba(255,255,255,.68); border-radius:var(--radius); box-shadow:var(--shadow); backdrop-filter:blur(14px); }
+    .bio-card { overflow:hidden; padding:0; display:grid; grid-template-columns:minmax(240px,.85fr) 1.15fr; gap:0; }
+    .bio-media { min-height:440px; background-size:cover; background-position:center; }
+    .bio-copy { padding:30px; display:grid; gap:14px; align-content:center; }
+    .bio-copy h3 { margin:0; font-family:var(--serif); font-weight:400; font-size:clamp(1.5rem,2.4vw,2.2rem); letter-spacing:-.02em; }
+    .bio-copy p { margin:0; color:var(--ink-soft); }
+    .ghost-link { width:fit-content; min-height:42px; padding:10px 16px; border-radius:999px; border:1px solid var(--line); background:rgba(255,255,255,.38); display:inline-flex; align-items:center; gap:8px; transition:background .2s ease, border-color .2s ease; }
+    .ghost-link:hover { background:#fffaf4; border-color:var(--line-strong); }
+
+    /* ---------- footer / contact ---------- */
+    .site-footer {
+      margin-top:56px; background:linear-gradient(180deg,#1e1a15 0%, #141109 100%);
+      color:var(--egg); border-radius:44px 44px 0 0; padding:92px 0 34px; position:relative; overflow:clip;
+    }
+    .site-footer::before { content:''; position:absolute; inset:-40% -20% auto; height:80%; background:radial-gradient(ellipse at 30% 0%, rgba(184,131,72,.22), transparent 60%); pointer-events:none; }
+    .footer-kicker { display:inline-flex; align-items:center; gap:10px; width:fit-content; padding:8px 12px; border-radius:999px; border:1px solid rgba(243,239,230,.22); color:rgba(243,239,230,.72); text-transform:uppercase; letter-spacing:.16em; font-size:.76rem; }
+    .footer-kicker::before { content:''; width:8px; height:8px; border-radius:999px; background:var(--gold-soft); }
+    .footer-title { margin:22px 0 10px; font-family:var(--serif); font-weight:380; font-size:clamp(2.9rem,8.4vw,7.4rem); line-height:.95; letter-spacing:-.03em; max-width:12ch; }
+    .footer-title em { font-style:italic; color:var(--gold-soft); }
+    .footer-copy { margin:0; max-width:44rem; color:rgba(243,239,230,.72); font-size:clamp(1rem,1.5vw,1.15rem); }
+    .contact-list { display:flex; flex-wrap:wrap; gap:12px; margin-top:30px; }
+    .contact-link {
+      min-height:52px; padding:14px 22px; border-radius:999px; border:1px solid rgba(243,239,230,.28);
+      background:rgba(243,239,230,.06); display:inline-flex; align-items:center; gap:10px; cursor:pointer;
+      font-size:clamp(1rem,1.6vw,1.25rem); transition:background .2s ease, border-color .2s ease, transform .2s ease;
+    }
+    .contact-link:hover { background:rgba(243,239,230,.14); border-color:rgba(243,239,230,.5); transform:translateY(-2px); }
+    .contact-link:active { transform:translateY(0); }
+    .contact-link.primary-mail { background:linear-gradient(135deg,#d3a977,#b88348); border-color:transparent; color:#1c150c; font-weight:500; }
+    .contact-link.primary-mail:hover { background:linear-gradient(135deg,#ddb385,#c08d51); }
+    .footer-meta { display:flex; flex-wrap:wrap; gap:14px; justify-content:space-between; align-items:center; margin-top:72px; padding-top:22px; border-top:1px solid rgba(243,239,230,.14); color:rgba(243,239,230,.55); font-size:.86rem; }
+    .footer-meta a { color:rgba(243,239,230,.75); border-bottom:1px solid rgba(243,239,230,.25); padding-bottom:2px; transition:color .2s ease, border-color .2s ease; }
+    .footer-meta a:hover { color:var(--egg); border-color:rgba(243,239,230,.6); }
+
+    /* ---------- reveals ---------- */
+    .js .reveal { opacity:0; transform:translateY(26px); transition:opacity .8s ease, transform .8s cubic-bezier(.19,1,.22,1); }
+    .js .reveal.in-view { opacity:1; transform:none; }
+
+    /* ---------- responsive ---------- */
+    @media (max-width:1100px) {
+      .bio-card { grid-template-columns:1fr; }
+      .bio-media { min-height:320px; }
+    }
+    @media (max-width:780px) {
+      .site-nav {
+        position:static; transform:none; width:min(calc(100% - 20px),var(--max));
+        margin:12px auto 0; padding:12px 14px; border-radius:28px;
+        display:grid; grid-template-columns:1fr; gap:10px; align-items:start;
+      }
+      .site-nav.scrolled { top:auto; }
+      .brand-mark { font-size:.92rem; letter-spacing:.2em; }
+      .nav-links { margin-left:0; gap:8px; flex-wrap:nowrap; justify-content:flex-start; width:100%; overflow-x:auto; }
+      .nav-links a { min-height:40px; padding:8px 12px; font-size:.94rem; white-space:nowrap; }
+      .hero { min-height:82svh; padding:20px 0 12px; }
+      h1.hero-title { max-width:10ch; font-size:clamp(2.9rem,11vw,4.4rem); }
+      .hero-actions .button { min-height:40px; padding:9px 13px; }
+      .hero-foot { padding-top:18px; }
+      .scroll-cue { display:none; }
+      .film-spread { min-height:320svh; padding-top:8px; }
+      .film-stage { position:sticky; top:12px; height:860px; }
+      .film-stage::after { background:linear-gradient(180deg,rgba(10,10,12,.1) 0%, rgba(10,10,12,.12) 22%, rgba(10,10,12,.28) 58%, rgba(10,10,12,.58) 100%); }
+      .overlay-panel { right:16px; width:min(320px, calc(100% - 32px)); bottom:22px; }
+      .service-stack { min-height:186px; }
+      .overlay-title { max-width:12ch; font-size:clamp(1.8rem,7.4vw,2.4rem); }
+      .overlay-copy { max-width:26ch; font-size:1rem; line-height:1.38; }
+      #selected-work { padding-top:20px; }
+      .work-row { grid-template-columns:minmax(0,1fr); gap:12px; padding:20px 6px; }
+      .work-row:hover { padding-left:6px; padding-right:6px; }
+      .work-num { display:none; }
+      .work-thumb { width:100%; aspect-ratio:16/9; }
+      .work-arrow { display:none; }
+      #workPreview { display:none; }
+      .footer-meta { margin-top:44px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior:auto; }
+      .nav-links a, .button, .hero-media-item, .service-slide, .work-thumb span, .work-arrow { transition:none; }
+      .mq-track { animation:none; }
+      .scroll-cue i::after { animation:none; }
+      .js .reveal, .js h1.hero-title .wi, .js .hero-fade { opacity:1; transform:none; transition:none; }
+      #workPreview { display:none; }
+    }
+  </style>
+</head>
+<body>
+  <nav class='site-nav' id='siteNav'>
+    <div class='brand-mark'>Jonathan Tait</div>
+    <div class='nav-links'>
+      <a href='#film'>Services</a>
+      <a href='#selected-work'>Work</a>
+      <a href='#bio'>Bio</a>
+      <a href='#connect'>Contact</a>
+    </div>
+  </nav>
+  <header class='hero' id='heroTop'>
+    <div class='hero-media'>
+      <video class='hero-media-item active' data-hero-item muted autoplay loop playsinline preload='metadata'><source src='https://video.wixstatic.com/video/14555f_ab39ac0e32bb45efb0857d421afd9454/1080p/mp4/file.mp4' type='video/mp4' /></video><video class='hero-media-item' data-hero-item muted autoplay loop playsinline preload='metadata'><source src='https://video.wixstatic.com/video/14555f_f238e47ab7cf44d386741c1c4f93ac3d/1080p/mp4/file.mp4' type='video/mp4' /></video><video class='hero-media-item' data-hero-item muted autoplay loop playsinline preload='metadata'><source src='https://video.wixstatic.com/video/14555f_314a8a4123ea4a5fa516d3d7a34cfe63/1080p/mp4/file.mp4' type='video/mp4' /></video><video class='hero-media-item' data-hero-item muted autoplay loop playsinline preload='metadata'><source src='https://video.wixstatic.com/video/14555f_c4e6650c8a2c4a70a9ae27861c9c9f87/1080p/mp4/file.mp4' type='video/mp4' /></video><div class='hero-media-item' data-hero-item style="background-image:url('https://static.wixstatic.com/media/14555f_a715f604326d41a19ed685d841ac87c9~mv2.jpg/v1/fill/w_1000,h_558,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_a715f604326d41a19ed685d841ac87c9~mv2.jpg')"></div><div class='hero-media-item' data-hero-item style="background-image:url('https://static.wixstatic.com/media/14555f_7200187af99a4ad58f506a88ecdc3a32~mv2.png/v1/fill/w_1000,h_1500,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_7200187af99a4ad58f506a88ecdc3a32~mv2.png')"></div>
+    </div>
+    <div class='shell hero-content'>
+      <div>
+        <div class='eyebrow hero-fade' style='transition-delay:.15s'>Jonathan Tait — Portfolio</div>
+        <h1 class='hero-title'><span class='w'><span class='wi' style='transition-delay:120ms'>Generative</span></span> <span class='w'><span class='wi' style='transition-delay:210ms'>AI</span></span> <span class='w'><span class='wi' style='transition-delay:300ms'>Creative</span></span> <span class='w'><span class='wi' style='transition-delay:390ms'>Technologist</span></span></h1>
+        <p class='hero-lede hero-fade'>Cinematic direction, AI-assisted campaign production, and generative worldbuilding — images built to feel grounded, atmospheric, and believable.</p>
+        <div class='hero-actions hero-fade'>
+          <a class='button primary' href='#film'>Open services</a>
+          <a class='button' href='#selected-work'>Selected work</a>
+        </div>
+      </div>
+      <div class='hero-foot hero-fade'>
+        <span class='hero-note'>Available for select projects</span>
+        <span class='scroll-cue'>Scroll <i></i></span>
+      </div>
+    </div>
+  </header>
+  <main>
+    <div class='marquee full-bleed' aria-hidden='true'>
+      <div class='mq-track'><span class='mq-item'>AI Campaign Creative</span><span class='mq-dot' aria-hidden='true'></span><span class='mq-item'>Generative Worldbuilding</span><span class='mq-dot' aria-hidden='true'></span><span class='mq-item'>Cinematic AI Film</span><span class='mq-dot' aria-hidden='true'></span><span class='mq-item'>Hybrid Creative Direction</span><span class='mq-dot' aria-hidden='true'></span><span class='mq-item'>ComfyUI</span><span class='mq-dot' aria-hidden='true'></span><span class='mq-item'>Unreal Engine</span><span class='mq-dot' aria-hidden='true'></span><span class='mq-item'>Blender</span><span class='mq-dot' aria-hidden='true'></span><span class='mq-item'>MidJourney</span><span class='mq-dot' aria-hidden='true'></span><span class='mq-item'>DaVinci Resolve</span><span class='mq-dot' aria-hidden='true'></span><span class='mq-item'>AI Campaign Creative</span><span class='mq-dot' aria-hidden='true'></span><span class='mq-item'>Generative Worldbuilding</span><span class='mq-dot' aria-hidden='true'></span><span class='mq-item'>Cinematic AI Film</span><span class='mq-dot' aria-hidden='true'></span><span class='mq-item'>Hybrid Creative Direction</span><span class='mq-dot' aria-hidden='true'></span><span class='mq-item'>ComfyUI</span><span class='mq-dot' aria-hidden='true'></span><span class='mq-item'>Unreal Engine</span><span class='mq-dot' aria-hidden='true'></span><span class='mq-item'>Blender</span><span class='mq-dot' aria-hidden='true'></span><span class='mq-item'>MidJourney</span><span class='mq-dot' aria-hidden='true'></span><span class='mq-item'>DaVinci Resolve</span><span class='mq-dot' aria-hidden='true'></span></div>
+    </div>
+    <section id='film' class='full-bleed film-spread'>
+      <div class='film-stage'>
+        <video id='scrollVideo' muted playsinline preload='metadata' poster='https://static.wixstatic.com/media/14555f_95e9c9d2b11642ada02786cf6fd4c69d~mv2.jpg/v1/fill/w_1000,h_424,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_95e9c9d2b11642ada02786cf6fd4c69d~mv2.jpg'>
+          <source src='https://d8j0ntlcm91z4.cloudfront.net/user_2zHxsu73kQLwzkHl7I48OV6CZAC/hf_20260423_080152_0a982790-69cc-4d27-9e32-d0ad8c279685.mp4' type='video/mp4' />
+        </video>
+        <div class='film-overlay'>
+          <div class='overlay-panel'>
+            <div class='timeline-bar'><div id='timelineFill' class='timeline-fill'></div></div>
+            <div class='service-stack' aria-live='polite'>
+              
+              <div class='service-slide active' data-service-slide>
+                <div class='overlay-kicker'>Services — 01 / 04</div>
+                <h3 class='overlay-title'>AI Campaign Creative</h3>
+                <p class='overlay-copy'>Campaign stills and short-form motion built for launch-world brand storytelling.</p>
+              </div>
+              <div class='service-slide' data-service-slide>
+                <div class='overlay-kicker'>Services — 02 / 04</div>
+                <h3 class='overlay-title'>Generative Worldbuilding</h3>
+                <p class='overlay-copy'>Concept, look development, casting, and environments for authored visual worlds.</p>
+              </div>
+              <div class='service-slide' data-service-slide>
+                <div class='overlay-kicker'>Services — 03 / 04</div>
+                <h3 class='overlay-title'>Cinematic AI Film</h3>
+                <p class='overlay-copy'>Short films, brand motion, and narrative sequences shaped through atmosphere and pacing.</p>
+              </div>
+              <div class='service-slide' data-service-slide>
+                <div class='overlay-kicker'>Services — 04 / 04</div>
+                <h3 class='overlay-title'>Hybrid Creative Direction</h3>
+                <p class='overlay-copy'>End-to-end AI production systems connecting concept, tooling, and final finish.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section id='selected-work'>
+      <div class='shell'>
+        <div class='section-head reveal'>
+          <div class='eyebrow'>Selected work</div>
+          <h2 class='display'>Selected <em>work</em></h2>
+        </div>
+        <div class='works-list' id='worksList'>
+          
+          <a class='work-row reveal' href='projects/jeep-apparel.html' aria-label='Open Jeep Apparel' data-preview="https://static.wixstatic.com/media/14555f_e9c7ac8eac134e38a750285bd00289ba~mv2.png/v1/fill/w_1000,h_1778,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_e9c7ac8eac134e38a750285bd00289ba~mv2.png">
+            <span class='work-num'>01</span>
+            <span class='work-thumb'><span style="background-image:url('https://static.wixstatic.com/media/14555f_e9c7ac8eac134e38a750285bd00289ba~mv2.png/v1/fill/w_1000,h_1778,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_e9c7ac8eac134e38a750285bd00289ba~mv2.png')"></span></span>
+            <span class='work-copy'>
+              <span class='kicker'>Commercial / apparel</span>
+              <span class='work-title'>Jeep Apparel</span>
+              <span class='work-summary'>Campaign-led visual development for Jeep Apparel South Africa, built around grit, utility, and outdoor brand energy.</span>
+            </span>
+            <span class='work-arrow' aria-hidden='true'>&#8599;</span>
+          </a>
+          <a class='work-row reveal' href='projects/the-reunion.html' aria-label='Open The Reunion' data-preview="https://static.wixstatic.com/media/14555f_95e9c9d2b11642ada02786cf6fd4c69d~mv2.jpg/v1/fill/w_1000,h_424,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_95e9c9d2b11642ada02786cf6fd4c69d~mv2.jpg">
+            <span class='work-num'>02</span>
+            <span class='work-thumb'><span style="background-image:url('https://static.wixstatic.com/media/14555f_95e9c9d2b11642ada02786cf6fd4c69d~mv2.jpg/v1/fill/w_1000,h_424,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_95e9c9d2b11642ada02786cf6fd4c69d~mv2.jpg')"></span></span>
+            <span class='work-copy'>
+              <span class='kicker'>Atmosphere / narrative</span>
+              <span class='work-title'>The Reunion</span>
+              <span class='work-summary'>A short cinematic study of longing, memory, and the tension of something almost remembered.</span>
+            </span>
+            <span class='work-arrow' aria-hidden='true'>&#8599;</span>
+          </a>
+          <a class='work-row reveal' href='projects/invisi-merino.html' aria-label='Open Invisi Merino' data-preview="https://static.wixstatic.com/media/14555f_963bfabcba234d779ab28bfd335b93cc~mv2.png/v1/fill/w_1000,h_1250,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_963bfabcba234d779ab28bfd335b93cc~mv2.png">
+            <span class='work-num'>03</span>
+            <span class='work-thumb'><span style="background-image:url('https://static.wixstatic.com/media/14555f_963bfabcba234d779ab28bfd335b93cc~mv2.png/v1/fill/w_1000,h_1250,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_963bfabcba234d779ab28bfd335b93cc~mv2.png')"></span></span>
+            <span class='work-copy'>
+              <span class='kicker'>Lifestyle / performance</span>
+              <span class='work-title'>Invisi Merino</span>
+              <span class='work-summary'>A Mother’s Day campaign for Invisi Merino built through a compressed AI-assisted production workflow.</span>
+            </span>
+            <span class='work-arrow' aria-hidden='true'>&#8599;</span>
+          </a>
+          <a class='work-row reveal' href='projects/ibh-mens-fashion.html' aria-label='Open I/B/H Mens Fashion' data-preview="https://static.wixstatic.com/media/14555f_474f2750e7f3468db9613883ad4a9929~mv2.jpg/v1/fill/w_1000,h_558,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_474f2750e7f3468db9613883ad4a9929~mv2.jpg">
+            <span class='work-num'>04</span>
+            <span class='work-thumb'><span style="background-image:url('https://static.wixstatic.com/media/14555f_474f2750e7f3468db9613883ad4a9929~mv2.jpg/v1/fill/w_1000,h_558,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_474f2750e7f3468db9613883ad4a9929~mv2.jpg')"></span></span>
+            <span class='work-copy'>
+              <span class='kicker'>Editorial / menswear</span>
+              <span class='work-title'>I/B/H Mens Fashion</span>
+              <span class='work-summary'>A self-initiated menswear concept from the INSERT BRAND HERE sandbox, built with the posture of a real commercial brief.</span>
+            </span>
+            <span class='work-arrow' aria-hidden='true'>&#8599;</span>
+          </a>
+          <a class='work-row reveal' href='projects/ibh-canned-refreshment.html' aria-label='Open I/B/H Canned Refreshment' data-preview="https://static.wixstatic.com/media/14555f_118eb44b20204ea094074831340fb2eb~mv2.jpg/v1/fill/w_1000,h_747,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_118eb44b20204ea094074831340fb2eb~mv2.jpg">
+            <span class='work-num'>05</span>
+            <span class='work-thumb'><span style="background-image:url('https://static.wixstatic.com/media/14555f_118eb44b20204ea094074831340fb2eb~mv2.jpg/v1/fill/w_1000,h_747,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_118eb44b20204ea094074831340fb2eb~mv2.jpg')"></span></span>
+            <span class='work-copy'>
+              <span class='kicker'>Beverage / launch</span>
+              <span class='work-title'>I/B/H Canned Refreshment</span>
+              <span class='work-summary'>A consumer-facing launch concept from the INSERT BRAND HERE series, shaped around speed, appetite, and punchier brand energy.</span>
+            </span>
+            <span class='work-arrow' aria-hidden='true'>&#8599;</span>
+          </a>
+          <a class='work-row reveal' href='projects/ibh-frozen-yoghurt.html' aria-label='Open I/B/H Frozen Yoghurt' data-preview="https://static.wixstatic.com/media/14555f_95f8bea9fb954665b0e74c86b795ecbb~mv2.png/v1/fill/w_1000,h_747,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_95f8bea9fb954665b0e74c86b795ecbb~mv2.png">
+            <span class='work-num'>06</span>
+            <span class='work-thumb'><span style="background-image:url('https://static.wixstatic.com/media/14555f_95f8bea9fb954665b0e74c86b795ecbb~mv2.png/v1/fill/w_1000,h_747,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_95f8bea9fb954665b0e74c86b795ecbb~mv2.png')"></span></span>
+            <span class='work-copy'>
+              <span class='kicker'>Food / playful brand</span>
+              <span class='work-title'>I/B/H Frozen Yoghurt</span>
+              <span class='work-summary'>A lighter, more playful INSERT BRAND HERE concept built around warmth, appetite, and consumer-friendly tone.</span>
+            </span>
+            <span class='work-arrow' aria-hidden='true'>&#8599;</span>
+          </a>
+          <a class='work-row reveal' href='projects/carrol-boyes.html' aria-label='Open Carrol Boyes' data-preview="https://static.wixstatic.com/media/14555f_87071ee760ea49bb8d6ecc015b11ad06~mv2.png/v1/fill/w_1000,h_667,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_87071ee760ea49bb8d6ecc015b11ad06~mv2.png">
+            <span class='work-num'>07</span>
+            <span class='work-thumb'><span style="background-image:url('https://static.wixstatic.com/media/14555f_87071ee760ea49bb8d6ecc015b11ad06~mv2.png/v1/fill/w_1000,h_667,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_87071ee760ea49bb8d6ecc015b11ad06~mv2.png')"></span></span>
+            <span class='work-copy'>
+              <span class='kicker'>Object / premium product</span>
+              <span class='work-title'>Carrol Boyes</span>
+              <span class='work-summary'>A premium object-led campaign world built around sculptural tableware, ritual, and digitally extended product storytelling.</span>
+            </span>
+            <span class='work-arrow' aria-hidden='true'>&#8599;</span>
+          </a>
+          <a class='work-row reveal' href='projects/swing-path-pro.html' aria-label='Open Swing Path Pro' data-preview="https://static.wixstatic.com/media/14555f_a332f37bddfc430aba6e13529563c5ff~mv2.jpg/v1/fill/w_1000,h_500,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_a332f37bddfc430aba6e13529563c5ff~mv2.jpg">
+            <span class='work-num'>08</span>
+            <span class='work-thumb'><span style="background-image:url('https://static.wixstatic.com/media/14555f_a332f37bddfc430aba6e13529563c5ff~mv2.jpg/v1/fill/w_1000,h_500,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_a332f37bddfc430aba6e13529563c5ff~mv2.jpg')"></span></span>
+            <span class='work-copy'>
+              <span class='kicker'>Sports tech / product</span>
+              <span class='work-title'>Swing Path Pro</span>
+              <span class='work-summary'>Ongoing visual development for a golf training product, built around clarity, movement, and product understanding.</span>
+            </span>
+            <span class='work-arrow' aria-hidden='true'>&#8599;</span>
+          </a>
+          <a class='work-row reveal' href='projects/dividuum.html' aria-label='Open Dividuum' data-preview="https://static.wixstatic.com/media/14555f_1b9e337b70014d1cbe38077dda276b59~mv2.jpg/v1/fill/w_1000,h_500,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_1b9e337b70014d1cbe38077dda276b59~mv2.jpg">
+            <span class='work-num'>09</span>
+            <span class='work-thumb'><span style="background-image:url('https://static.wixstatic.com/media/14555f_1b9e337b70014d1cbe38077dda276b59~mv2.jpg/v1/fill/w_1000,h_500,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_1b9e337b70014d1cbe38077dda276b59~mv2.jpg')"></span></span>
+            <span class='work-copy'>
+              <span class='kicker'>Concept / digital world</span>
+              <span class='work-title'>Dividuum</span>
+              <span class='work-summary'>A generative music video built with German composer Benjamin Richter, where the visual world evolved alongside the tools themselves.</span>
+            </span>
+            <span class='work-arrow' aria-hidden='true'>&#8599;</span>
+          </a>
+        </div>
+      </div>
+    </section>
+    <section id='bio'>
+      <div class='shell'>
+        <div class='section-head reveal'>
+          <div class='eyebrow'>Bio</div>
+          <h2 class='display'>Behind the <em>images</em></h2>
+        </div>
+        <article class='panel bio-card reveal'>
+          <div class='bio-media' style="background-image:url('https://static.wixstatic.com/media/14555f_9c35a7f7ff24452e897540d1090e201e~mv2.png/v1/fill/w_1000,h_1000,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_9c35a7f7ff24452e897540d1090e201e~mv2.png')"></div>
+          <div class='bio-copy'>
+            <div class='kicker'>Profile / positioning</div>
+            <h3>Jonathan Tait</h3>
+            <p>From moving image and post-production into generative systems and physical making, Jonathan Tait’s practice is centred on building images that feel grounded, atmospheric, and believable.</p>
+            <p>The work moves between cinematic image-making, generative workflows, and tactile experimentation while staying anchored to light, composition, and authored feeling.</p>
+            <a class='ghost-link' href='projects/bio.html'>Open full bio page</a>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+  <footer class='site-footer full-bleed' id='connect'>
+    <div class='shell'>
+      <div class='footer-kicker reveal'>Connect</div>
+      <h2 class='footer-title reveal'>Start a <em>conversation</em>.</h2>
+      <p class='footer-copy reveal'>Campaign visuals, cinematic AI film, generative worldbuilding, or hybrid creative direction — get in touch directly.</p>
+      <div class='contact-list reveal'>
+        <a class='contact-link primary-mail' href='mailto:tait@jonathantait.com?subject=Project%20enquiry'>tait@jonathantait.com</a>
+      </div>
+      <div class='footer-meta'>
+        <span>© 2026 Jonathan Tait</span>
+        <a href='info/privacy-policy.html'>Privacy policy</a>
+        <a href='#heroTop'>Back to top ↑</a>
+      </div>
+    </div>
+  </footer>
+  <div id='workPreview' aria-hidden='true'></div>
+  <script>
+    (() => {
+      document.documentElement.classList.add('js');
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      /* hero entrance */
+      requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.add('hero-in')));
+
+      /* hero media rotation */
+      const heroItems = Array.from(document.querySelectorAll('[data-hero-item]'));
+      let heroIndex = 0;
+      if (heroItems.length > 1) {
+        setInterval(() => {
+          heroItems[heroIndex].classList.remove('active');
+          heroIndex = (heroIndex + 1) % heroItems.length;
+          heroItems[heroIndex].classList.add('active');
+        }, 4200);
+      }
+
+      /* nav state */
+      const nav = document.getElementById('siteNav');
+      const onNav = () => nav.classList.toggle('scrolled', window.scrollY > 40);
+      onNav();
+      window.addEventListener('scroll', onNav, { passive:true });
+
+      /* scroll-tied film + services */
+      const scrollVideo = document.getElementById('scrollVideo');
+      const spread = document.getElementById('film');
+      const fill = document.getElementById('timelineFill');
+      const serviceSlides = Array.from(document.querySelectorAll('[data-service-slide]'));
+      let duration = 15.09;
+      const setService = (index) => {
+        serviceSlides.forEach((slide, i) => slide.classList.toggle('active', i === index));
+      };
+      const update = () => {
+        const rect = spread.getBoundingClientRect();
+        const total = Math.max(1, spread.offsetHeight - window.innerHeight);
+        const progress = Math.min(1, Math.max(0, -rect.top / total));
+        fill.style.width = `${(progress * 100).toFixed(2)}%`;
+        if (serviceSlides.length) {
+          const serviceIndex = Math.min(serviceSlides.length - 1, Math.floor(progress * serviceSlides.length));
+          setService(serviceIndex);
+        }
+        if (scrollVideo && Number.isFinite(duration) && duration > 0 && !scrollVideo.seeking) {
+          const target = Math.min(duration - 0.05, progress * duration);
+          try { scrollVideo.currentTime = target; } catch (e) {}
+        }
+      };
+      if (scrollVideo) {
+        scrollVideo.pause();
+        scrollVideo.addEventListener('loadedmetadata', () => {
+          if (Number.isFinite(scrollVideo.duration) && scrollVideo.duration > 0) duration = scrollVideo.duration;
+          update();
+        });
+      }
+      setService(0);
+      update();
+      window.addEventListener('scroll', update, { passive:true });
+      window.addEventListener('resize', update);
+
+      /* scroll reveals */
+      const revealEls = Array.from(document.querySelectorAll('.reveal'));
+      if ('IntersectionObserver' in window && !reduced) {
+        const io = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('in-view');
+              io.unobserve(entry.target);
+            }
+          });
+        }, { rootMargin:'0px 0px -8% 0px', threshold:0.05 });
+        revealEls.forEach((el, i) => {
+          el.style.transitionDelay = `${Math.min(i % 4, 3) * 60}ms`;
+          io.observe(el);
+        });
+      } else {
+        revealEls.forEach((el) => el.classList.add('in-view'));
+      }
+
+      /* floating work preview (fine pointers only) */
+      const preview = document.getElementById('workPreview');
+      const worksList = document.getElementById('worksList');
+      const finePointer = window.matchMedia('(pointer: fine)').matches;
+      if (preview && worksList && finePointer && !reduced) {
+        let px = 0, py = 0, tx = 0, ty = 0, raf = null;
+        const loop = () => {
+          px += (tx - px) * 0.16;
+          py += (ty - py) * 0.16;
+          preview.style.transform = `translate(${px}px, ${py}px) scale(${preview.classList.contains('on') ? 1 : 0.9})`;
+          raf = requestAnimationFrame(loop);
+        };
+        worksList.addEventListener('pointermove', (e) => {
+          const w = preview.offsetWidth || 360;
+          const h = preview.offsetHeight || 225;
+          tx = Math.min(e.clientX + 28, window.innerWidth - w - 20);
+          ty = Math.min(Math.max(e.clientY - h / 2, 16), window.innerHeight - h - 16);
+          if (raf === null) { px = tx; py = ty; loop(); }
+        });
+        worksList.querySelectorAll('.work-row').forEach((row) => {
+          row.addEventListener('pointerenter', () => {
+            const src = row.getAttribute('data-preview');
+            if (!src) return;
+            preview.style.backgroundImage = `url('${src}')`;
+            preview.classList.add('on');
+          });
+          row.addEventListener('pointerleave', () => preview.classList.remove('on'));
+        });
+        worksList.addEventListener('pointerleave', () => preview.classList.remove('on'));
+      }
+
+      /* ensure the email pill reliably opens the email client */
+      document.querySelectorAll(".contact-link[href^='mailto:']").forEach((link) => {
+        link.addEventListener('click', function () {
+          const href = this.getAttribute('href');
+          if (href && href.indexOf('mailto:') === 0) window.location.href = href;
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,965 @@
+{
+  "site": {
+    "_howto": "Site-wide settings. Hero media rotates in order. film_clip is the scroll-tied video. To add a project, copy any entry in 'projects', change the fields, and run: python rebuild_site.py Each project takes a \"year\" field shown on the reel and project page. A project may also carry \"media_set\": a list of clips shown side by side as vertical thirds on the reel. \"grid_extra\" pins extra images to the end of the grid band. \"page_media_set\" overrides the triptych on the case study page.",
+    "title": "Jonathan Tait, Generative AI Creative Technologist",
+    "description": "Portfolio of Jonathan Tait: cinematic direction, AI-assisted campaign production, generative worldbuilding, and selected work.",
+    "email": "tait@jonathantait.com",
+    "location": "Cape Town / Düsseldorf",
+    "hero_headline": "Generative AI Creative Technologist",
+    "hero_lede": "Cinematic direction, AI-assisted campaign production, and generative worldbuilding. Images built to feel grounded, atmospheric, and believable.",
+    "hero_media": [
+      {
+        "type": "video",
+        "src": "https://video.wixstatic.com/video/14555f_ab39ac0e32bb45efb0857d421afd9454/1080p/mp4/file.mp4"
+      },
+      {
+        "type": "video",
+        "src": "https://video.wixstatic.com/video/14555f_f238e47ab7cf44d386741c1c4f93ac3d/1080p/mp4/file.mp4"
+      },
+      {
+        "type": "video",
+        "src": "https://video.wixstatic.com/video/14555f_314a8a4123ea4a5fa516d3d7a34cfe63/1080p/mp4/file.mp4"
+      },
+      {
+        "type": "video",
+        "src": "https://video.wixstatic.com/video/14555f_c4e6650c8a2c4a70a9ae27861c9c9f87/1080p/mp4/file.mp4"
+      },
+      {
+        "type": "image",
+        "src": "https://static.wixstatic.com/media/14555f_a715f604326d41a19ed685d841ac87c9~mv2.jpg/v1/fill/w_1000,h_558,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_a715f604326d41a19ed685d841ac87c9~mv2.jpg"
+      },
+      {
+        "type": "image",
+        "src": "https://static.wixstatic.com/media/14555f_7200187af99a4ad58f506a88ecdc3a32~mv2.png/v1/fill/w_1000,h_1500,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_7200187af99a4ad58f506a88ecdc3a32~mv2.png"
+      }
+    ],
+    "film_clip": "https://d8j0ntlcm91z4.cloudfront.net/user_2zHxsu73kQLwzkHl7I48OV6CZAC/hf_20260423_080152_0a982790-69cc-4d27-9e32-d0ad8c279685.mp4",
+    "film_poster": "https://static.wixstatic.com/media/14555f_95e9c9d2b11642ada02786cf6fd4c69d~mv2.jpg/v1/fill/w_1000,h_424,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_95e9c9d2b11642ada02786cf6fd4c69d~mv2.jpg",
+    "services": [
+      {
+        "title": "AI Campaign Creative",
+        "copy": "Campaign stills and short-form motion built for launch-world brand storytelling."
+      },
+      {
+        "title": "Generative Worldbuilding",
+        "copy": "Concept, look development, casting, and environments for authored visual worlds."
+      },
+      {
+        "title": "Cinematic AI Film",
+        "copy": "Short films, brand motion, and narrative sequences shaped through atmosphere and pacing."
+      },
+      {
+        "title": "Hybrid Creative Direction",
+        "copy": "End-to-end AI production systems connecting concept, tooling, and final finish."
+      }
+    ],
+    "marquee": [
+      "AI Campaign Creative",
+      "Generative Worldbuilding",
+      "Cinematic AI Film",
+      "Hybrid Creative Direction",
+      "ComfyUI",
+      "Unreal Engine",
+      "Blender",
+      "MidJourney",
+      "DaVinci Resolve"
+    ],
+    "name": "Jonathan Tait"
+  },
+  "projects": [
+    {
+      "title": "Jeep Apparel",
+      "slug": "jeep-apparel",
+      "media_type": "video",
+      "media": "/assets/video/jeep-boot-gladiator.mp4",
+      "thumb": "/assets/stills/jeep-apparel-12.jpg",
+      "tag": "Commercial / apparel",
+      "summary": "Campaign-led visual development for Jeep Apparel South Africa, built around grit, utility, and outdoor brand energy.",
+      "overview_text": "This project is less about pure atmosphere and more about brand-world construction: building imagery that feels rugged, immediate, and aligned with Jeep Apparel’s outdoor identity.",
+      "hero_text": "The work combines client-supplied product photography with AI-built environments and digital human models to create campaign-ready stills and motion.",
+      "role_text": "Visual development, environment direction, compositing logic, and campaign image generation for an ongoing branded content system.",
+      "brief_text": "Create campaign-ready imagery and short-form motion that extends Jeep Apparel into a larger, more cinematic outdoor lifestyle world.",
+      "outcome_text": "An adaptable production approach for stills and motion that can iterate quickly while keeping the tone cohesive across environments, models, and product framing.",
+      "approach_text": "Garments are photographed by the client first, then carried into digitally constructed scenes where virtual talent, atmosphere, and location design are shaped around the campaign tone. The environments move between outdoor landscape language and tighter editorial interiors depending on the visual objective.",
+      "portfolio_text": "In this project, we connected cinematic taste with practical brand execution. Product, styling, motion, and mood are all shaped to feel campaign-ready while still holding onto an authored visual identity.",
+      "next_text": "The result is a flexible stills-and-motion workflow built with MidJourney, generative editing tools, and DaVinci Resolve, making it possible to test multiple campaign directions without the weight of a conventional location-heavy shoot.",
+      "intent_text": "In this project, the aim was to build a tougher, more commercially direct campaign language around grit, utility, and outdoor brand energy.",
+      "gallery": [
+        {
+          "type": "video",
+          "src": "/assets/video/jeep-boot-patriot.mp4"
+        },
+        {
+          "type": "video",
+          "src": "/assets/video/jeep-citylitedress.mp4"
+        },
+        {
+          "type": "video",
+          "src": "/assets/video/jeep-gladiator.mp4"
+        },
+        {
+          "type": "video",
+          "src": "/assets/video/jeep-supporters.mp4"
+        },
+        {
+          "type": "video",
+          "src": "/assets/video/jeep-supporters-v2.mp4"
+        },
+        {
+          "type": "video",
+          "src": "/assets/video/jeep-icontees.mp4"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/jeep-citylite-01.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/jeep-citylite-02.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/jeep-sup-jacket.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/jeep-citylite-03.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/jeep-citylite-04.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/jeep-sup-jersey.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/jeep-citylite-05.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/jeep-sup-scene.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/jeep-citylite-06.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/jeep-citylite-07.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/jeep-citylite-08.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/jeep-apparel-12.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_e9c7ac8eac134e38a750285bd00289ba~mv2.png/v1/fill/w_1000,h_1778,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_e9c7ac8eac134e38a750285bd00289ba~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/jeep-apparel-03.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_4fa049c18a7c45faa63d585851b6c6a1~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/jeep-apparel-04.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_59c7a49ea79a47af9b6071adf18d5498~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/jeep-apparel-10.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_b07979f6c0674d95a780822090864e11~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/jeep-apparel-02.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_3ed3f1d0082543989493fb9054c1be1a~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/jeep-apparel-08.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_aa65eeed002949a79ad95953fbaa0a5d~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/jeep-apparel-07.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_90da7b8c9bd94180bda86d0e91e9d311~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/jeep-apparel-05.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_5c3ba143fff14128ad481226ae4e9a28~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/jeep-apparel-11.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_d65c20e013d44499b5992e18e0d7e835~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/jeep-apparel-09.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_ab39ac0e32bb45efb0857d421afd9454f000.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/jeep-apparel-01.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_343718bf66064559958720e839bd303af000.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/jeep-apparel-06.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_5f716bc007304b35ac50145d9f720710f000.jpg"
+        }
+      ],
+      "year": "2025/6",
+      "media_set": [
+        "/assets/video/hero/patriot.mp4",
+        "/assets/video/hero/citylitedress.mp4",
+        "/assets/video/hero/gladiator.mp4"
+      ],
+      "grid_extra": [
+        "/assets/stills/jeep-icontees-01.jpg",
+        "/assets/stills/jeep-supporters-02.jpg",
+        "/assets/stills/jeep-icontees-02.jpg",
+        "/assets/stills/jeep-sup-scene14.jpg",
+        "/assets/stills/jeep-icontees-03.jpg",
+        "/assets/stills/jeep-sup-jacket2.jpg"
+      ],
+      "page_media_set": [
+        "/assets/video/hero/citylitedress.mp4",
+        "/assets/video/hero/icontees.mp4",
+        "/assets/video/hero/supporters-v2.mp4"
+      ]
+    },
+    {
+      "title": "Swing Path Pro",
+      "slug": "swing-path-pro",
+      "media_type": "image",
+      "media": "/assets/stills/spp-hero.jpg",
+      "thumb": "/assets/stills/spp-hero.jpg",
+      "tag": "Sports tech / product",
+      "summary": "Ongoing visual development for a golf training product, built around clarity, movement, and product understanding.",
+      "overview_text": "Swing Path Pro is about building a visual language for a training device without losing the sense of polish or authored composition present elsewhere in the site.",
+      "hero_text": "This page shifts away from mystique and toward usefulness, showing how the same image-making discipline can support a more functional product story.",
+      "role_text": "Product visual development, motion testing, supporting image generation, website design and build, and ongoing system refinement.",
+      "brief_text": "Create a growing image and motion library that explains the product clearly while staying aligned with the evolving quality of contemporary generative tools.",
+      "outcome_text": "An expanding product-world asset set that helps communicate movement, positioning, and capability with more clarity than a pure mood-led treatment would allow. The resulting site is live at www.swingpathpro.com.",
+      "approach_text": "The product is animated in Blender to explore movement and positional logic, while supporting imagery is developed through tools such as MidJourney and Nano Banana Pro. The whole process is AI-assisted end to end, extending past the imagery into the design and build of the product site itself. The direction has remained intentionally measured, allowing the image system to improve alongside the underlying model quality.",
+      "portfolio_text": "In this project, the visual language is shaped around clarity, product understanding, and performance storytelling. The work stays considered and composed, but it is designed to support comprehension rather than mystique.",
+      "next_text": "The result is an evolving image and motion library that can mature with the product itself, using restraint and consistency rather than novelty for novelty’s sake.",
+      "intent_text": "In this project, the aim was to build a clearer and more functional product language that could communicate movement, positioning, and utility without losing visual polish.",
+      "gallery": [
+        {
+          "type": "image",
+          "src": "/assets/stills/spp-sitegrab.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/spp-landing.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/spp-musclememory.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/spp-swingarc.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/spp-wrist.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/swing-path-pro-10.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_a332f37bddfc430aba6e13529563c5ff~mv2.jpg/v1/fill/w_1000,h_500,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_a332f37bddfc430aba6e13529563c5ff~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/swing-path-pro-01.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_201fe8a3772b4d4ea2e6b9c1803efd7c~mv2.jpg/v1/fill/w_1000,h_753,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_201fe8a3772b4d4ea2e6b9c1803efd7c~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/swing-path-pro-12.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_e203d88ce2af4506bc0c7b9f389fff79~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/swing-path-pro-06.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_5e29ffd9d3b049438a1506e087ab5410~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/swing-path-pro-03.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_3c52dd6826c64f7f9e61a501973ac290~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/swing-path-pro-05.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_52a9496f44da4339986392730e562f32~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/swing-path-pro-02.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_2aa85c1dbbf246e0925471f9a715dc4a~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/swing-path-pro-09.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_8e07711d0be54960b0bf9e0adfbfbf94~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/swing-path-pro-11.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_dfd2fa6f4e594c1b9d1cc969482c6014~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/swing-path-pro-04.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_4dd6cfaeeb534db788d9eacd9c9dd28e~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/swing-path-pro-07.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_71f0d75f7db8435f9ff194a71b02b08c~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/swing-path-pro-08.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_8a958c45a39f4b6d90d143732a7eb47d~mv2.jpg"
+        }
+      ],
+      "year": "2025/6"
+    },
+    {
+      "title": "The Reunion",
+      "slug": "the-reunion",
+      "media_type": "image",
+      "media": "/assets/stills/the-reunion-07.jpg",
+      "thumb": "/assets/stills/the-reunion-08.jpg",
+      "tag": "Atmosphere / narrative",
+      "summary": "A short cinematic study of longing, memory, and the tension of something almost remembered.",
+      "overview_text": "The project began with a voiceover about longing, memory, and the feeling of searching for something just beyond reach. From there, the film was shaped as an emotional sequence first and a narrative explanation second.",
+      "hero_text": "Built from a simple voiceover and allowed to unfold through image-making, the piece moves like a memory rather than a fixed storyboard.",
+      "role_text": "Concept development, visual worldbuilding, image generation, and sequence construction for an experimental short.",
+      "brief_text": "Create a quiet cinematic piece that could hold emotional tension without over-explaining itself, allowing atmosphere and pacing to carry the meaning.",
+      "outcome_text": "A restrained short film where the final emotional arc emerges through accumulation, ending in a reunion that feels more psychological than literal.",
+      "approach_text": "The project began with a voiceover that established tone and emotional direction. From there, still images were developed in MidJourney and gradually extended into a sequence, with new scenes introduced to bridge transitions and let the narrative reveal itself over time.",
+      "portfolio_text": "In this project, the visual language leans into atmosphere, tonal restraint, and slow emotional pacing. The imagery is allowed to breathe, giving the piece a sense of authorship that sits apart from more overtly campaign-led work.",
+      "next_text": "The result is a short film built through a hybrid workflow spanning MidJourney, NanoBanana, ComfyUI, and DaVinci Resolve, where exploration remained part of the method rather than something hidden behind the finish.",
+      "intent_text": "In this project, the aim was to build a cinematic piece where atmosphere, pacing, and restraint could carry the emotional weight before any explanation arrived.",
+      "gallery": [
+        {
+          "type": "youtube",
+          "src": "https://www.youtube.com/embed/lqwqS_55zro",
+          "thumb": "https://i.ytimg.com/vi/lqwqS_55zro/hqdefault.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/the-reunion-08.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_95e9c9d2b11642ada02786cf6fd4c69d~mv2.jpg/v1/fill/w_1000,h_424,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_95e9c9d2b11642ada02786cf6fd4c69d~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/the-reunion-07.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_6cc8c0bfb28d499d962c8b310f3b1e6e~mv2.jpg/v1/fill/w_1000,h_424,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_6cc8c0bfb28d499d962c8b310f3b1e6e~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/the-reunion-09.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_aa52852993644f688851846305b346c5~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/the-reunion-06.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_3b327309185846d88679dde6a85aca71~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/the-reunion-05.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_302ef17db78842b890970b8c8a86f768~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/the-reunion-02.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_1734c82caefb47e9873f3c113e003b7b~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/the-reunion-03.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_284d5067a23d432ab7cd751acf540831~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/the-reunion-12.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_f6e08b5c348041f38ebb5402c2da9409~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/the-reunion-10.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_bd0c3efe416c41678da331064fcc9b07~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/the-reunion-01.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_12fe06380a7f447e9a58740ca001fe9e~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/the-reunion-04.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_2b195fee1ec642448bd225386257eaaa~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/the-reunion-11.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_d824fbec6551412789f9622e9a42cf24~mv2.jpg"
+        }
+      ],
+      "year": "2026"
+    },
+    {
+      "title": "Invisi Merino",
+      "slug": "invisi-merino",
+      "media_type": "image",
+      "media": "/assets/stills/invisi-merino-hero.jpg",
+      "thumb": "/assets/stills/invisi-merino-hero.jpg",
+      "tag": "Lifestyle / performance",
+      "summary": "A Mother’s Day campaign for Invisi Merino built through a compressed AI-assisted production workflow.",
+      "overview_text": "The project explored how a soft, grounded campaign world could be developed quickly without sacrificing cohesion, using generative workflows to accelerate location testing, casting logic, and atmosphere design.",
+      "hero_text": "What would normally require a far slower commercial pipeline was developed here into campaign-ready stills and motion over roughly twenty-five hours.",
+      "role_text": "Campaign worldbuilding, character selection, environment development, visual refinement, and motion-led creative direction.",
+      "brief_text": "Develop a Mother’s Day campaign that feels warm, editorial, and emotionally grounded while testing how AI-assisted production can compress the timeline of a traditional commercial shoot.",
+      "outcome_text": "Thirty final images and three twenty-second cinematic videos delivered through a fast, iterative pipeline.",
+      "approach_text": "The campaign was built by first establishing tone, then refining digital characters, environments, and locations until the work aligned with the brand’s soft and grounded identity. Generative tools made it possible to test alternate worlds and styling directions quickly, without the usual bottlenecks of physical scouting and pre-production.",
+      "portfolio_text": "In this project, the visual language balances softness and polish with production efficiency. Rapid iteration was used to refine tone, unify the imagery, and open up more viable campaign directions rather than flattening the brand into sameness.",
+      "next_text": "The result is a campaign set of editorial stills and cinematic motion pieces, where AI generation and post-production are used to keep the work visually coherent while staying flexible during development.",
+      "intent_text": "In this project, the aim was to build a softer and more open campaign world that could hold warmth, lightness, and emotional clarity without losing visual discipline.",
+      "gallery": [
+        {
+          "type": "video",
+          "src": "/assets/video/invisi-merino-14.mp4",
+          "thumb": "invisi-merino-00-e224acd2567b.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/invisi-merino-06.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_963bfabcba234d779ab28bfd335b93cc~mv2.png/v1/fill/w_1000,h_1250,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_963bfabcba234d779ab28bfd335b93cc~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/invisi-merino-09.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_cbe1ae8afeb74ed697d4026b8ca9c58c~mv2.jpeg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/invisi-merino-08.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_c499279b22bb4d5ebd4ac9b5c7939ea4~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/invisi-merino-01.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_2a32d0f4daeb4027ba706b058b474f3d~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/invisi-merino-07.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_9fe2dd56c94047ba9ecb3c84ace47f7f~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/invisi-merino-11.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_e9484ead1bd448ee9b896be85d1008a9~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/invisi-merino-13.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_f766a695f66a4a31843c52b1262fdf26~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/invisi-merino-02.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_39aee364d46d4d4eaff1667d406ae851~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/invisi-merino-05.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_8cac2cd1ac3845f4bf695094e5942241~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/invisi-merino-04.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_6f59e96b8b8a4407bf39a43a7ce1bcc8~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/invisi-merino-10.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_ccc6a7a8234743c4b83a68535e27c4f1~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/invisi-merino-12.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_f14ad28d62364bfcb52c49c1bb8d33fc~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/invisi-merino-03.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_51f1af542bb044638d43f9f474e0fe1e~mv2.png"
+        }
+      ],
+      "year": "2026"
+    },
+    {
+      "title": "I/B/H Mens Fashion",
+      "slug": "ibh-mens-fashion",
+      "media_type": "image",
+      "media": "/assets/stills/ibh-mens-fashion-07.jpg",
+      "thumb": "/assets/stills/ibh-mens-fashion-04.jpg",
+      "tag": "Editorial / menswear",
+      "summary": "A self-initiated menswear concept from the INSERT BRAND HERE sandbox, built with the posture of a real commercial brief.",
+      "overview_text": "INSERT BRAND HERE functions as a live laboratory for fully digital campaign building. The work is treated seriously, following the same arc a commercial job would: concept, iteration, image-world building, refinement, and final stills or motion.",
+      "hero_text": "This series is where fashion image-making, casting logic, environment design, and campaign structure are tested without waiting for a client brief to authorise the experiment.",
+      "role_text": "Concept creation, visual direction, casting logic, environment design, and finishing across a self-initiated menswear campaign study.",
+      "brief_text": "Build a fully digital menswear campaign world that feels premium, authored, and commercially plausible.",
+      "outcome_text": "A disciplined editorial-fashion study that expands the portfolio’s luxury and silhouette-led range while remaining part of an ongoing experimental series.",
+      "approach_text": "Each INSERT BRAND HERE piece follows a recognisable commercial structure: develop a concept, explore model and location types, build digital characters and environments, place product, refine the visual language, and resolve the work into stills and short cinematic sequences.",
+      "portfolio_text": "In this project, the visual language leans on editorial restraint, silhouette, and image hierarchy rather than over-explanation. The emphasis stays on fashion authority, luxury posture, and controlled composition.",
+      "next_text": "The result is a self-initiated fashion study that treats experimentation as part of the authored practice, not as material that only becomes valid once attached to a client brief.",
+      "intent_text": "In this project, the aim was to build a menswear campaign world that feels controlled, premium, and commercially believable inside the INSERT BRAND HERE sandbox.",
+      "gallery": [
+        {
+          "type": "youtube",
+          "src": "https://www.youtube.com/embed/eVjkMmNxj1Y",
+          "thumb": "https://i.ytimg.com/vi/eVjkMmNxj1Y/hqdefault.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-mens-fashion-04.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_474f2750e7f3468db9613883ad4a9929~mv2.jpg/v1/fill/w_1000,h_558,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_474f2750e7f3468db9613883ad4a9929~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-mens-fashion-07.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_a715f604326d41a19ed685d841ac87c9~mv2.jpg/v1/fill/w_1000,h_558,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_a715f604326d41a19ed685d841ac87c9~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-mens-fashion-12.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_f282e653624242259c1765e629ec46b4~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-mens-fashion-10.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_d961f08c7634449f9ddad12ddd0bb11c~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-mens-fashion-05.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_51c50d29715744a8bef749ef786f5887~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-mens-fashion-01.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_1c1fe7bff34e450aa160016d4d38f42e~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-mens-fashion-06.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_5abad3dc347b40148cdd8e9eb22f1c8c~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-mens-fashion-11.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_e1e1095e97bb4779a34d8b9de322ed27~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-mens-fashion-03.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_46581ee7ad2a4ddfb9652fd68cc99d1b~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-mens-fashion-09.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_c5450102d7f2496096f9683a959a21b4~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-mens-fashion-08.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_bd8d25b8fdc94d9fbf3d242c6d0bd13e~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-mens-fashion-02.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_42831158b66e46279aa940ae3fb5b46c~mv2.jpg"
+        }
+      ],
+      "year": "2026"
+    },
+    {
+      "title": "I/B/H Canned Refreshment",
+      "slug": "ibh-canned-refreshment",
+      "media_type": "video",
+      "media": "/assets/video/ibh-canned-refreshment-14.mp4",
+      "thumb": "/assets/stills/ibh-canned-refreshment-01.jpg",
+      "tag": "Beverage / launch",
+      "summary": "A consumer-facing launch concept from the INSERT BRAND HERE series, shaped around speed, appetite, and punchier brand energy.",
+      "overview_text": "Although it sits inside the same INSERT BRAND HERE framework, this project pushes toward launch-world commercial energy: faster reads, clearer appetite appeal, and more direct persuasion.",
+      "hero_text": "This is the more immediate, product-led side of the sandbox: a space to test how generative workflows can drive packaging-first campaign imagery with stronger consumer-commercial cadence.",
+      "role_text": "Concept creation, pack-world visual direction, digital environment development, and campaign image exploration within a self-initiated test series.",
+      "brief_text": "Build a beverage campaign concept that feels sharp, flavour-led, and commercially legible at first glance.",
+      "outcome_text": "A more energetic consumer-commercial chapter that broadens the portfolio beyond fashion and atmosphere into packaging and launch logic.",
+      "approach_text": "Like the rest of the sandbox, the work follows a commercial progression from concept to iterations, model and location testing, environment building, product placement, and final still or motion execution. Here, that process is biased toward speed, contrast, and product-first readability.",
+      "portfolio_text": "In this project, the visual language moves toward appetite appeal, product clarity, and launch-world pace. The work stays polished, but it is shaped to read faster and feel more immediately consumer-facing.",
+      "next_text": "The result is a beverage concept that extends the INSERT BRAND HERE series into a sharper launch-oriented space, using the visible product cues and pacing of the work itself to define the project more specifically.",
+      "intent_text": "In this project, the aim was to build a faster, more product-led campaign language around flavour, packaging, and immediate commercial energy.",
+      "gallery": [
+        {
+          "type": "video",
+          "src": "/assets/video/ibh-canned-refreshment-14.mp4",
+          "thumb": "ibh-canned-refreshment-00-3a14444a898d.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-canned-refreshment-01.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_118eb44b20204ea094074831340fb2eb~mv2.jpg/v1/fill/w_1000,h_747,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_118eb44b20204ea094074831340fb2eb~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-canned-refreshment-07.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_a5e9531d21b744b2b84c39c4c4acc805~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-canned-refreshment-10.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_cde5e7d4a7b04e92bb4cca49d3885674~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-canned-refreshment-04.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_39eb7fe07f6347a085c9c07dcd7cb8d7~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-canned-refreshment-02.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_2183252335d245d39fd8788024d128f1~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-canned-refreshment-06.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_9e69a0363d994ba0badf3997febd118a~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-canned-refreshment-12.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_f27dcb314a804ecf8d6a2b4d620bfc37~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-canned-refreshment-08.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_a6d1c1d28c2d439797778ce01251ce51~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-canned-refreshment-13.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_fe806b950e2e498db846bc94ae83c301~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-canned-refreshment-05.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_791e6252999e412caa01d11924d1e2f6~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-canned-refreshment-03.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_2602042149f54476bb5445ecc4b3ed4d~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-canned-refreshment-09.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_cbc9348424c94b32ab9b082fd7b8ecd3~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-canned-refreshment-11.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_f084763007bf484caa504c95e12255dc~mv2.jpg"
+        }
+      ],
+      "year": "2026"
+    },
+    {
+      "title": "I/B/H Frozen Yoghurt",
+      "slug": "ibh-frozen-yoghurt",
+      "media_type": "video",
+      "media": "/assets/video/ibh-frozen-yoghurt-14.mp4",
+      "thumb": "/assets/stills/ibh-frozen-yoghurt-11.jpg",
+      "tag": "Food / playful brand",
+      "summary": "A lighter, more playful INSERT BRAND HERE concept built around warmth, appetite, and consumer-friendly tone.",
+      "overview_text": "Frozen Yoghurt pushes the INSERT BRAND HERE sandbox toward softness and approachability, giving the portfolio a food-led chapter that still feels visually composed.",
+      "hero_text": "Where some of the portfolio leans sculptural or moody, this page opens the emotional range with something brighter, friendlier, and more overtly accessible.",
+      "role_text": "Concept creation, brand-world visual direction, environment development, and campaign image exploration within a self-initiated series.",
+      "brief_text": "Develop a playful food-commercial concept that feels polished, appetite-led, and emotionally open rather than overly stylised.",
+      "outcome_text": "A warmer, more inviting commercial study that broadens the portfolio’s tone without sacrificing compositional control.",
+      "approach_text": "The same underlying INSERT BRAND HERE framework is used here: concept, iteration, worldbuilding, product integration, and finishing, but the execution leans toward brightness, softness, and a more playful persuasive rhythm.",
+      "portfolio_text": "In this project, the visual language is built around brightness, softness, and a more inviting persuasive rhythm. The polish comes through charm, clarity, and appetite-led imagery rather than severity.",
+      "next_text": "The result is a lighter commercial chapter within the INSERT BRAND HERE series, framed here through the specific tone, colour, and appetite cues visible in the work itself.",
+      "intent_text": "In this project, the aim was to build a warmer, more playful food-commercial world without losing the compositional control of the wider portfolio.",
+      "gallery": [
+        {
+          "type": "video",
+          "src": "/assets/video/ibh-frozen-yoghurt-14.mp4",
+          "thumb": "ibh-frozen-yoghurt-00-3db4d668a5ce.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-frozen-yoghurt-11.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_95f8bea9fb954665b0e74c86b795ecbb~mv2.png/v1/fill/w_1000,h_747,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_95f8bea9fb954665b0e74c86b795ecbb~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-frozen-yoghurt-03.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_1e5266f954ad4fc68faf0b3989e5360d~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-frozen-yoghurt-06.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_433c4aef8808435e99aaf6473c31ab96~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-frozen-yoghurt-09.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_75729667068d460582eedc6b7b6f4efb~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-frozen-yoghurt-05.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_367f41f47efc415e8ce04174a4736134~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-frozen-yoghurt-07.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_58f6f1df62cf4e6f8c14d9375b886319~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-frozen-yoghurt-13.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_fc088f4aa67849bc9402642a203fa943~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-frozen-yoghurt-10.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_8d40a2b4ca9a42678599e32b5daf9dd8~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-frozen-yoghurt-02.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_0e5c986112dc4c2b9d07b14b7832c4c7~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-frozen-yoghurt-01.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_08620449341d4562bc06ed9b5956adcf~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-frozen-yoghurt-04.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_23ad1f216b544a25832e10260c495ea7~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-frozen-yoghurt-12.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_b9ecc90f57134bc58e02db041887e5c1~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/ibh-frozen-yoghurt-08.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_6a3dfdde39154e8d87ab0e9d0e6f0a37~mv2.png"
+        }
+      ],
+      "year": "2026"
+    },
+    {
+      "title": "Carrol Boyes",
+      "slug": "carrol-boyes",
+      "media_type": "image",
+      "media": "/assets/stills/carrol-boyes-02.jpg",
+      "thumb": "/assets/stills/carrol-boyes-02.jpg",
+      "tag": "Object / premium product",
+      "summary": "A premium object-led campaign world built around sculptural tableware, ritual, and digitally extended product storytelling.",
+      "overview_text": "This project begins with tangible product truth and then carefully expands outward, using digital construction to create still-life scenes that feel atmospheric without losing object integrity.",
+      "hero_text": "Real product photography became the anchor for a larger hybrid AI workflow, extending the objects into atmospheres that still remained recognisably Carrol Boyes.",
+      "role_text": "Visual development, environment extension, product-world direction, and image refinement around real studio-shot product assets.",
+      "brief_text": "Create a premium visual world for sculptural tableware that balances realism, atmosphere, and recognisable brand character.",
+      "outcome_text": "More than one hundred images and a supporting video set created through a hybrid production approach rooted in real product photography.",
+      "approach_text": "Each frame began with studio-shot product photography, which was then extended into digitally built environments through a hybrid AI workflow. The emphasis stayed on material, silhouette, and ritual, allowing the objects to remain central even as the atmosphere around them grew more stylised.",
+      "portfolio_text": "In this project, the visual language stays close to material, silhouette, and finish. The work remains atmospheric, but it is shaped to respect recognisable form and the brand fidelity of the physical object.",
+      "next_text": "The result is a hybrid product story where digital extension never abandons the discipline of the physical object, allowing atmosphere to build without losing accuracy.",
+      "intent_text": "In this project, the aim was to build a premium object-led visual world where product truth and atmosphere could exist together without competing.",
+      "gallery": [
+        {
+          "type": "image",
+          "src": "/assets/stills/carrol-boyes-06.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_87071ee760ea49bb8d6ecc015b11ad06~mv2.png/v1/fill/w_1000,h_667,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_87071ee760ea49bb8d6ecc015b11ad06~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/carrol-boyes-04.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_7200187af99a4ad58f506a88ecdc3a32~mv2.png/v1/fill/w_1000,h_1500,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_7200187af99a4ad58f506a88ecdc3a32~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/carrol-boyes-02.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_46e9e63e8a894b5fa340f3fb427c8a91~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/carrol-boyes-09.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_c5a74f4e0f014be8a347f668721206dd~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/carrol-boyes-10.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_c7a9ed6a59ec483790013b6ceb8826c2~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/carrol-boyes-05.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_7fc43350f7b743918f1fe4f87fc50167~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/carrol-boyes-01.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_3c71103960c94e5b8a2fcd2299a2df7e~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/carrol-boyes-11.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_fa556c6ddd434bdd8841313b36e9063c~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/carrol-boyes-08.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_b1e1e6768f4b4e80b49849b7b73a4f46~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/carrol-boyes-03.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_6f415a90b4b24f4580284779e3447232~mv2.png"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/carrol-boyes-07.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_aa00e77977d64d3383b906afe2b5658b~mv2.png"
+        }
+      ],
+      "year": "2025"
+    },
+    {
+      "title": "Dividuum",
+      "slug": "dividuum",
+      "media_type": "image",
+      "media": "/assets/stills/dividuum-01.jpg",
+      "thumb": "/assets/stills/dividuum-02.jpg",
+      "tag": "Concept / digital world",
+      "summary": "A generative music video built with German composer Benjamin Richter, where the visual world evolved alongside the tools themselves.",
+      "overview_text": "Dividuum sits closest to worldbuilding: a project where mood, character, sequence, and visual identity emerged gradually through experimentation and revision.",
+      "hero_text": "Because the project began before the current wave of image-editing models matured, the work had to evolve in dialogue with the technology rather than simply through a fixed pre-planned pipeline.",
+      "role_text": "Visual concept development, sequence-building, image generation, and editorial refinement for a music-video collaboration.",
+      "brief_text": "Create a visual world for Benjamin Richter’s track that could adapt as the available tools improved, without losing coherence or authorship.",
+      "outcome_text": "A music video shaped through iterative rebuilding, where improved character consistency and image-editing capability directly influenced the final sequences.",
+      "approach_text": "The piece was built through a hybrid workflow combining MidJourney, NanoBanana, ComfyUI, and DaVinci Resolve. As better editing and consistency became possible, earlier sequences were revisited, rebuilt, and folded back into the final structure.",
+      "portfolio_text": "In this project, the visual language is built through sequence logic as much as single frames. Character, mood, and continuity are developed across the piece so the world feels sustained rather than assembled from isolated images.",
+      "next_text": "The result is a music video shaped through repeated experimentation and rebuilding, where the evolving capabilities of the tools became part of the project’s final structure rather than an invisible background condition.",
+      "intent_text": "In this project, the aim was to build a fully felt digital world for a music-video collaboration, allowing concept, sequence, and atmosphere to evolve together.",
+      "gallery": [
+        {
+          "type": "youtube",
+          "src": "https://www.youtube.com/embed/esKxXmCEkkQ",
+          "thumb": "https://i.ytimg.com/vi/esKxXmCEkkQ/hqdefault.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/dividuum-02.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_1b9e337b70014d1cbe38077dda276b59~mv2.jpg/v1/fill/w_1000,h_500,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_1b9e337b70014d1cbe38077dda276b59~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/dividuum-01.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_11502d0fedfe49cfbb111a1e76defa4c~mv2.jpg/v1/fill/w_1000,h_500,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_11502d0fedfe49cfbb111a1e76defa4c~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/dividuum-05.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_510334186a70457aa4a6036856f78ec7~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/dividuum-04.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_48fb040acadf434ea7a955c57420e231~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/dividuum-10.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_d1f35cf0ab9747af997683fae4adfccd~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/dividuum-12.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_e209c7abff624754b240f0997322d169~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/dividuum-11.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_dfce3967e65442b28ef5cca712a30552~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/dividuum-06.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_7c6ab26f7fa743449814d7910eb5d28a~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/dividuum-09.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_c716431debeb4f28916b320400ee528c~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/dividuum-07.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_809ae5d7f8ed487e9d8f3d526997b5ff~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/dividuum-03.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_3e0dc3e83f6b49f0854565a1c653afe5~mv2.jpg"
+        },
+        {
+          "type": "image",
+          "src": "/assets/stills/dividuum-08.jpg",
+          "thumb": "https://static.wixstatic.com/media/14555f_c28ad3fecc454e97a63fc0f4317c3b8f~mv2.jpg"
+        }
+      ],
+      "year": "2025"
+    },
+    {
+      "title": "Bio",
+      "slug": "bio",
+      "media_type": "image",
+      "media": "/assets/stills/bio-01.jpg",
+      "thumb": "/assets/stills/bio-01.jpg",
+      "tag": "Profile / positioning",
+      "summary": "From moving image and post-production into generative systems and physical making, Jonathan Tait’s practice is centred on building images that feel grounded, atmospheric, and believable.",
+      "overview_text": "Across both, the focus stays the same: careful attention to light, composition, mood, and material truth.",
+      "hero_text": "His work spans cinematic direction, AI-assisted campaign production, and synthetic worldbuilding, using tools such as ComfyUI, Unreal Engine, Blender, and generative image systems. That digital process is balanced by hands-on experimentation in painting, sculpting, folded paper, and poured resin.",
+      "role_text": "To be refined from your exact contribution.",
+      "brief_text": "",
+      "outcome_text": "",
+      "approach_text": "Generative workflows now sit at the centre of the practice, using tools such as ComfyUI, Unreal Engine, Blender, and cloud-based models to create work that feels plausible, tactile, and grounded rather than overtly synthetic. The digital process is balanced by physical making that keeps the eye trained on how materials, light, and surface behave in the real world.",
+      "portfolio_text": "In this project, the visual language is quieter and more reflective, bringing the portfolio’s different chapters back into one authored practice shaped by perception, atmosphere, and material awareness.",
+      "next_text": "The result is a profile page that closes the loop between moving image, generative systems, and physical making, holding them together through a consistent attention to light, surface, and felt reality.",
+      "intent_text": "In this project, the aim was to frame the practice as one continuous enquiry into image-making, atmosphere, and perception rather than as a résumé-style list of tools or roles.",
+      "gallery": []
+    }
+  ]
+}

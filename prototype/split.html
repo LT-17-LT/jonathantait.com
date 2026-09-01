@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='UTF-8' />
+<meta name='viewport' content='width=device-width, initial-scale=1.0' />
+<title>Jonathan Tait — Physical / Digital</title>
+<meta name='robots' content='noindex' />
+<link rel='preconnect' href='https://fonts.googleapis.com' />
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin />
+<link href='https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..500;1,9..144,300..500&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400&display=swap' rel='stylesheet' />
+<style>
+  :root {
+    --split: 0;
+    --serif:'Fraunces',Georgia,serif;
+    --sans:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,monospace;
+    --fg:#f2f1ef;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html, body { height:100%; overflow:hidden; }
+  body {
+    font-family:var(--sans);
+    background:#8f9092;
+    color:var(--fg);
+    -webkit-font-smoothing:antialiased;
+    touch-action:none;
+    cursor:grab;
+  }
+  body.dragging { cursor:grabbing; }
+
+  /* pre-paint only — once WebGL is up, the gradient is rendered in-scene so the
+     trail buffer has something opaque to accumulate against */
+  #bg { position:fixed; inset:0; z-index:0; background:radial-gradient(120% 95% at 30% 32%, #d6d6d4 0%, #8f8f90 46%, #26262a 100%); }
+  canvas { display:block; position:fixed; inset:0; z-index:1; }
+
+  .ui { position:fixed; inset:0; z-index:2; pointer-events:none; }
+  .ui > * { pointer-events:none; }
+
+  /* ---- masthead ---- */
+  .mast {
+    position:absolute; top:0; left:0; right:0;
+    display:flex; justify-content:space-between; align-items:center;
+    padding:26px 32px;
+    font-size:.72rem; letter-spacing:.28em; text-transform:uppercase;
+    color:rgba(242,241,239,.62);
+    mix-blend-mode:difference;
+  }
+
+  /* ---- side labels ---- */
+  .pole {
+    position:absolute; top:50%; transform:translateY(-50%);
+    display:grid; gap:12px; max-width:270px;
+    transition:opacity .5s ease;
+  }
+  .pole.left  { left:clamp(24px, 5vw, 78px); }
+  .pole.right { right:clamp(24px, 5vw, 78px); text-align:right; justify-items:end; }
+  .pole h2 {
+    font-family:var(--serif); font-weight:340;
+    font-size:clamp(2.1rem, 4.4vw, 3.9rem); line-height:.94; letter-spacing:-.03em;
+  }
+  .pole .sub {
+    font-family:var(--mono); font-size:.66rem; line-height:1.85;
+    letter-spacing:.13em; text-transform:uppercase;
+    opacity:.62;
+  }
+  .pole .rule { width:54px; height:1px; background:currentColor; opacity:.4; }
+  .pole.right .rule { justify-self:end; }
+
+  /* ---- centre prompt ---- */
+  .prompt {
+    position:absolute; left:50%; bottom:clamp(34px, 7vh, 74px);
+    transform:translateX(-50%);
+    display:flex; align-items:center; gap:18px;
+    font-family:var(--mono); font-size:.68rem;
+    letter-spacing:.26em; text-transform:uppercase;
+    white-space:nowrap;
+    transition:opacity .45s ease;
+  }
+  .prompt .arrow { display:inline-block; animation:nudge 2.6s ease-in-out infinite; opacity:.75; }
+  .prompt .arrow.r { animation-delay:1.3s; }
+  @keyframes nudge {
+    0%,100% { transform:translateX(0); opacity:.4; }
+    50%     { transform:translateX(var(--d,-5px)); opacity:.95; }
+  }
+  .prompt .arrow.l { --d:-6px; }
+  .prompt .arrow.r { --d:6px; }
+
+  /* ---- progress rail ---- */
+  .rail {
+    position:absolute; left:50%; bottom:clamp(18px, 3.6vh, 34px);
+    transform:translateX(-50%);
+    width:min(300px, 42vw); height:1px;
+    background:rgba(242,241,239,.2);
+  }
+  .rail i {
+    position:absolute; top:-2px; left:50%; width:5px; height:5px;
+    border-radius:50%; background:var(--fg);
+    transform:translateX(calc(-50% + var(--split) * (min(150px, 21vw))));
+    transition:background .4s ease;
+  }
+
+  /* ---- technical annotations (digital side) ---- */
+  .annot {
+    position:absolute; font-family:var(--mono);
+    font-size:.58rem; line-height:1.95; letter-spacing:.08em;
+    color:rgba(242,241,239,.5);
+    opacity:0; transition:opacity .6s ease;
+    white-space:pre;
+  }
+  .annot.a1 { top:24%; left:clamp(24px,6vw,96px); }
+  .annot.a2 { bottom:26%; right:clamp(24px,6vw,96px); text-align:right; }
+
+  /* ---- enter ---- */
+  .enter {
+    position:absolute; left:50%; top:50%;
+    transform:translate(-50%,-50%) scale(.94);
+    opacity:0; visibility:hidden;
+    transition:opacity .7s ease, transform .7s cubic-bezier(.19,1,.22,1), visibility .7s;
+    display:grid; justify-items:center; gap:22px;
+  }
+  .enter.on { opacity:1; visibility:visible; transform:translate(-50%,-50%) scale(1); pointer-events:auto; }
+  .enter .lead {
+    font-family:var(--mono); font-size:.64rem;
+    letter-spacing:.3em; text-transform:uppercase; opacity:.6;
+  }
+  .enter a {
+    pointer-events:auto;
+    display:inline-flex; align-items:center; gap:14px;
+    padding:19px 40px; border-radius:999px;
+    border:1px solid rgba(242,241,239,.34);
+    background:rgba(242,241,239,.06);
+    backdrop-filter:blur(8px);
+    color:var(--fg); text-decoration:none;
+    font-family:var(--serif); font-size:1.24rem; font-weight:360; letter-spacing:-.01em;
+    transition:background .3s ease, border-color .3s ease, transform .3s ease;
+  }
+  .enter a:hover { background:rgba(242,241,239,.15); border-color:rgba(242,241,239,.6); transform:translateY(-2px); }
+  .enter .back {
+    pointer-events:auto; cursor:pointer;
+    background:none; border:none; color:rgba(242,241,239,.5);
+    font-family:var(--mono); font-size:.6rem;
+    letter-spacing:.24em; text-transform:uppercase;
+    padding:8px; transition:color .3s ease;
+  }
+  .enter .back:hover { color:var(--fg); }
+
+  /* ---- fallback ---- */
+  .fallback {
+    position:fixed; inset:0; z-index:9; display:none;
+    grid-template-columns:1fr 1fr; background:#111;
+  }
+  .fallback.on { display:grid; }
+  .fallback a {
+    display:grid; place-content:center; gap:14px; text-align:center;
+    color:var(--fg); text-decoration:none; padding:32px;
+    font-family:var(--serif); font-size:clamp(1.8rem,4vw,3.2rem); font-weight:340;
+    transition:background .3s ease;
+  }
+  .fallback a:first-child { background:#c9cac8; color:#16150f; }
+  .fallback a:hover { filter:brightness(1.08); }
+
+  /* annotations are decorative — drop them before they collide with the poles */
+  @media (max-height:640px) { .annot { display:none; } }
+  @media (max-width:760px) {
+    .pole { max-width:150px; }
+    .pole.left { left:18px; } .pole.right { right:18px; }
+    .pole .sub { font-size:.55rem; line-height:1.7; }
+    .annot { display:none; }
+    .mast { padding:18px; font-size:.6rem; letter-spacing:.2em; }
+    .prompt { font-size:.58rem; letter-spacing:.18em; gap:12px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .prompt .arrow { animation:none; }
+  }
+</style>
+</head>
+<body>
+<div id='bg'></div>
+
+<div class='ui'>
+  <div class='mast'>
+    <span>Jonathan Tait</span>
+    <span id='readout'>00.0 · equilibrium</span>
+  </div>
+
+  <div class='pole left' id='poleL'>
+    <div class='rule'></div>
+    <h2>Physical</h2>
+    <div class='sub'>Painting<br>Sculpture<br>Folded paper<br>Poured resin</div>
+  </div>
+
+  <div class='pole right' id='poleR'>
+    <div class='rule'></div>
+    <h2>Digital</h2>
+    <div class='sub'>AI campaign creative<br>Generative worldbuilding<br>Cinematic AI film<br>Hybrid direction</div>
+  </div>
+
+  <div class='annot a1' id='annot1'>SPEC / DISPERSION
+———————————————
+sample count      180,000
+bind              surface
+drift             curl.04
+coherence         loss
+state             non-singular
+reproducible      true</div>
+
+  <div class='annot a2' id='annot2'>MATERIAL / NULL
+———————————————
+mass              0.00 kg
+incident light    none
+emission          self
+shadow            absent
+edition           unlimited</div>
+
+  <div class='prompt' id='prompt'>
+    <span class='arrow l'>←</span>
+    <span>Drag to choose</span>
+    <span class='arrow r'>→</span>
+  </div>
+
+  <div class='rail'><i id='railDot'></i></div>
+
+  <div class='enter' id='enter'>
+    <div class='lead' id='enterLead'>Form resolved</div>
+    <a id='enterLink' href='#'>Enter</a>
+    <button class='back' id='backBtn'>Return to equilibrium</button>
+  </div>
+</div>
+
+<div class='fallback' id='fallback'>
+  <a href='#'>Physical<span style='font-family:var(--mono);font-size:.7rem;letter-spacing:.2em;opacity:.6'>PAINTING · SCULPTURE · RESIN</span></a>
+  <a href='../index.html#selected-work'>Digital<span style='font-family:var(--mono);font-size:.7rem;letter-spacing:.2em;opacity:.6'>AI CAMPAIGN · FILM · WORLDBUILDING</span></a>
+</div>
+
+<script type='importmap'>
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.169.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.169.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type='module'>
+import * as THREE from 'three';
+import { MeshSurfaceSampler } from 'three/addons/math/MeshSurfaceSampler.js';
+import { ImprovedNoise } from 'three/addons/math/ImprovedNoise.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { AfterimagePass } from 'three/addons/postprocessing/AfterimagePass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const mobile = matchMedia('(max-width: 760px)').matches;
+
+/* ---------------------------------------------------------------- setup */
+
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ antialias: !mobile, alpha: false });
+} catch (e) {
+  document.getElementById('fallback').classList.add('on');
+  throw e;
+}
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(38, innerWidth / innerHeight, 0.1, 100);
+camera.position.set(0, 0, 6.2);
+
+/* ---- gradient void: lives in the scene now, so the trail buffer has
+   something opaque to accumulate against ---- */
+
+const uSplitG = { value: 0 };
+
+const backdrop = new THREE.Mesh(
+  new THREE.PlaneGeometry(80, 80),
+  new THREE.ShaderMaterial({
+    depthWrite: false, depthTest: false,
+    uniforms: { uSplit: uSplitG },
+    vertexShader: `
+      varying vec2 vUv;
+      void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }
+    `,
+    fragmentShader: `
+      varying vec2 vUv;
+      uniform float uSplit;
+      void main(){
+        float l = (uSplit + 1.0) * 0.5;            // 0 lit .. 1 void
+        vec2 c = vec2(0.30 + l * 0.42, 0.66);
+        float d = distance(vUv, c) * 1.22;
+        vec3 near = mix(vec3(0.855,0.855,0.845), vec3(0.105,0.105,0.125), l);
+        vec3 far  = mix(vec3(0.560,0.560,0.570), vec3(0.030,0.030,0.042), l);
+        vec3 col  = mix(near, far, smoothstep(0.0, 1.0, d));
+        col = mix(col, vec3(0.018,0.018,0.028), smoothstep(0.5, 1.3, d) * l * 0.9);
+        gl_FragColor = vec4(col, 1.0);
+      }
+    `,
+  })
+);
+backdrop.position.z = -14;
+backdrop.renderOrder = -10;
+backdrop.frustumCulled = false;
+scene.add(backdrop);
+
+const group = new THREE.Group();
+scene.add(group);
+
+/* ---------------------------------------------------------------- pointer
+   Raw pointer state, shared by the fluid (force splat), the ripple pass
+   (spawn point) and the camera parallax. Coordinates are GL-style: y up. */
+
+const pointer = { x: 0.5, y: 0.5, fx: 0, fy: 0 };
+
+/* ---------------------------------------------------------------- fluid
+   A real stable-fluid solver, not the darkest-neighbour blur we had before:
+   semi-Lagrangian advection → pointer force splat → Jacobi pressure
+   projection → advect the dye through the resulting field.
+
+   The projection is the whole point. Making the velocity field divergence
+   free is what buys genuine curl and momentum, so ink keeps swirling after
+   the cursor stops. A blur can only ever spread outward from where you were.
+   Technique from reactbits LiquidEther (MIT + Commons Clause) — reimplemented
+   in plain three.js here, so no React, no build step, no dependency added.
+
+   Output contract is unchanged: .texture red channel, 1 = untouched,
+   0 = fully disturbed. Every downstream consumer stays as it was.
+
+   ponytail: no viscosity pass, no BFECC advection, no explicit boundary
+   conditions (ClampToEdge stands in for them). Add viscosity if the ink
+   should feel thicker; add BFECC if the dye smears away too fast. */
+
+const FLUID_RES = mobile ? 128 : 256;
+const JACOBI    = mobile ? 8 : 14;   // pressure solve iterations
+
+// tuning knobs — the sim is physical, but the feel is not. Expect to dial these.
+const SPLAT_RADIUS = 0.0030;   // gaussian falloff, ~0.055 uv
+const SPLAT_FORCE  = 14.0;     // how hard the cursor shoves the field
+// dye rate has to clear fluidAt()'s 0.12 deadzone in a couple of frames, or a
+// moving cursor lays down ink too thin to ever register as a disturbance
+const SPLAT_INK    = 55.0;     // dye deposited per second while moving
+const VEL_DAMP     = 0.8;      // velocity half-life, per second
+const INK_HEAL     = 0.70;     // dye recovery toward white, per second
+
+const fluid = (() => {
+  const opts = {
+    type: THREE.HalfFloatType,          // velocity is signed and unbounded
+    minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter,
+    depthBuffer: false, stencilBuffer: false,
+  };
+  const mk = () => new THREE.WebGLRenderTarget(FLUID_RES, FLUID_RES, opts);
+  let velA = mk(), velB = mk(), dyeA = mk(), dyeB = mk(), prA = mk(), prB = mk();
+  const div = mk();
+
+  const cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+  const sc = new THREE.Scene();
+  const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2));
+  quad.frustumCulled = false;
+  sc.add(quad);
+
+  const TEXEL = new THREE.Vector2(1 / FLUID_RES, 1 / FLUID_RES);
+  const VERT = `varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }`;
+  const mat = (fragmentShader, uniforms) => new THREE.ShaderMaterial({
+    vertexShader: VERT, fragmentShader, uniforms, depthTest: false, depthWrite: false,
+  });
+
+  function run(m, target) {
+    quad.material = m;
+    renderer.setRenderTarget(target);
+    renderer.render(sc, cam);
+    renderer.setRenderTarget(null);
+  }
+
+  // advect anything by the velocity field (semi-Lagrangian: walk backwards)
+  const aVel = mat(`
+    uniform sampler2D uVel, uSrc;
+    uniform float uDt, uDiss;
+    varying vec2 vUv;
+    void main(){
+      vec2 c = vUv - texture2D(uVel, vUv).xy * uDt;
+      gl_FragColor = texture2D(uSrc, c) * uDiss;
+    }
+  `, { uVel: { value: null }, uSrc: { value: null }, uDt: { value: 0 }, uDiss: { value: 1 } });
+
+  // dye rides the same field but always heals back toward white
+  const aDye = mat(`
+    uniform sampler2D uVel, uSrc;
+    uniform float uDt, uHeal;
+    varying vec2 vUv;
+    void main(){
+      vec2 c = vUv - texture2D(uVel, vUv).xy * uDt;
+      float d = texture2D(uSrc, c).r + uHeal;
+      gl_FragColor = vec4(vec3(min(d, 1.0)), 1.0);
+    }
+  `, { uVel: { value: null }, uSrc: { value: null }, uDt: { value: 0 }, uHeal: { value: 0 } });
+
+  const sVel = mat(`
+    uniform sampler2D uSrc;
+    uniform vec2 uPoint, uForce;
+    uniform float uRadius;
+    varying vec2 vUv;
+    void main(){
+      vec2 p = vUv - uPoint;
+      float g = exp(-dot(p, p) / uRadius);
+      gl_FragColor = vec4(texture2D(uSrc, vUv).xy + uForce * g, 0.0, 1.0);
+    }
+  `, { uSrc: { value: null }, uPoint: { value: new THREE.Vector2() }, uForce: { value: new THREE.Vector2() }, uRadius: { value: SPLAT_RADIUS } });
+
+  const sDye = mat(`
+    uniform sampler2D uSrc;
+    uniform vec2 uPoint;
+    uniform float uRadius, uAmt;
+    varying vec2 vUv;
+    void main(){
+      vec2 p = vUv - uPoint;
+      float g = exp(-dot(p, p) / uRadius);
+      gl_FragColor = vec4(vec3(texture2D(uSrc, vUv).r - g * uAmt), 1.0);
+    }
+  `, { uSrc: { value: null }, uPoint: { value: new THREE.Vector2() }, uRadius: { value: SPLAT_RADIUS }, uAmt: { value: 0 } });
+
+  const dvg = mat(`
+    uniform sampler2D uVel;
+    uniform vec2 uTexel;
+    varying vec2 vUv;
+    void main(){
+      float l = texture2D(uVel, vUv - vec2(uTexel.x, 0.0)).x;
+      float r = texture2D(uVel, vUv + vec2(uTexel.x, 0.0)).x;
+      float b = texture2D(uVel, vUv - vec2(0.0, uTexel.y)).y;
+      float t = texture2D(uVel, vUv + vec2(0.0, uTexel.y)).y;
+      gl_FragColor = vec4(0.5 * (r - l + t - b), 0.0, 0.0, 1.0);
+    }
+  `, { uVel: { value: null }, uTexel: { value: TEXEL } });
+
+  const jac = mat(`
+    uniform sampler2D uP, uDiv;
+    uniform vec2 uTexel;
+    varying vec2 vUv;
+    void main(){
+      float l = texture2D(uP, vUv - vec2(uTexel.x, 0.0)).x;
+      float r = texture2D(uP, vUv + vec2(uTexel.x, 0.0)).x;
+      float b = texture2D(uP, vUv - vec2(0.0, uTexel.y)).x;
+      float t = texture2D(uP, vUv + vec2(0.0, uTexel.y)).x;
+      gl_FragColor = vec4((l + r + b + t - texture2D(uDiv, vUv).x) * 0.25, 0.0, 0.0, 1.0);
+    }
+  `, { uP: { value: null }, uDiv: { value: div.texture }, uTexel: { value: TEXEL } });
+
+  const grd = mat(`
+    uniform sampler2D uP, uVel;
+    uniform vec2 uTexel;
+    uniform float uDiss;
+    varying vec2 vUv;
+    void main(){
+      float l = texture2D(uP, vUv - vec2(uTexel.x, 0.0)).x;
+      float r = texture2D(uP, vUv + vec2(uTexel.x, 0.0)).x;
+      float b = texture2D(uP, vUv - vec2(0.0, uTexel.y)).x;
+      float t = texture2D(uP, vUv + vec2(0.0, uTexel.y)).x;
+      vec2 v = texture2D(uVel, vUv).xy - vec2(r - l, t - b) * 0.5;
+      gl_FragColor = vec4(v * uDiss, 0.0, 1.0);
+    }
+  `, { uP: { value: null }, uVel: { value: null }, uTexel: { value: TEXEL }, uDiss: { value: 1 } });
+
+  // explicit fill, rather than juggling the renderer's clear colour — the
+  // composer owns that and this has to be deterministic
+  const fill = mat(`uniform vec4 uC; void main(){ gl_FragColor = uC; }`, { uC: { value: new THREE.Vector4() } });
+  const clearTo = (t, x, y, z, w) => { fill.uniforms.uC.value.set(x, y, z, w); run(fill, t); };
+  for (const t of [velA, velB, prA, prB, div]) clearTo(t, 0, 0, 0, 1);
+  for (const t of [dyeA, dyeB]) clearTo(t, 1, 1, 1, 1);   // white = untouched
+
+  return {
+    get texture() { return dyeA.texture; },
+    update(dt) {
+      // consume the movement accumulated since the last frame
+      const fx = pointer.fx, fy = pointer.fy;
+      pointer.fx = pointer.fy = 0;
+
+      // work in uv/second so the force is the same on a 60Hz and a 170Hz screen
+      let vx = fx / Math.max(dt, 1e-3), vy = fy / Math.max(dt, 1e-3);
+      const mag = Math.hypot(vx, vy);
+      if (mag > 3) { vx = vx / mag * 3; vy = vy / mag * 3; }   // clamp flicks
+      const moving = mag > 0.01;
+
+      // 1 — carry the velocity field along itself
+      aVel.uniforms.uVel.value = velA.texture;
+      aVel.uniforms.uSrc.value = velA.texture;
+      aVel.uniforms.uDt.value = dt;
+      aVel.uniforms.uDiss.value = 1;
+      run(aVel, velB); [velA, velB] = [velB, velA];
+
+      // 2 — the cursor shoves it
+      if (moving) {
+        sVel.uniforms.uSrc.value = velA.texture;
+        sVel.uniforms.uPoint.value.set(pointer.x, pointer.y);
+        sVel.uniforms.uForce.value.set(vx * SPLAT_FORCE * dt, vy * SPLAT_FORCE * dt);
+        run(sVel, velB); [velA, velB] = [velB, velA];
+      }
+
+      // 3/4/5 — project back to divergence free: this is what makes it curl
+      dvg.uniforms.uVel.value = velA.texture;
+      run(dvg, div);
+      clearTo(prA, 0, 0, 0, 1);            // zero initial guess each frame
+      for (let i = 0; i < JACOBI; i++) {
+        jac.uniforms.uP.value = prA.texture;
+        run(jac, prB); [prA, prB] = [prB, prA];
+      }
+      grd.uniforms.uP.value = prA.texture;
+      grd.uniforms.uVel.value = velA.texture;
+      grd.uniforms.uDiss.value = Math.exp(-VEL_DAMP * dt);
+      run(grd, velB); [velA, velB] = [velB, velA];
+
+      // 6 — the visible ink rides the finished field
+      aDye.uniforms.uVel.value = velA.texture;
+      aDye.uniforms.uSrc.value = dyeA.texture;
+      aDye.uniforms.uDt.value = dt;
+      aDye.uniforms.uHeal.value = Math.min(0.05, dt * INK_HEAL);
+      run(aDye, dyeB); [dyeA, dyeB] = [dyeB, dyeA];
+
+      // 7 — and the cursor keeps depositing more
+      if (moving) {
+        sDye.uniforms.uSrc.value = dyeA.texture;
+        sDye.uniforms.uPoint.value.set(pointer.x, pointer.y);
+        sDye.uniforms.uAmt.value = Math.min(1, dt * SPLAT_INK);
+        run(sDye, dyeB); [dyeA, dyeB] = [dyeB, dyeA];
+      }
+    },
+  };
+})();
+
+/* ---------------------------------------------------------------- composer
+   afterimage (dust trails) → bloom (digital side glows) → grain/scanline.
+   All three are driven by the split so the physical side stays clean. */
+
+const grainShader = {
+  uniforms: {
+    tDiffuse: { value: null },
+    uAmount: { value: 0 },
+    uTime: { value: 0 },
+    uRes: { value: new THREE.Vector2(innerWidth, innerHeight) },
+  },
+  vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+  fragmentShader: `
+    uniform sampler2D tDiffuse;
+    uniform float uAmount, uTime;
+    uniform vec2 uRes;
+    varying vec2 vUv;
+    void main(){
+      vec4 c = texture2D(tDiffuse, vUv);
+      float g = fract(sin(dot(vUv * uRes + fract(uTime) * 91.7, vec2(12.9898, 78.233))) * 43758.5453);
+      c.rgb += (g - 0.5) * 0.07 * uAmount;
+      float scan = sin(vUv.y * uRes.y * 1.6) * 0.5 + 0.5;
+      c.rgb *= 1.0 - scan * 0.04 * uAmount;
+      gl_FragColor = c;
+    }
+  `,
+};
+
+/* Expanding concentric rings from the cursor, used as a displacement map over
+   the finished frame, with a little chromatic separation and a glint on the
+   crest. Technique from reactbits RippleDistortion (MIT + Commons Clause).
+   Theirs renders 100 instanced ring meshes into a separate target because it
+   has to distort an <img>; we already own the frame, so the rings are solved
+   analytically in the pass — same look, one shader, no extra buffer.
+   ponytail: 8 concurrent ripples in a ring buffer. Raise RIPPLE_MAX only if
+   fast sweeps visibly drop rings. */
+
+const RIPPLE_MAX = 8;
+const RIPPLE_LIFE = 1.5;      // seconds
+const ripples = new Array(RIPPLE_MAX).fill(null).map(() => new THREE.Vector4(0, 0, -99, 0));
+let rippleNext = 0;
+
+const rippleShader = {
+  uniforms: {
+    tDiffuse: { value: null },
+    uRipples: { value: ripples },
+    uTime: { value: 0 },
+    uAspect: { value: innerWidth / innerHeight },
+    uStrength: { value: 0.020 },
+    uDispersion: { value: 0.35 },
+    uGlint: { value: 0.10 },
+    uRings: { value: 3.0 },
+    uSpread: { value: 0.42 },
+    uWidth: { value: 0.075 },
+    uLife: { value: RIPPLE_LIFE },
+  },
+  vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+  fragmentShader: `
+    uniform sampler2D tDiffuse;
+    uniform vec4 uRipples[${RIPPLE_MAX}];
+    uniform float uTime, uAspect, uStrength, uDispersion, uGlint, uRings, uSpread, uWidth, uLife;
+    varying vec2 vUv;
+
+    void main(){
+      vec2 disp = vec2(0.0);
+      float glint = 0.0;
+
+      for (int i = 0; i < ${RIPPLE_MAX}; i++){
+        vec4 R = uRipples[i];
+        float age = uTime - R.z;
+        if (R.w <= 0.0 || age < 0.0 || age > uLife) continue;
+
+        float k = age / uLife;                       // 0 born .. 1 dead
+        vec2  d = (vUv - R.xy) * vec2(uAspect, 1.0);
+        float r = length(d);
+
+        // a gaussian band travelling outward, thinning as it goes
+        float band = exp(-pow((r - k * uSpread) / uWidth, 2.0));
+        float w = band * (1.0 - k) * R.w;
+
+        // the ring structure itself — same falloff shape reactbits uses
+        w *= 0.55 + 0.45 * cos(sqrt(max(r, 0.0)) * 6.28318 * uRings);
+
+        disp  += normalize(d + vec2(1e-6)) * w;
+        glint += w;
+      }
+
+      disp *= uStrength;
+
+      // sample each channel at a slightly different offset: cheap dispersion
+      vec4 c;
+      c.r = texture2D(tDiffuse, vUv + disp * (1.0 + uDispersion)).r;
+      c.g = texture2D(tDiffuse, vUv + disp).g;
+      c.b = texture2D(tDiffuse, vUv + disp * (1.0 - uDispersion)).b;
+      c.a = 1.0;
+      c.rgb += glint * uGlint;
+      gl_FragColor = c;
+    }
+  `,
+};
+
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const afterimage = new AfterimagePass(0.0);
+composer.addPass(afterimage);
+// ripple sits before bloom so the glint on each crest is what blooms
+const ripple = new ShaderPass(rippleShader);
+composer.addPass(ripple);
+// threshold high on purpose: only the genuinely hot flecks bloom. A low
+// threshold turns 180k overlapping points into one white blob.
+const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.0, 0.5, 0.72);
+composer.addPass(bloom);
+const grain = new ShaderPass(grainShader);
+composer.addPass(grain);
+composer.setSize(innerWidth, innerHeight);
+
+/* ---------------------------------------------------------------- the stone
+   Procedural for now: an icosphere pushed around by layered noise until it
+   reads as a fractured mineral block. Swap this for a GLB of a real scanned
+   sculpt later — everything downstream samples the mesh, so nothing else
+   needs to change. */
+
+const RADIUS = 1.32;
+const perlin = new ImprovedNoise();
+
+function buildStone() {
+  const geo = new THREE.IcosahedronGeometry(RADIUS, mobile ? 48 : 78);
+  const pos = geo.attributes.position;
+  const v = new THREE.Vector3();
+  for (let i = 0; i < pos.count; i++) {
+    v.fromBufferAttribute(pos, i);
+    const n = v.clone().normalize();
+    // broad silhouette blocking
+    let d = perlin.noise(n.x * 1.15, n.y * 1.15, n.z * 1.15) * 0.42;
+    // facet planes — gives the flat chipped faces of a broken rock
+    d += Math.abs(perlin.noise(n.x * 2.4, n.y * 2.4, n.z * 2.4)) * 0.2;
+    d = Math.round(d * 7.0) / 7.0 * 0.72 + d * 0.28;
+    // fine grit
+    d += perlin.noise(n.x * 11.0, n.y * 11.0, n.z * 11.0) * 0.035;
+    v.copy(n).multiplyScalar(RADIUS + d);
+    pos.setXYZ(i, v.x, v.y, v.z);
+  }
+  geo.computeVertexNormals();
+  geo.computeBoundingSphere();
+  return geo;
+}
+
+const stoneGeo = buildStone();
+
+/* ---------------------------------------------------------------- dissolve
+   One shared GLSL block so the mesh and the particles agree on exactly where
+   the object has come apart. The mesh discards where diss > 0.5; the points
+   fade in over the same field. That handoff is the whole effect. */
+
+const DISSOLVE_GLSL = `
+  uniform float uProg;   // 0 = solid, 1 = fully dispersed
+  uniform float uTime;
+  uniform sampler2D uFluid;
+  uniform vec2 uRes;
+  uniform float uFluidAmt;
+
+  // fluid mask is white at rest, dark where the pointer has passed.
+  // the deadzone matters: without it, faint residue keeps nibbling the stone
+  // and the physical pole can never read as perfectly solid.
+  float fluidAt(vec2 suv){
+    float raw = clamp(1.0 - texture2D(uFluid, suv).r, 0.0, 1.0);
+    return smoothstep(0.12, 0.68, raw) * uFluidAmt;
+  }
+
+  float vhash(vec3 p){
+    p = fract(p * 0.3183099 + vec3(0.71, 0.113, 0.419));
+    p *= 17.0;
+    return fract(p.x * p.y * p.z * (p.x + p.y + p.z));
+  }
+  float vnoise(vec3 x){
+    vec3 i = floor(x), f = fract(x);
+    f = f * f * (3.0 - 2.0 * f);
+    return mix(mix(mix(vhash(i+vec3(0,0,0)), vhash(i+vec3(1,0,0)), f.x),
+                   mix(vhash(i+vec3(0,1,0)), vhash(i+vec3(1,1,0)), f.x), f.y),
+               mix(mix(vhash(i+vec3(0,0,1)), vhash(i+vec3(1,0,1)), f.x),
+                   mix(vhash(i+vec3(0,1,1)), vhash(i+vec3(1,1,1)), f.x), f.y), f.z);
+  }
+
+  // Where in the sweep does this point come apart? 0 = first, 1 = last.
+  float biasFor(vec3 p){
+    float axis   = clamp(p.x / ${RADIUS.toFixed(2)} * 0.5 + 0.5, 0.0, 1.0);
+    float blob   = vnoise(p * 2.1);
+    float stripe = sin(p.y * 30.0) * 0.5 + 0.5;   // the comb teeth
+    return clamp(axis * 0.70 + blob * 0.24 + stripe * 0.06, 0.0, 1.0);
+  }
+
+  // boost = local fluid disturbance; the hybrid part. Global drag sets the
+  // baseline, the pointer's wake pushes it locally toward dispersed.
+  float dissolveAt(vec3 p, float boost){
+    float t = uProg * 1.44 - 0.22 + boost * 0.26;
+    return smoothstep(biasFor(p) - 0.20, biasFor(p) + 0.20, t);
+  }
+`;
+
+const uProg = { value: 0.5 };
+const uTime = { value: 0 };
+const uFluid = { value: fluid.texture };
+const uRes = { value: new THREE.Vector2(innerWidth, innerHeight) };
+const uFluidAmt = { value: 1 };
+
+/* ---- solid mesh: standard PBR, hooked to discard on the dissolve field ---- */
+
+const stoneMat = new THREE.MeshStandardMaterial({
+  color: 0x877f73,   // sits darker than the backdrop so solid reads as solid
+  roughness: 0.94,
+  metalness: 0.02,
+  flatShading: false,
+});
+
+stoneMat.onBeforeCompile = (shader) => {
+  shader.uniforms.uProg = uProg;
+  shader.uniforms.uTime = uTime;
+  shader.uniforms.uFluid = uFluid;
+  shader.uniforms.uRes = uRes;
+  shader.uniforms.uFluidAmt = uFluidAmt;
+  shader.vertexShader = shader.vertexShader
+    .replace('#include <common>', '#include <common>\nvarying vec3 vObj;')
+    .replace('#include <begin_vertex>', '#include <begin_vertex>\nvObj = position;');
+  shader.fragmentShader = shader.fragmentShader
+    .replace('#include <common>', '#include <common>\nvarying vec3 vObj;\n' + DISSOLVE_GLSL)
+    .replace('#include <dithering_fragment>', `
+      #include <dithering_fragment>
+      float d = dissolveAt(vObj, fluidAt(gl_FragCoord.xy / uRes));
+      if (d > 0.5) discard;
+      // hot edge right at the fracture front
+      float edge = smoothstep(0.5, 0.30, d);
+      gl_FragColor.rgb += vec3(0.95, 0.93, 0.88) * edge * 0.5;
+    `);
+};
+
+const stone = new THREE.Mesh(stoneGeo, stoneMat);
+stone.castShadow = false;
+group.add(stone);
+
+/* ---- wireframe ghost: the fine line register from reference 1 ---- */
+
+const wireGeo = new THREE.IcosahedronGeometry(RADIUS * 1.004, mobile ? 14 : 20);
+{
+  const p = wireGeo.attributes.position, v = new THREE.Vector3();
+  for (let i = 0; i < p.count; i++) {
+    v.fromBufferAttribute(p, i);
+    const n = v.clone().normalize();
+    let d = perlin.noise(n.x * 1.15, n.y * 1.15, n.z * 1.15) * 0.42;
+    d += Math.abs(perlin.noise(n.x * 2.4, n.y * 2.4, n.z * 2.4)) * 0.2;
+    d = Math.round(d * 7.0) / 7.0 * 0.72 + d * 0.28;
+    v.copy(n).multiplyScalar(RADIUS + d);
+    p.setXYZ(i, v.x, v.y, v.z);
+  }
+}
+const wire = new THREE.LineSegments(
+  new THREE.WireframeGeometry(wireGeo),
+  new THREE.ShaderMaterial({
+    transparent: true, depthWrite: false,
+    uniforms: { uProg, uTime, uFluid, uRes, uFluidAmt },
+    vertexShader: `
+      varying vec3 vObj;
+      void main(){ vObj = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }
+    `,
+    fragmentShader: `
+      varying vec3 vObj;
+      ${DISSOLVE_GLSL}
+      void main(){
+        float d = dissolveAt(vObj, fluidAt(gl_FragCoord.xy / uRes));
+        // strongest just as the surface lets go, lingering into the dispersed state
+        float a = smoothstep(0.12, 0.55, d) * (1.0 - smoothstep(0.72, 1.0, d) * 0.55);
+        if (a < 0.01) discard;
+        gl_FragColor = vec4(vec3(0.96, 0.96, 0.95), a * 0.30);
+      }
+    `,
+  })
+);
+group.add(wire);
+
+/* ---- particles: sampled on the surface, thrown outward as it lets go ---- */
+
+const COUNT = mobile ? 60000 : 180000;
+const sampler = new MeshSurfaceSampler(new THREE.Mesh(stoneGeo)).build();
+
+const aHome = new Float32Array(COUNT * 3);
+const aDir = new Float32Array(COUNT * 3);
+const aSeed = new Float32Array(COUNT);
+
+{
+  const p = new THREE.Vector3(), n = new THREE.Vector3();
+  for (let i = 0; i < COUNT; i++) {
+    sampler.sample(p, n);
+    aHome[i * 3] = p.x; aHome[i * 3 + 1] = p.y; aHome[i * 3 + 2] = p.z;
+    // mostly along the surface normal, with enough spread to become a cloud
+    const jx = (Math.random() - 0.5) * 1.5;
+    const jy = (Math.random() - 0.5) * 1.5;
+    const jz = (Math.random() - 0.5) * 1.5;
+    const d = new THREE.Vector3(n.x + jx, n.y + jy * 0.5 + 0.30, n.z + jz).normalize();
+    aDir[i * 3] = d.x; aDir[i * 3 + 1] = d.y; aDir[i * 3 + 2] = d.z;
+    aSeed[i] = Math.random();
+  }
+}
+
+const ptGeo = new THREE.BufferGeometry();
+ptGeo.setAttribute('position', new THREE.BufferAttribute(aHome.slice(), 3));
+ptGeo.setAttribute('aHome', new THREE.BufferAttribute(aHome, 3));
+ptGeo.setAttribute('aDir', new THREE.BufferAttribute(aDir, 3));
+ptGeo.setAttribute('aSeed', new THREE.BufferAttribute(aSeed, 1));
+ptGeo.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 12);
+
+const ptMat = new THREE.ShaderMaterial({
+  transparent: true,
+  depthWrite: false,
+  uniforms: {
+    uProg, uTime, uFluid, uRes, uFluidAmt,
+    uSplit: { value: 0 },
+    uPix: { value: Math.min(devicePixelRatio, 2) },
+    uVel: { value: 0 },
+    uAgitate: { value: 0 },
+  },
+  vertexShader: `
+    attribute vec3 aHome;
+    attribute vec3 aDir;
+    attribute float aSeed;
+    uniform float uSplit;
+    uniform float uPix;
+    uniform float uVel;
+    uniform float uAgitate;
+    varying float vAlpha;
+    varying float vSeed;
+    varying float vDiss;
+    varying float vFleck;
+    varying float vSpeed;
+    ${DISSOLVE_GLSL}
+
+    void main(){
+      // screen position of the resting point, so the fluid mask lines up with
+      // the silhouette the cursor actually painted over
+      vec4 homeClip = projectionMatrix * modelViewMatrix * vec4(aHome, 1.0);
+      vec2 suv = homeClip.xy / homeClip.w * 0.5 + 0.5;
+
+      float d = dissolveAt(aHome, fluidAt(suv));
+      vDiss = d;
+      vSeed = aSeed;
+      vFleck = step(0.9965, aSeed);   // ~0.35% of points, not 1.4%
+
+      // throw distance grows with how far past the front this point is
+      float throwAmt = pow(d, 1.35) * (0.35 + aSeed * 3.4);
+      vec3 p = aHome + aDir * throwAmt;
+
+      // two octaves of curl — the cloud churns rather than merely drifts
+      float t = uTime * 0.42;
+      vec3 curl = vec3(
+        sin(t + aSeed * 41.0)        + 0.55 * sin(t * 2.42 + aSeed * 77.0),
+        cos(t * 0.82 + aSeed * 27.0) + 0.55 * cos(t * 2.13 + aSeed * 63.0),
+        sin(t * 0.63 + aSeed * 33.0) + 0.55 * sin(t * 1.94 + aSeed * 51.0)
+      );
+      p += curl * (0.20 + 0.34 * uAgitate) * d;
+
+      // differential swirl: inner dust leads, outer dust lags — reads as depth
+      float rad = length(p.xz) + 0.35;
+      float ang = uTime * 0.30 * d / rad;
+      float ca = cos(ang), sa = sin(ang);
+      p.xz = mat2(ca, -sa, sa, ca) * p.xz;
+
+      // shear along the drag direction so fast movement smears the cloud
+      p.x += uVel * 7.0 * d * (0.4 + aSeed);
+      p.y += uVel * 1.8 * d * (aSeed - 0.5);
+
+      vec4 mv = modelViewMatrix * vec4(p, 1.0);
+      gl_Position = projectionMatrix * mv;
+
+      float speed = clamp(abs(uVel) * 26.0, 0.0, 1.0);
+      vSpeed = speed;
+
+      // fine dust, swelling as it is thrown and as it moves
+      float size = mix(2.5, 1.25, smoothstep(0.0, 1.0, d)) * uPix;
+      size *= 1.0 + speed * 1.5;
+      size *= 1.0 + vFleck * 1.8;
+      gl_PointSize = size * (5.4 / -mv.z);
+
+      // invisible while the solid mesh still covers it
+      vAlpha = smoothstep(0.06, 0.42, d);
+    }
+  `,
+  fragmentShader: `
+    varying float vAlpha;
+    varying float vSeed;
+    varying float vDiss;
+    varying float vFleck;
+    varying float vSpeed;
+    uniform float uSplit;
+
+    void main(){
+      vec2 c = gl_PointCoord - 0.5;
+      float r = dot(c, c);
+      if (r > 0.25) discard;
+
+      // tighter core with a wider falloff when moving — reads as a light smear
+      float core = 1.0 - smoothstep(0.02, 0.13, r);
+      float halo = 1.0 - smoothstep(0.05, 0.25, r);
+      float soft = mix(halo, core + halo * 0.55, vSpeed);
+
+      // dark grit against the lit side, luminous dust against the void
+      vec3 solidCol = vec3(0.20, 0.19, 0.17);
+      vec3 voidCol  = vec3(0.97, 0.97, 0.96);
+      vec3 col = mix(solidCol, voidCol, smoothstep(-0.35, 0.55, uSplit));
+
+      // the faint prismatic flecks of reference 1: rare, desaturated, and only
+      // in the dense mid-dissolve band — not confetti across the whole frame
+      if (vFleck > 0.5) {
+        vec3 iri = vec3(
+          sin(vSeed * 92.0),
+          sin(vSeed * 92.0 + 2.1),
+          sin(vSeed * 92.0 + 4.2)
+        );
+        iri = mix(vec3(dot(iri, vec3(0.333))), iri, 0.55);   // pull most of the saturation out
+        col += iri * (0.11 + vSpeed * 0.14) * smoothstep(0.15, 0.6, vDiss);
+      }
+
+      // hot streaks while the cloud is being dragged
+      col += vec3(1.0, 0.97, 0.9) * vSpeed * 0.45 * smoothstep(0.3, 1.0, vDiss);
+
+      // thin the dust right down once fully dispersed, or 180k overlapping
+      // points stack into a solid white field
+      float a = vAlpha * soft * mix(0.80, 0.20, vDiss) * (1.0 + vSpeed * 0.5);
+      if (a < 0.004) discard;
+      gl_FragColor = vec4(col, a);
+    }
+  `,
+});
+
+const points = new THREE.Points(ptGeo, ptMat);
+group.add(points);
+
+/* ---------------------------------------------------------------- light
+   Raking key from the left — the physical side is lit by something outside
+   itself. As you cross to digital the key dies and the object is left to
+   emit on its own. */
+
+const key = new THREE.DirectionalLight(0xfff4e6, 3.1);
+key.position.set(-4.2, 2.6, 3.0);
+scene.add(key);
+
+const rim = new THREE.DirectionalLight(0xc9d8ff, 0.9);
+rim.position.set(3.4, -1.2, -2.4);
+scene.add(rim);
+
+const amb = new THREE.AmbientLight(0xffffff, 0.5);
+scene.add(amb);
+
+/* ---------------------------------------------------------------- state */
+
+let target = 0;      // where the user is pulling  (-1 solid .. +1 dispersed)
+let split = 0;       // eased actual value
+let vel = 0;
+let side = 0;        // which pole the enter card is currently offering
+let idle = 0;
+let px = 0, py = 0;  // eased cursor, drives parallax
+
+const enterEl = document.getElementById('enter');
+const enterLink = document.getElementById('enterLink');
+const enterLead = document.getElementById('enterLead');
+const promptEl = document.getElementById('prompt');
+const poleL = document.getElementById('poleL');
+const poleR = document.getElementById('poleR');
+const readout = document.getElementById('readout');
+const railDot = document.getElementById('railDot');
+const annot1 = document.getElementById('annot1');
+const annot2 = document.getElementById('annot2');
+
+const OFFER = 0.84;   // past this the enter card is offered — nothing locks
+
+function setTarget(v) {
+  target = Math.max(-1, Math.min(1, v));
+  idle = 0;
+}
+
+/* ---- input: always live. You can drag straight back out of either pole,
+   and the enter card follows you rather than trapping you. ---- */
+
+addEventListener('wheel', (e) => {
+  // horizontal trackpad gesture preferred; vertical wheel as a fallback so a
+  // plain mouse isn't stuck at the seam
+  const dx = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY * 0.42;
+  setTarget(target + dx * 0.0021);
+}, { passive: true });
+
+let dragging = false, lastX = 0;
+addEventListener('pointerdown', (e) => {
+  if (e.target.closest('.enter')) return;   // let the card's own controls work
+  dragging = true; lastX = e.clientX;
+  document.body.classList.add('dragging');
+  // a click always throws a ripple, and a bigger one than a drift does
+  if (!reduced) spawnRipple(e.clientX / innerWidth, 1 - e.clientY / innerHeight, 1.35);
+});
+// spawn a ripple, but only once the cursor has actually travelled — otherwise
+// a single sweep burns all 8 slots in the first few pixels
+let lastRipX = 0.5, lastRipY = 0.5;
+function spawnRipple(nx, ny, strength) {
+  const dx = nx - lastRipX, dy = ny - lastRipY;
+  if (strength < 1 && dx * dx + dy * dy < 0.0055) return;
+  lastRipX = nx; lastRipY = ny;
+  ripples[rippleNext].set(nx, ny, uTime.value, strength);
+  rippleNext = (rippleNext + 1) % RIPPLE_MAX;
+}
+
+addEventListener('pointermove', (e) => {
+  // cursor parallax runs whether or not you are dragging
+  px = (e.clientX / innerWidth - 0.5) * 2;
+  py = (e.clientY / innerHeight - 0.5) * 2;
+
+  // GL-style coords (y up) for both the fluid splat and the ripple pass
+  const nx = e.clientX / innerWidth, ny = 1 - e.clientY / innerHeight;
+  pointer.fx += nx - pointer.x;
+  pointer.fy += ny - pointer.y;
+  pointer.x = nx; pointer.y = ny;
+  if (!reduced) spawnRipple(nx, ny, 0.55);
+
+  if (!dragging) return;
+  const dx = e.clientX - lastX;
+  lastX = e.clientX;
+  // push the stone the way you drag: right disperses, left resolves
+  setTarget(target + dx / innerWidth * 2.3);
+});
+addEventListener('pointerup', () => {
+  dragging = false;
+  document.body.classList.remove('dragging');
+});
+addEventListener('pointercancel', () => { dragging = false; document.body.classList.remove('dragging'); });
+
+addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowLeft')  setTarget(target - 0.34);
+  if (e.key === 'ArrowRight') setTarget(target + 0.34);
+  if (e.key === 'Escape')     recentre();
+});
+
+/* ---- the enter card follows position; it never takes control away ---- */
+
+function offer(s) {
+  side = s;
+  enterLead.textContent = s < 0 ? 'Form resolved' : 'Dispersion complete';
+  enterLink.textContent = s < 0 ? 'Enter Physical' : 'Enter Digital';
+  enterLink.setAttribute('href', s < 0 ? '#' : '../index.html#selected-work');
+  enterEl.classList.add('on');
+}
+
+function withdraw() {
+  side = 0;
+  enterEl.classList.remove('on');
+}
+
+function recentre() { setTarget(0); }
+document.getElementById('backBtn').addEventListener('click', recentre);
+
+/* ---------------------------------------------------------------- loop */
+
+const clock = new THREE.Clock();
+
+function frame() {
+  const dt = Math.min(clock.getDelta(), 0.05);
+  uTime.value += dt;
+
+  // fluid: the cursor shoves the velocity field, the ink rides it
+  if (!reduced) {
+    fluid.update(dt);
+    uFluid.value = fluid.texture;
+    ripple.uniforms.uTime.value = uTime.value;
+  }
+  ripple.enabled = !reduced;
+
+  // spring — the weight lives here. No magnet, no snap: you stay in control.
+  vel += (target - split) * (reduced ? 0.9 : 0.062);
+  vel *= reduced ? 0.4 : 0.855;
+  split += vel;
+
+  uProg.value = (split + 1) * 0.5;
+  uSplitG.value = split;
+  ptMat.uniforms.uSplit.value = split;
+  ptMat.uniforms.uVel.value = vel;
+
+  const a = Math.abs(split);
+
+  // agitation: how hard the cloud is churning right now
+  const agitate = Math.min(1, Math.abs(vel) * 22 + Math.max(0, split) * 0.55);
+  ptMat.uniforms.uAgitate.value = agitate;
+
+  // trails only on the light side, and they lengthen with speed
+  afterimage.uniforms.damp.value = reduced ? 0
+    : Math.min(0.92, Math.max(0, (split + 0.15) / 1.15) * 0.72 + Math.min(0.3, Math.abs(vel) * 9));
+
+  // bloom + grain belong to the digital side only; matter stays clean
+  const digital = Math.max(0, split);
+  bloom.strength = reduced ? 0 : digital * 0.26 + agitate * 0.10;
+  grain.uniforms.uAmount.value = reduced ? 0 : digital * 0.8;
+  grain.uniforms.uTime.value = uTime.value;
+
+  // carving is strongest at the seam and fades out at both poles, so a
+  // committed choice resolves to a pure state instead of staying nibbled
+  uFluidAmt.value = reduced ? 0 : 1 - a * 0.85;
+
+  // the card is offered past the threshold and withdrawn the moment you leave
+  if (a > OFFER) { const s = Math.sign(split); if (s !== side) offer(s); }
+  else if (side) withdraw();
+
+  // idle drift so it never reads as a still image
+  idle += dt;
+  const breathe = reduced ? 0 : Math.sin(idle * 0.42) * 0.055;
+  group.rotation.y = split * 0.55 + breathe + px * 0.10;
+  group.rotation.x = Math.sin(idle * 0.31) * 0.035 - split * 0.06 + py * 0.06;
+  group.rotation.z = split * -0.09;
+
+  // camera parallax — real depth separation between near dust and far dust
+  camera.position.x += (px * 0.42 - camera.position.x) * 0.045;
+  camera.position.y += (-py * 0.28 - camera.position.y) * 0.045;
+  camera.lookAt(0, 0, 0);
+
+  // light dies as the object crosses into the void and starts emitting
+  const lit = 1 - Math.max(0, split);
+  key.intensity = 0.35 + lit * 2.9;
+  rim.intensity = 0.28 + Math.max(0, split) * 1.5;
+  amb.intensity = 0.2 + lit * 0.42;
+
+  // UI response
+  document.documentElement.style.setProperty('--split', split.toFixed(3));
+  poleL.style.opacity = (0.26 + Math.max(0, -split) * 0.74).toFixed(3);
+  poleR.style.opacity = (0.26 + Math.max(0, split) * 0.74).toFixed(3);
+  promptEl.style.opacity = Math.max(0, 1 - a * 1.5).toFixed(3);
+  annot1.style.opacity = Math.min(1, Math.max(0, (split - 0.25) * 1.5)).toFixed(3);
+  annot2.style.opacity = Math.min(1, Math.max(0, (split - 0.4) * 1.5)).toFixed(3);
+  railDot.style.background = split > 0.1 ? '#f2f1ef' : '#16150f';
+
+  readout.textContent =
+    `${(a * 100).toFixed(1).padStart(4, '0')} · ${split < -0.05 ? 'coalescing' : split > 0.05 ? 'dispersing' : 'equilibrium'}`;
+
+  // one automatic resolution step-down if the GPU can't hold the frame rate
+  if (!scaled) {
+    fpsT += dt; fpsN++;
+    if (fpsT > 2 && fpsN / fpsT < 45) { renderScale = 0.72; applySize(); scaled = true; }
+    else if (fpsT > 2) scaled = true;
+  }
+
+  composer.render();
+  requestAnimationFrame(frame);
+}
+let fpsT = 0, fpsN = 0, scaled = false;
+
+/* renderScale: Shopify Editions does the same — scale resolution to hold
+   framerate rather than dropping effects. ponytail: one automatic step down. */
+let renderScale = 1;
+
+function applySize() {
+  const pr = Math.min(devicePixelRatio, 2) * renderScale;
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setPixelRatio(pr);
+  renderer.setSize(innerWidth, innerHeight);
+  composer.setPixelRatio(pr);
+  composer.setSize(innerWidth, innerHeight);
+  bloom.setSize(innerWidth, innerHeight);
+  uRes.value.set(innerWidth * pr, innerHeight * pr);
+  grain.uniforms.uRes.value.set(innerWidth * pr, innerHeight * pr);
+  ripple.uniforms.uAspect.value = innerWidth / innerHeight;
+  ptMat.uniforms.uPix.value = pr;
+}
+applySize();
+addEventListener('resize', applySize);
+
+frame();
+</script>
+</body>
+</html>

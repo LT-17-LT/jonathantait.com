@@ -1,460 +1,372 @@
 <!DOCTYPE html>
-<html lang='en'>
+<html lang="en">
 <head>
-  <meta charset='UTF-8' />
-  <meta name='viewport' content='width=device-width, initial-scale=1.0' />
-  <title>Jonathan Tait — Generative AI Creative Technologist</title>
-  <meta name='description' content='Portfolio site for Jonathan Tait — cinematic direction, AI-assisted campaign production, generative worldbuilding, and selected work.' />
-  <style>
-    :root {
-      --egg:#f3efe6;
-      --egg-2:#ebe4d7;
-      --ink:#171513;
-      --ink-soft:rgba(23,21,19,.72);
-      --line:rgba(23,21,19,.12);
-      --line-strong:rgba(23,21,19,.18);
-      --gold:#b88348;
-      --gold-soft:#e8caa5;
-      --panel:rgba(255,255,255,.54);
-      --shadow:0 24px 72px rgba(68,48,28,.12);
-      --radius:28px;
-      --max:1360px;
-      --nav-h:74px;
-      --bars-top-pad:76px;
-      --bars-bottom-pad:3vh;
-      --bars-gap:12px;
-      --intro-pad-y:14px;
-      --intro-pad-x:18px;
-      --intro-radius:24px;
-      --bar-min-height:0px;
-      --bar-pad-y:9px;
-      --bar-pad-x:14px;
-      --bar-radius:22px;
-      --bar-thumb-width:104px;
-    }
-    * { box-sizing:border-box; }
-    html { scroll-behavior:smooth; }
-    body {
-      margin:0;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: linear-gradient(180deg, var(--egg) 0%, #f7f4ee 35%, var(--egg-2) 100%);
-      color:var(--ink);
-      line-height:1.5;
-    }
-    a { color:inherit; text-decoration:none; }
-    img, video { display:block; max-width:100%; }
-    .shell { width:min(calc(100% - 32px), var(--max)); margin:0 auto; }
-    .full-bleed { width:100vw; margin-left:calc(50% - 50vw); }
-    .site-nav {
-      position:fixed; top:14px; left:50%; transform:translateX(-50%); z-index:60;
-      width:min(calc(100% - 24px), var(--max)); min-height:var(--nav-h); display:flex; align-items:center; gap:16px;
-      padding:12px 18px; border:1px solid rgba(255,255,255,.55); border-radius:999px; background:rgba(248,245,239,.78);
-      backdrop-filter: blur(18px) saturate(120%); box-shadow:0 10px 40px rgba(61,45,29,.08);
-    }
-    .brand-mark { font-size:1rem; font-weight:500; letter-spacing:.24em; text-transform:uppercase; color:rgba(23,21,19,.82); white-space:nowrap; }
-    .nav-links { display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; margin-left:auto; }
-    .nav-links a, .button { min-height:44px; padding:10px 15px; border-radius:999px; border:1px solid var(--line); background:rgba(255,255,255,.42); display:inline-flex; align-items:center; gap:8px; transition:transform .18s ease, background .18s ease, border-color .18s ease; }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Jonathan Tait, Generative AI Creative Technologist · Digital</title>
+<meta name="description" content="Portfolio of Jonathan Tait: cinematic direction, AI-assisted campaign production, generative worldbuilding, and selected work.">
+<link rel='preconnect' href='https://fonts.googleapis.com' />
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin />
+<link href='https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Inter:wght@400;500;600&display=swap' rel='stylesheet' />
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  :root{
+    --bg:#e0dee1; --ink:#181818; --over:#fff;
+    --serif:'Fraunces',Georgia,serif;
+    --sans:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
+    --pad:2.2vw;
+    --sm:clamp(10px,.70vw,16px);
+    --lg:clamp(15px,1.25vw,29px);
+    --ease:cubic-bezier(.76,0,.24,1);
+    --out:cubic-bezier(.16,1,.3,1);
+  }
+  html,body{height:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:var(--sans); font-weight:400;
+    overflow:hidden; overscroll-behavior:none;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit; text-decoration:none}
 
-    .nav-links a:hover, .button:hover, .work-card:hover { transform:translateY(-1px); background:#fffaf4; border-color:var(--line-strong); }
-    .button.primary { background:linear-gradient(135deg,#d3a977,#b88348); color:white; border-color:transparent; box-shadow:0 14px 26px rgba(184,131,72,.18); }
-    .hero { position:relative; min-height:100svh; padding:118px 0 40px; overflow:clip; display:grid; align-items:end; }
-    .hero-media { position:absolute; inset:0; z-index:1; overflow:hidden; background:#1a1612; }
-    .hero-media::after { content:''; position:absolute; inset:0; background:linear-gradient(180deg,rgba(248,245,239,.12) 0%, rgba(248,245,239,.22) 12%, rgba(243,239,230,.44) 52%, rgba(243,239,230,.9) 100%); }
-    .hero-media-item { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity 1.4s ease; filter:saturate(1.02) contrast(1.02) brightness(.88); background-size:cover; background-position:center; }
-    .hero-media-item.active { opacity:1; }
-    .hero-content { position:relative; z-index:3; display:grid; gap:26px; }
-    .eyebrow { display:inline-flex; align-items:center; gap:10px; width:fit-content; padding:8px 12px; border-radius:999px; background:rgba(255,255,255,.52); border:1px solid rgba(255,255,255,.62); color:rgba(23,21,19,.64); text-transform:uppercase; letter-spacing:.16em; font-size:.78rem; }
-    .eyebrow::before { content:''; width:8px; height:8px; border-radius:999px; background:var(--gold); }
-    .hero-grid { display:grid; grid-template-columns:minmax(0,1fr); gap:18px; align-items:end; max-width:780px; }
-    h1 { margin:0; max-width:10.5ch; font-size:clamp(3.3rem,8vw,7.4rem); line-height:.92; letter-spacing:-.06em; text-wrap:balance; }
-    .lede { margin:18px 0 0; max-width:44rem; color:var(--ink-soft); font-size:clamp(1rem,1.7vw,1.25rem); }
-    .panel, .work-card { background:rgba(255,255,255,.56); border:1px solid rgba(255,255,255,.68); border-radius:var(--radius); box-shadow:var(--shadow); backdrop-filter:blur(14px); }
-    .section-copy, .overlay-copy, .work-copy p { color:var(--ink-soft); }
-    .hero-actions, .statline { display:flex; flex-wrap:wrap; gap:12px; }
-    .statline span { padding:10px 12px; border-radius:999px; background:rgba(255,255,255,.48); border:1px solid rgba(23,21,19,.08); font-size:.92rem; }
-    section { padding:30px 0 14px; }
-    .section-head { display:grid; gap:14px; margin-bottom:20px; }
-    h2 { margin:0; font-size:clamp(2.1rem,4vw,4.1rem); line-height:.95; letter-spacing:-.05em; }
-    .film-spread { position:relative; min-height:260svh; }
-    .film-stage { position:sticky; top:86px; height:min(calc(100svh - 104px), max(240px, calc(100vw * 9 / 21))); overflow:hidden; background:#0f0e10; }
-    .film-stage video { width:100%; height:100%; object-fit:cover; filter:saturate(1.04) contrast(1.04) brightness(.84); }
-    .film-stage::after { content:''; position:absolute; inset:0; background:linear-gradient(180deg,rgba(10,10,12,.14) 0%, rgba(10,10,12,.18) 20%, rgba(10,10,12,.44) 100%); pointer-events:none; }
-    .film-overlay { position:absolute; inset:0; z-index:3; pointer-events:none; display:flex; justify-content:flex-end; align-items:flex-end; }
-    .overlay-panel { position:absolute; right:max(16px, calc((100vw - var(--max)) / 2 + 16px)); left:auto; bottom:74px; top:auto; transform:none; width:min(460px,calc(100% - 32px)); padding:0; border:none; background:transparent; box-shadow:none; color:var(--egg); }
-    .timeline-bar { height:3px; border-radius:999px; background:rgba(243,239,230,.22); overflow:hidden; margin-bottom:18px; }
-    .timeline-fill { height:100%; width:0%; background:linear-gradient(90deg,rgba(232,202,165,.92),rgba(255,244,224,.96)); }
-    .service-stack { position:relative; min-height:162px; }
-    .service-slide { position:absolute; inset:0; opacity:0; transform:translateY(18px); transition:opacity .45s ease, transform .45s ease; }
-    .service-slide.active { opacity:1; transform:none; }
-    .overlay-kicker { color:rgba(243,239,230,.72); text-transform:uppercase; letter-spacing:.18em; font-size:.76rem; }
-    .overlay-title { margin:8px 0 8px; font-size:clamp(1.9rem,2.8vw,3rem); line-height:.92; letter-spacing:-.05em; max-width:10ch; text-wrap:balance; }
-    .overlay-copy { max-width:28ch; color:rgba(243,239,230,.92); font-size:clamp(1rem,1.35vw,1.14rem); line-height:1.42; text-shadow:0 8px 28px rgba(0,0,0,.32); }
-    .systems-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; }
-    .panel { padding:18px; display:grid; gap:10px; }
-    .panel h3, .work-copy h3, .footer-card h3 { margin:0; font-size:1.08rem; letter-spacing:-.03em; }
-    .works-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
-    .work-card { overflow:hidden; display:grid; grid-template-columns:180px 1fr; gap:0; position:relative; }
-    .work-thumb { min-height:210px; background-size:cover; background-position:center; }
-    .work-copy { padding:18px; display:grid; gap:10px; align-content:center; }
-    .kicker { color:rgba(23,21,19,.52); text-transform:uppercase; letter-spacing:.16em; font-size:.74rem; }
-    .ghost-link { width:fit-content; min-height:42px; padding:10px 14px; border-radius:999px; border:1px solid var(--line); background:rgba(255,255,255,.38); display:inline-flex; align-items:center; gap:8px; }
-    .connect-grid { display:grid; grid-template-columns:1.08fr .92fr; gap:16px; }
-    .bio-card { overflow:hidden; padding:0; display:grid; grid-template-columns:minmax(240px,.9fr) 1.1fr; gap:0; }
-    .bio-media { min-height:420px; background-size:cover; background-position:center; }
-    .bio-copy { padding:22px; display:grid; gap:12px; align-content:center; }
-    .connect-card { min-height:420px; padding:22px; display:flex; flex-direction:column; align-items:flex-start; gap:12px; }
-    .connect-card p { max-width:34ch; }
-    .contact-list { display:grid; gap:10px; margin-top:auto; justify-items:start; padding-top:10px; }
-    .contact-link { 
-      width:fit-content; 
-      min-height:42px; 
-      padding:10px 14px; 
-      border-radius:999px; 
-      border:1px solid var(--line); 
-      background:rgba(255,255,255,.38); 
-      display:inline-flex; 
-      align-items:center; 
-      gap:8px; 
-      cursor:pointer;
-      transition:background .15s ease, border-color .15s ease;
-    }
-    .contact-link:hover {
-      background:rgba(255,255,255,.72);
-      border-color:var(--line-strong);
-    }
-    .contact-link:active {
-      transform:translateY(1px);
-    }
-    .policy-link { margin-top:0; }
-    @media (max-width:1100px) {
-      .hero-grid, .systems-grid, .works-grid, .footer-grid, .connect-grid, .bio-card { grid-template-columns:1fr; }
-      .work-card { grid-template-columns:1fr; }
-      .work-thumb { min-height:260px; }
-      .bio-media, .connect-card { min-height:320px; }
-    }
-    @media (max-width:780px) {
-      .site-nav {
-        position:static;
-        transform:none;
-        width:min(calc(100% - 20px),var(--max));
-        margin:12px auto 0;
-        padding:12px 14px;
-        border-radius:28px;
-        display:grid;
-        grid-template-columns:1fr;
-        gap:10px;
-        align-items:start;
-      }
-      .brand-mark { font-size:.92rem; letter-spacing:.2em; }
-      .nav-links {
-        margin-left:0;
-        gap:8px;
-        flex-wrap:nowrap;
-        justify-content:flex-start;
-        width:100%;
-      }
-      .nav-links a {
-        min-height:40px;
-        padding:8px 12px;
-        font-size:.94rem;
-        white-space:nowrap;
-      }
-      .hero {
-        min-height:78svh;
-        padding:18px 0 10px;
-      }
-      .hero-content {
-        gap:14px;
-        padding-bottom:92px;
-      }
-      .hero-grid { max-width:100%; }
-      h1 {
-        max-width:9.5ch;
-        font-size:clamp(2.8rem,10vw,4.2rem);
-        line-height:.9;
-      }
-      .hero-actions { gap:8px; }
-      .hero-actions .button {
-        min-height:38px;
-        padding:8px 12px;
-      }
-      .film-spread {
-        min-height:320svh;
-        padding-top:8px;
-      }
-      .film-stage {
-        position:sticky;
-        top:12px;
-        height:860px;
-      }
-      .film-stage::after {
-        background:linear-gradient(180deg,rgba(10,10,12,.1) 0%, rgba(10,10,12,.12) 22%, rgba(10,10,12,.28) 58%, rgba(10,10,12,.58) 100%);
-      }
-      .overlay-panel {
-        left:auto;
-        right:16px;
-        width:min(320px, calc(100% - 32px));
-        bottom:22px;
-      }
-      .service-stack { min-height:176px; }
-      .overlay-title {
-        max-width:12ch;
-        font-size:clamp(1.7rem,7.3vw,2.3rem);
-      }
-      .overlay-copy {
-        max-width:24ch;
-        font-size:1rem;
-        line-height:1.38;
-      }
-      #selected-work {
-        padding-top:18px;
-      }
-      #selected-work .section-head {
-        margin-bottom:16px;
-      }
-    }
-    @media (prefers-reduced-motion: reduce) { html { scroll-behavior:auto; } .nav-links a, .button, .hero-media-item, .service-slide { transition:none; } }
-  </style>
+  /* ---- film: full-bleed, one active at a time ---- */
+  .film{position:fixed; inset:0; overflow:hidden; background:#111; cursor:pointer}
+  .parallax{position:absolute; inset:-3%; will-change:transform}
+  .slide{position:absolute; inset:0; overflow:hidden; opacity:0; visibility:hidden; will-change:transform}
+  .slide.on{opacity:1; visibility:visible}
+  .slide video,.slide img{width:100%; height:100%; object-fit:cover; display:block}
+  /* triptych: three portrait clips as vertical thirds */
+  .tri{position:absolute; inset:0; display:grid; grid-template-columns:repeat(3,1fr)}
+  .tri video{width:100%; height:100%; object-fit:cover; display:block}
+  /* stagger the drift so the three panels never breathe in lockstep */
+  .slide.on .tri video:nth-child(2){animation-delay:-6s}
+  .slide.on .tri video:nth-child(3){animation-delay:-12s}
+  @media (max-width:760px){
+    /* three portrait clips side by side on a phone is 125px each, show one */
+    .tri{grid-template-columns:1fr}
+    .tri video:not(:first-child){display:none}
+  }
+  /* slow drift so a held frame never reads as a still. Uses the standalone
+     `scale` property, NOT transform, the wipe animates transform on this same
+     element and the two must compose instead of clobbering each other. */
+  .slide.on video,.slide.on img,.slide.on .tri video{animation:drift 18s var(--out) infinite alternate}
+  @keyframes drift{from{scale:1.02}to{scale:1.09}}
+  .film::after{content:''; position:absolute; inset:0; pointer-events:none;
+    background:linear-gradient(180deg,rgba(0,0,0,.42),rgba(0,0,0,0) 26%,rgba(0,0,0,0) 62%,rgba(0,0,0,.46))}
+
+  /* ---- chrome ---- */
+  .ui{position:fixed; inset:0; color:var(--over); pointer-events:none;
+    text-transform:uppercase; font-size:var(--sm); letter-spacing:.04em;
+    /* the film underneath is arbitrary, never trust it to be dark */
+    text-shadow:0 1px 20px rgba(0,0,0,.55)}
+  .ui a,.ui button{pointer-events:auto}
+
+  .mark{position:absolute; top:var(--pad); left:var(--pad); font-weight:500; letter-spacing:.08em}
+  .tagline{position:absolute; top:var(--pad); left:50%; transform:translateX(-50%);
+    display:flex; gap:.6em; align-items:center; white-space:nowrap}
+  .count{position:absolute; top:var(--pad); right:var(--pad); font-variant-numeric:tabular-nums}
+
+  /* the editorial bar, the whole row is the link to the project */
+  .bar{position:absolute; top:58%; left:0; right:0; padding:0 var(--pad);
+    display:grid; grid-template-columns:7ch minmax(0,1fr) minmax(0,1fr) 7ch;
+    align-items:baseline; gap:1.5vw; isolation:isolate}
+  /* localised scrim: holds the row legible without flattening the whole frame */
+  .bar::before{content:''; position:absolute; z-index:-1; left:0; right:0; top:-2.6em; bottom:-2em;
+    background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,.42) 32%,rgba(0,0,0,.42) 68%,rgba(0,0,0,0))}
+  /* a little vertical slack so the wipe never clips ascenders or descenders */
+  .cell{overflow:hidden; padding:.18em 0; margin:-.18em 0}
+  .cell span{display:block; will-change:transform}
+  .cell.big{font-size:var(--lg); letter-spacing:.01em}
+  .cell.yr{text-align:right; font-variant-numeric:tabular-nums}
+  .bar:hover .cell.big span{opacity:.62; transition:opacity .4s}
+
+  .nav{position:absolute; left:var(--pad); bottom:var(--pad); display:grid; gap:.35em}
+  .nav a{width:max-content; position:relative}
+  .nav a::after{content:''; position:absolute; left:0; bottom:-2px; height:1px; width:100%;
+    background:currentColor; transform:scaleX(0); transform-origin:100% 50%; transition:transform .45s var(--out)}
+  .nav a:hover::after{transform:scaleX(1); transform-origin:0 50%}
+
+  .hint{position:absolute; bottom:var(--pad); left:50%; transform:translateX(-50%); opacity:.72}
+  .ticks{position:absolute; right:var(--pad); bottom:var(--pad); display:grid; gap:.5em}
+  .tick{width:22px; height:1px; background:currentColor; opacity:.3; transition:opacity .4s,width .4s var(--out)}
+  .tick.on{opacity:1; width:38px}
+
+  .burger{display:none}
+
+  @media (max-width:760px){
+    :root{--pad:5vw; --sm:12px; --lg:17px}
+    .tagline{display:none}
+    /* the gesture hint and the counter both go: the meta bar already shows the
+       index, and touch users do not need to be told to scroll */
+    .hint{display:none}
+    .count{display:none}
+
+    .burger{display:grid; position:absolute; top:var(--pad); right:var(--pad);
+      width:40px; height:40px; place-content:center; gap:7px; padding:0;
+      background:none; border:0; color:inherit; cursor:pointer; z-index:30}
+    .burger span{display:block; width:22px; height:1px; background:currentColor;
+      transition:transform .35s var(--out), opacity .25s var(--out)}
+    .burger[aria-expanded="true"] span:first-child{transform:translateY(4px) rotate(45deg)}
+    .burger[aria-expanded="true"] span:last-child{transform:translateY(-4px) rotate(-45deg)}
+
+    .nav{position:fixed; inset:0; display:grid; place-content:center; gap:1.6em;
+      background:rgba(12,12,14,.94); opacity:0; visibility:hidden; z-index:25;
+      pointer-events:none; transition:opacity .35s var(--out), visibility .35s}
+    .nav.open{opacity:1; visibility:visible; pointer-events:auto}
+    .nav a{font-size:1.5rem; letter-spacing:.04em; text-align:center}
+    .nav a::after{display:none}
+    .bar{top:auto; bottom:24vh; grid-template-columns:5ch minmax(0,1fr); gap:.5em 1em}
+    /* place every cell explicitly, or the title falls into the 5ch index
+       column and gets clipped by the wipe's overflow:hidden */
+    .cell.num{grid-column:1; grid-row:1}
+    .cell.tag{grid-column:2; grid-row:1}
+    .cell.ttl{grid-column:1/-1; grid-row:2}
+    .cell.yr{grid-column:1/-1; grid-row:3; text-align:left}
+    .ticks{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .slide.on video,.slide.on img{animation:none}
+  }
+  noscript .bar{position:static}
+</style>
 </head>
 <body>
-  <nav class='site-nav'>
-    <div class='brand-mark'>Jonathan Tait</div>
-    <div class='nav-links'>
-      <a href='#film'>Services</a>
-      <a href='#selected-work'>Work</a>
-      <a href='#connect'>Connect</a>
-    </div>
+
+<div class="film"><div class="parallax" id="px"><div class="slide" data-i="0"><div class="tri"><video data-src="/assets/video/hero/patriot.mp4" data-poster="generated-gallery-thumbs/jeep-apparel-tri-00-8836dccef340-w900.jpg" muted loop playsinline preload="none"></video><video data-src="/assets/video/hero/citylitedress.mp4" data-poster="generated-gallery-thumbs/jeep-apparel-tri-01-985b260886e4-w900.jpg" muted loop playsinline preload="none"></video><video data-src="/assets/video/hero/gladiator.mp4" data-poster="generated-gallery-thumbs/jeep-apparel-tri-02-0fde3f958923-w900.jpg" muted loop playsinline preload="none"></video></div></div><div class="slide" data-i="1"><img data-src="/assets/stills/spp-hero.jpg" data-poster="/assets/stills/spp-hero.jpg" alt=""></div><div class="slide" data-i="2"><img data-src="/assets/stills/the-reunion-07.jpg" data-poster="/assets/stills/the-reunion-08.jpg" alt=""></div><div class="slide" data-i="3"><img data-src="/assets/stills/invisi-merino-hero.jpg" data-poster="/assets/stills/invisi-merino-hero.jpg" alt=""></div><div class="slide" data-i="4"><img data-src="/assets/stills/ibh-mens-fashion-07.jpg" data-poster="/assets/stills/ibh-mens-fashion-04.jpg" alt=""></div><div class="slide" data-i="5"><video data-src="/assets/video/ibh-canned-refreshment-14.mp4" data-poster="generated-gallery-thumbs/ibh-canned-refreshment-00-4ea3a3421eab-w1280.jpg" muted loop playsinline preload="none"></video></div><div class="slide" data-i="6"><video data-src="/assets/video/ibh-frozen-yoghurt-14.mp4" data-poster="generated-gallery-thumbs/ibh-frozen-yoghurt-00-dd1fcc1aca08-w1280.jpg" muted loop playsinline preload="none"></video></div><div class="slide" data-i="7"><img data-src="/assets/stills/carrol-boyes-02.jpg" data-poster="/assets/stills/carrol-boyes-02.jpg" alt=""></div><div class="slide" data-i="8"><img data-src="/assets/stills/dividuum-01.jpg" data-poster="/assets/stills/dividuum-02.jpg" alt=""></div></div></div>
+
+<div class="ui">
+  <div class="mark">Jonathan Tait</div>
+  <div class="tagline"><span>Cinematic direction, AI-assisted campaign production, and generative worldbuilding</span></div>
+  <div class="count"><span id="cNow">01</span> &#8202;/&#8202; <span id="cAll">01</span></div>
+
+  <a class="bar" id="bar" href="#">
+    <span class="cell num"><span id="fNum">01</span></span>
+    <span class="cell big tag"><span id="fTag"></span></span>
+    <span class="cell big ttl"><span id="fTtl"></span></span>
+    <span class="cell yr"><span id="fYr"></span></span>
+  </a>
+
+  <button class="burger" type="button" aria-expanded="false"
+          aria-controls="reelNav" aria-label="Open menu"><span></span><span></span></button>
+  <nav class="nav" id="reelNav">
+    <a href="projects.html">Projects</a>
+    <a href="info.html">Info</a>
+    <a href="contact.html">Contact</a>
   </nav>
-  <header class='hero'>
-    <div class='hero-media'>
-      <video class='hero-media-item active' data-hero-item muted autoplay loop playsinline preload='metadata'><source src='https://video.wixstatic.com/video/14555f_ab39ac0e32bb45efb0857d421afd9454/1080p/mp4/file.mp4' type='video/mp4' /></video><video class='hero-media-item' data-hero-item muted autoplay loop playsinline preload='metadata'><source src='https://video.wixstatic.com/video/14555f_f238e47ab7cf44d386741c1c4f93ac3d/1080p/mp4/file.mp4' type='video/mp4' /></video><video class='hero-media-item' data-hero-item muted autoplay loop playsinline preload='metadata'><source src='https://video.wixstatic.com/video/14555f_314a8a4123ea4a5fa516d3d7a34cfe63/1080p/mp4/file.mp4' type='video/mp4' /></video><video class='hero-media-item' data-hero-item muted autoplay loop playsinline preload='metadata'><source src='https://video.wixstatic.com/video/14555f_c4e6650c8a2c4a70a9ae27861c9c9f87/1080p/mp4/file.mp4' type='video/mp4' /></video><div class='hero-media-item' data-hero-item style="background-image:url('https://static.wixstatic.com/media/14555f_a715f604326d41a19ed685d841ac87c9~mv2.jpg/v1/fill/w_1000,h_558,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_a715f604326d41a19ed685d841ac87c9~mv2.jpg')"></div><div class='hero-media-item' data-hero-item style="background-image:url('https://static.wixstatic.com/media/14555f_7200187af99a4ad58f506a88ecdc3a32~mv2.png/v1/fill/w_1000,h_1500,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_7200187af99a4ad58f506a88ecdc3a32~mv2.png')"></div>
-    </div>
-    <div class='shell hero-content'>
-      <div class='hero-grid'>
-        <div>
-          <h1>Generative AI Creative Technologist</h1>
-          <div class='hero-actions'>
-            <a class='button primary' href='#film'>Open services</a>
-            <a class='button' href='#selected-work'>Selected work</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </header>
-  <main>
-    <section id='film' class='full-bleed film-spread'>
-      <div class='film-stage'>
-        <video id='scrollVideo' muted playsinline preload='metadata' poster='https://static.wixstatic.com/media/14555f_95e9c9d2b11642ada02786cf6fd4c69d~mv2.jpg/v1/fill/w_1000,h_424,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_95e9c9d2b11642ada02786cf6fd4c69d~mv2.jpg'>
-          <source src='https://d8j0ntlcm91z4.cloudfront.net/user_2zHxsu73kQLwzkHl7I48OV6CZAC/hf_20260423_080152_0a982790-69cc-4d27-9e32-d0ad8c279685.mp4' type='video/mp4' />
-        </video>
-        <div class='film-overlay'>
-          <div class='overlay-panel'>
-            <div class='timeline-bar'><div id='timelineFill' class='timeline-fill'></div></div>
-            <div class='service-stack' aria-live='polite'>
-              <div class='service-slide active' data-service-slide>
-                <div class='overlay-kicker'>Services</div>
-                <h2 class='overlay-title'>AI Campaign Creative</h2>
-                <p class='overlay-copy'>Campaign stills and short-form motion built for launch-world brand storytelling.</p>
-              </div>
-              <div class='service-slide' data-service-slide>
-                <div class='overlay-kicker'>Services</div>
-                <h2 class='overlay-title'>Generative Worldbuilding</h2>
-                <p class='overlay-copy'>Concept, look development, casting, and environments for authored visual worlds.</p>
-              </div>
-              <div class='service-slide' data-service-slide>
-                <div class='overlay-kicker'>Services</div>
-                <h2 class='overlay-title'>Cinematic AI Film</h2>
-                <p class='overlay-copy'>Short films, brand motion, and narrative sequences shaped through atmosphere and pacing.</p>
-              </div>
-              <div class='service-slide' data-service-slide>
-                <div class='overlay-kicker'>Services</div>
-                <h2 class='overlay-title'>Hybrid&nbsp;Creative<br>Direction</h2>
-                <p class='overlay-copy'>End-to-end AI production systems connecting concept, tooling, and final finish.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-    <section id='selected-work'>
-      <div class='shell'>
-        <div class='section-head'>
-          <div class='eyebrow'>Selected work</div>
-          <h2>Selected work</h2>
-        </div>
-        <div class='works-grid'>
-          
-      <a class='work-card' href='projects/the-reunion.html' aria-label='Open The Reunion'>
-        <div class='work-thumb' style="background-image:url('https://static.wixstatic.com/media/14555f_95e9c9d2b11642ada02786cf6fd4c69d~mv2.jpg/v1/fill/w_1000,h_424,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_95e9c9d2b11642ada02786cf6fd4c69d~mv2.jpg')"></div>
-        <div class='work-copy'>
-          <div class='kicker'>Atmosphere / narrative</div>
-          <h3>The Reunion</h3>
-          <p>A short cinematic study of longing, memory, and the tension of something almost remembered.</p>
-        </div>
-      </a>
-    
-      <a class='work-card' href='projects/jeep-apparel.html' aria-label='Open Jeep Apparel'>
-        <div class='work-thumb' style="background-image:url('https://static.wixstatic.com/media/14555f_e9c7ac8eac134e38a750285bd00289ba~mv2.png/v1/fill/w_1000,h_1778,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_e9c7ac8eac134e38a750285bd00289ba~mv2.png')"></div>
-        <div class='work-copy'>
-          <div class='kicker'>Commercial / apparel</div>
-          <h3>Jeep Apparel</h3>
-          <p>Campaign-led visual development for Jeep Apparel South Africa, built around grit, utility, and outdoor brand energy.</p>
-        </div>
-      </a>
-    
-      <a class='work-card' href='projects/invisi-merino.html' aria-label='Open Invisi Merino'>
-        <div class='work-thumb' style="background-image:url('https://static.wixstatic.com/media/14555f_963bfabcba234d779ab28bfd335b93cc~mv2.png/v1/fill/w_1000,h_1250,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_963bfabcba234d779ab28bfd335b93cc~mv2.png')"></div>
-        <div class='work-copy'>
-          <div class='kicker'>Lifestyle / performance</div>
-          <h3>Invisi Merino</h3>
-          <p>A Mother’s Day campaign for Invisi Merino built through a compressed AI-assisted production workflow.</p>
-        </div>
-      </a>
-    
-      <a class='work-card' href='projects/ibh-mens-fashion.html' aria-label='Open I/B/H Mens Fashion'>
-        <div class='work-thumb' style="background-image:url('https://static.wixstatic.com/media/14555f_474f2750e7f3468db9613883ad4a9929~mv2.jpg/v1/fill/w_1000,h_558,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_474f2750e7f3468db9613883ad4a9929~mv2.jpg')"></div>
-        <div class='work-copy'>
-          <div class='kicker'>Editorial / menswear</div>
-          <h3>I/B/H Mens Fashion</h3>
-          <p>A self-initiated menswear concept from the INSERT BRAND HERE sandbox, built with the posture of a real commercial brief.</p>
-        </div>
-      </a>
-    
-      <a class='work-card' href='projects/ibh-canned-refreshment.html' aria-label='Open I/B/H Canned Refreshment'>
-        <div class='work-thumb' style="background-image:url('https://static.wixstatic.com/media/14555f_118eb44b20204ea094074831340fb2eb~mv2.jpg/v1/fill/w_1000,h_747,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_118eb44b20204ea094074831340fb2eb~mv2.jpg')"></div>
-        <div class='work-copy'>
-          <div class='kicker'>Beverage / launch</div>
-          <h3>I/B/H Canned Refreshment</h3>
-          <p>A consumer-facing launch concept from the INSERT BRAND HERE series, shaped around speed, appetite, and punchier brand energy.</p>
-        </div>
-      </a>
-    
-      <a class='work-card' href='projects/ibh-frozen-yoghurt.html' aria-label='Open I/B/H Frozen Yoghurt'>
-        <div class='work-thumb' style="background-image:url('https://static.wixstatic.com/media/14555f_95f8bea9fb954665b0e74c86b795ecbb~mv2.png/v1/fill/w_1000,h_747,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_95f8bea9fb954665b0e74c86b795ecbb~mv2.png')"></div>
-        <div class='work-copy'>
-          <div class='kicker'>Food / playful brand</div>
-          <h3>I/B/H Frozen Yoghurt</h3>
-          <p>A lighter, more playful INSERT BRAND HERE concept built around warmth, appetite, and consumer-friendly tone.</p>
-        </div>
-      </a>
-    
-      <a class='work-card' href='projects/carrol-boyes.html' aria-label='Open Carrol Boyes'>
-        <div class='work-thumb' style="background-image:url('https://static.wixstatic.com/media/14555f_87071ee760ea49bb8d6ecc015b11ad06~mv2.png/v1/fill/w_1000,h_667,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_87071ee760ea49bb8d6ecc015b11ad06~mv2.png')"></div>
-        <div class='work-copy'>
-          <div class='kicker'>Object / premium product</div>
-          <h3>Carrol Boyes</h3>
-          <p>A premium object-led campaign world built around sculptural tableware, ritual, and digitally extended product storytelling.</p>
-        </div>
-      </a>
-    
-      <a class='work-card' href='projects/swing-path-pro.html' aria-label='Open Swing Path Pro'>
-        <div class='work-thumb' style="background-image:url('https://static.wixstatic.com/media/14555f_a332f37bddfc430aba6e13529563c5ff~mv2.jpg/v1/fill/w_1000,h_500,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_a332f37bddfc430aba6e13529563c5ff~mv2.jpg')"></div>
-        <div class='work-copy'>
-          <div class='kicker'>Sports tech / product</div>
-          <h3>Swing Path Pro</h3>
-          <p>Ongoing visual development for a golf training product, built around clarity, movement, and product understanding.</p>
-        </div>
-      </a>
-    
-      <a class='work-card' href='projects/dividuum.html' aria-label='Open Dividuum'>
-        <div class='work-thumb' style="background-image:url('https://static.wixstatic.com/media/14555f_1b9e337b70014d1cbe38077dda276b59~mv2.jpg/v1/fill/w_1000,h_500,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_1b9e337b70014d1cbe38077dda276b59~mv2.jpg')"></div>
-        <div class='work-copy'>
-          <div class='kicker'>Concept / digital world</div>
-          <h3>Dividuum</h3>
-          <p>A generative music video built with German composer Benjamin Richter, where the visual world evolved alongside the tools themselves.</p>
-        </div>
-      </a>
-    
-        </div>
-      </div>
-    </section>
-    
-    <section id='connect'>
-      <div class='shell'>
-        <div class='section-head'>
-          <div class='eyebrow'>Bio / connect</div>
-          <h2>Bio</h2>
-        </div>
-        <div class='connect-grid'>
-          <article class='panel bio-card'>
-            <div class='bio-media' style="background-image:url('https://static.wixstatic.com/media/14555f_9c35a7f7ff24452e897540d1090e201e~mv2.png/v1/fill/w_1000,h_1000,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_9c35a7f7ff24452e897540d1090e201e~mv2.png')"></div>
-            <div class='bio-copy'>
-              <div class='kicker'>Profile / positioning</div>
-              <h3>Bio</h3>
-              <p>From moving image and post-production into generative systems and physical making, Jonathan Tait’s practice is centred on building images that feel grounded, atmospheric, and believable.</p>
-              <p>The work moves between cinematic image-making, generative workflows, and tactile experimentation while staying anchored to light, composition, and authored feeling.</p>
-              <a class='ghost-link' href='projects/bio.html'>Open full bio page</a>
-            </div>
-          </article>
-          <article class='panel connect-card'>
-            <div class='kicker'>Connect</div>
-            <h3>Start a conversation</h3>
-            <p>If you’d like to talk about campaign visuals, cinematic AI film, generative worldbuilding, or hybrid creative direction, get in touch directly.</p>
-            <div class='contact-list'>
-              <a class='contact-link' href='mailto:tait@jonathantait.com?subject=Project%20enquiry'>tait@jonathantait.com</a>
-            </div>
-            <a class='ghost-link policy-link' href='info/privacy-policy.html'>Privacy policy</a>
-          </article>
-        </div>
-      </div>
-    </section>
 
-  </main>
-  <script>
-    (() => {
-      const heroItems = Array.from(document.querySelectorAll('[data-hero-item]'));
-      let heroIndex = 0;
-      if (heroItems.length > 1) {
-        setInterval(() => {
-          heroItems[heroIndex].classList.remove('active');
-          heroIndex = (heroIndex + 1) % heroItems.length;
-          heroItems[heroIndex].classList.add('active');
-        }, 4200);
+  <div class="hint">Scroll / drag / click to enter</div>
+  <div class="ticks" id="ticks"></div>
+</div>
+
+<script>
+(() => {
+  const META = [{"n": "01", "tag": "Commercial / apparel", "title": "Jeep Apparel", "year": "2025/6", "href": "projects/jeep-apparel.html"}, {"n": "02", "tag": "Sports tech / product", "title": "Swing Path Pro", "year": "2025/6", "href": "projects/swing-path-pro.html"}, {"n": "03", "tag": "Atmosphere / narrative", "title": "The Reunion", "year": "2026", "href": "projects/the-reunion.html"}, {"n": "04", "tag": "Lifestyle / performance", "title": "Invisi Merino", "year": "2026", "href": "projects/invisi-merino.html"}, {"n": "05", "tag": "Editorial / menswear", "title": "I/B/H Mens Fashion", "year": "2026", "href": "projects/ibh-mens-fashion.html"}, {"n": "06", "tag": "Beverage / launch", "title": "I/B/H Canned Refreshment", "year": "2026", "href": "projects/ibh-canned-refreshment.html"}, {"n": "07", "tag": "Food / playful brand", "title": "I/B/H Frozen Yoghurt", "year": "2026", "href": "projects/ibh-frozen-yoghurt.html"}, {"n": "08", "tag": "Object / premium product", "title": "Carrol Boyes", "year": "2025", "href": "projects/carrol-boyes.html"}, {"n": "09", "tag": "Concept / digital world", "title": "Dividuum", "year": "2025", "href": "projects/dividuum.html"}];
+  const slides = [...document.querySelectorAll('.slide')];
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const bar = document.getElementById('bar');
+  const F = { n: fNum, tag: fTag, ttl: fTtl, yr: fYr };
+  let cur = 0, lock = false, first = true;
+
+  document.getElementById('cAll').textContent = String(META.length).padStart(2, '0');
+
+  const ticks = META.map((_, i) => {
+    const t = document.createElement('div');
+    t.className = 'tick';
+    document.getElementById('ticks').appendChild(t);
+    return t;
+  });
+
+  /* only the active clip and its neighbours ever get a src, 11 videos
+     loading at once would stall the first paint for no benefit */
+  function mount(i) {
+    for (const j of [i, (i + 1) % META.length, (i - 1 + META.length) % META.length]) {
+      for (const m of slides[j].querySelectorAll('video, img')) {
+      if (m.tagName === 'VIDEO') {
+        if (m.dataset.poster) { m.poster = m.dataset.poster; delete m.dataset.poster; }
+        if (m.dataset.src) { m.src = m.dataset.src; delete m.dataset.src; }
+      } else if (m.dataset.src) {
+        // stills take the full-size file, not the thumbnail, this is a
+        // full-bleed hero, and the poster-sized crop reads soft at that scale
+        m.src = m.dataset.src;
+        delete m.dataset.src;
+        delete m.dataset.poster;
       }
-      const scrollVideo = document.getElementById('scrollVideo');
-      const spread = document.getElementById('film');
-      const fill = document.getElementById('timelineFill');
-      const serviceSlides = Array.from(document.querySelectorAll('[data-service-slide]'));
-      let duration = 15.09;
-      const setService = (index) => {
-        serviceSlides.forEach((slide, i) => slide.classList.toggle('active', i === index));
-      };
-      const update = () => {
-        const rect = spread.getBoundingClientRect();
-        const total = Math.max(1, spread.offsetHeight - window.innerHeight);
-        const progress = Math.min(1, Math.max(0, -rect.top / total));
-        fill.style.width = `${(progress * 100).toFixed(2)}%`;
-        if (serviceSlides.length) {
-          const serviceIndex = Math.min(serviceSlides.length - 1, Math.floor(progress * serviceSlides.length));
-          setService(serviceIndex);
-        }
-        if (scrollVideo && Number.isFinite(duration) && duration > 0 && !scrollVideo.seeking) {
-          const target = Math.min(duration - 0.05, progress * duration);
-          try { scrollVideo.currentTime = target; } catch (e) {}
-        }
-      };
-      if (scrollVideo) {
-        scrollVideo.pause();
-        scrollVideo.addEventListener('loadedmetadata', () => {
-          if (Number.isFinite(scrollVideo.duration) && scrollVideo.duration > 0) duration = scrollVideo.duration;
-          update();
-        });
       }
-      setService(0);
-      update();
-      window.addEventListener('scroll', update, { passive:true });
-      window.addEventListener('resize', update);
-      // Ensure the email pill reliably opens the user's email client
-      document.querySelectorAll('.contact-link[href^="mailto:"]').forEach(function(link) {
-        link.addEventListener('click', function(e) {
-          const href = this.getAttribute('href');
-          if (href && href.indexOf('mailto:') === 0) {
-            window.location.href = href;
-          }
-        });
+    }
+  }
+
+  function play(i) {
+    slides.forEach((s, j) => {
+      // a triptych slide holds three, so drive them all rather than the first
+      s.querySelectorAll('video').forEach((v) => {
+        if (j === i) { const p = v.play(); if (p) p.catch(() => {}); }
+        else v.pause();
       });
+    });
+  }
 
-    })();
-  </script>
+  /* each column wipes out upward, swaps its text at the turn, then wipes back
+     in, staggered left to right so the row reads as one movement */
+  function swap(el, text, delay, immediate) {
+    if (reduced) { el.textContent = text; return; }
+    // on first paint there is nothing to wipe out, going straight to the
+    // reveal saves ~600ms of an empty headline row
+    if (immediate) {
+      el.textContent = text;
+      // THE freeze bug: a forwards-filling animation created before the browser
+      // has produced its first frame sticks at its START keyframe, opacity 0 -
+      // so the whole row sat invisible until a resize forced a repaint. Setting
+      // the text first and only animating from inside rAF means a frame is
+      // provably being produced, and if it never is the text is already there.
+      requestAnimationFrame(() => {
+        el.animate(
+          [{ transform: 'translateY(115%)', opacity: 0 }, { transform: 'translateY(0)', opacity: 1 }],
+          { duration: 560, delay, easing: 'cubic-bezier(.16,1,.3,1)', fill: 'forwards' });
+      });
+      return;
+    }
+    el.animate(
+      [{ transform: 'translateY(0)', opacity: 1 }, { transform: 'translateY(-115%)', opacity: 0 }],
+      { duration: 400, delay, easing: 'cubic-bezier(.76,0,.24,1)', fill: 'forwards' });
+    // committed on a timer, not onfinish: a hidden tab freezes the animation
+    // timeline entirely, and the row must never be left showing stale copy
+    clearTimeout(el._t);
+    el._t = setTimeout(() => {
+      el.textContent = text;
+      el.animate(
+        [{ transform: 'translateY(115%)', opacity: 0 }, { transform: 'translateY(0)', opacity: 1 }],
+        { duration: 560, easing: 'cubic-bezier(.16,1,.3,1)', fill: 'forwards' });
+    }, delay + 400);
+  }
+
+  function show(next, dir) {
+    const inEl = slides[next], outEl = slides[cur];
+    mount(next);
+
+    inEl.style.zIndex = 2; outEl.style.zIndex = 1;
+    inEl.classList.add('on');
+
+    if (!reduced && next !== cur) {
+      // Wipe built from two counter-running transforms rather than clip-path:
+      // the slide slides in while its media slides the opposite way by the same
+      // amount, so the picture reads as stationary behind a moving edge. Both
+      // are transforms, so the compositor owns the whole thing, animating
+      // clip-path on a full-viewport video repaints on the main thread instead.
+      const opt = { duration: 1050, easing: 'cubic-bezier(.76,0,.24,1)', fill: 'forwards' };
+      const inner = inEl.firstElementChild;
+      inEl.animate(
+        [{ transform: 'translateY(' + (dir > 0 ? 100 : -100) + '%)' },
+         { transform: 'translateY(0%)' }], opt);
+      inner.animate(
+        [{ transform: 'translateY(' + (dir > 0 ? -100 : 100) + '%)' },
+         { transform: 'translateY(0%)' }], opt);
+      outEl.animate(
+        [{ transform: 'scale(1)', opacity: 1 },
+         { transform: 'scale(.94) translateY(' + (dir > 0 ? -3 : 3) + '%)', opacity: .55 }],
+        { duration: 1050, easing: 'cubic-bezier(.76,0,.24,1)', fill: 'forwards' });
+      // same reason as the text: never leave a slide mounted because an
+      // animation the browser froze was the only thing that would unmount it
+      clearTimeout(outEl._t);
+      outEl._t = setTimeout(() => {
+        if (cur !== +outEl.dataset.i) outEl.classList.remove('on');
+      }, 1050);
+    } else if (next !== cur) {
+      outEl.classList.remove('on');
+    }
+
+    const m = META[next];
+    swap(F.n, m.n, 0, first);
+    swap(F.tag, m.tag, 60, first);
+    swap(F.ttl, m.title, 120, first);
+    swap(F.yr, m.year, 180, first);
+    first = false;
+
+    bar.setAttribute('href', m.href);
+    document.getElementById('cNow').textContent = m.n;
+    ticks.forEach((t, i) => t.classList.toggle('on', i === next));
+
+    cur = next;
+    play(next);
+  }
+
+  function go(dir) {
+    show((cur + dir + META.length) % META.length, dir);
+  }
+
+  /* one project per gesture: without the lock a single trackpad flick fires
+     a dozen wheel events and rips through the whole reel */
+  function guard(dir) {
+    if (lock) return;
+    lock = true;
+    setTimeout(() => { lock = false; }, reduced ? 120 : 1100);
+    go(dir);
+  }
+
+  addEventListener('wheel', (e) => {
+    const d = Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+    if (Math.abs(d) < 6) return;
+    guard(d > 0 ? 1 : -1);
+  }, { passive: true });
+
+  addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') guard(1);
+    if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') guard(-1);
+  });
+
+  // hamburger: mobile only, but the listeners are harmless at any width
+  const burger = document.querySelector('.burger');
+  const navEl = document.getElementById('reelNav');
+  if (burger && navEl) {
+    const setOpen = (v) => {
+      navEl.classList.toggle('open', v);
+      burger.setAttribute('aria-expanded', v ? 'true' : 'false');
+      burger.setAttribute('aria-label', v ? 'Close menu' : 'Open menu');
+    };
+    burger.addEventListener('click', () => setOpen(!navEl.classList.contains('open')));
+    // tapping the backdrop closes; tapping a link just navigates
+    navEl.addEventListener('click', (e) => { if (e.target === navEl) setOpen(false); });
+    addEventListener('keydown', (e) => { if (e.key === 'Escape') setOpen(false); });
+  }
+
+  let downX = 0, downY = 0, dragging = false, moved = 0;
+  addEventListener('pointerdown', (e) => {
+    dragging = true; downX = e.clientX; downY = e.clientY; moved = 0;
+  });
+  addEventListener('pointermove', (e) => {
+    if (!dragging) return;
+    moved = Math.max(moved, Math.hypot(e.clientX - downX, e.clientY - downY));
+  });
+  addEventListener('pointerup', (e) => {
+    if (!dragging) return;
+    dragging = false;
+    const d = downY - e.clientY;
+    if (Math.abs(d) > 40) { guard(d > 0 ? 1 : -1); return; }
+    // A pointer that barely moved is a click, not a drag: the whole frame opens
+    // the current project. The distance test is what keeps a drag-to-advance
+    // from also navigating, and closest() stops it stealing taps meant for the
+    // nav, the meta bar, or any other control.
+    // guard the target: a pointerup on window can carry a non-Element target,
+    // and an exception here would kill the handler silently
+    const el = e.target instanceof Element ? e.target : null;
+    if (moved < 6 && !(el && el.closest('a, button, .nav'))) location.href = META[cur].href;
+  });
+  addEventListener('pointercancel', () => { dragging = false; });
+
+  // cursor parallax on the film only, the chrome stays locked to the grid
+  const px = document.getElementById('px');
+  let tx = 0, ty = 0, cx = 0, cy = 0;
+  addEventListener('pointermove', (e) => {
+    tx = (e.clientX / innerWidth - .5) * -22;
+    ty = (e.clientY / innerHeight - .5) * -14;
+  });
+  (function drift() {
+    cx += (tx - cx) * .05; cy += (ty - cy) * .05;
+    px.style.transform = 'translate3d(' + cx.toFixed(2) + 'px,' + cy.toFixed(2) + 'px,0)';
+    requestAnimationFrame(drift);
+  })();
+
+  show(0, 1);
+})();
+</script>
 </body>
 </html>

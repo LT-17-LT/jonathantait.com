@@ -1,271 +1,354 @@
 <!DOCTYPE html>
-<html lang='en'>
+<html lang="en">
 <head>
-<meta charset='UTF-8' />
-<meta name='viewport' content='width=device-width, initial-scale=1.0' />
-<title>The Reunion — Jonathan Tait</title>
-<meta name='description' content='A short cinematic study of longing, memory, and the tension of something almost remembered.' />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Reunion · Jonathan Tait</title>
+<meta name="description" content="A short cinematic study of longing, memory, and the tension of something almost remembered.">
+<link rel='preconnect' href='https://fonts.googleapis.com' />
+<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin />
+<link href='https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Inter:wght@400;500;600&display=swap' rel='stylesheet' />
+<script>document.documentElement.classList.add('js')</script>
 <style>
-:root{
-  --egg:#f4efe6;
-  --egg2:#efe8dc;
-  --ink:#171513;
-  --muted:rgba(23,21,19,.76);
-  --line:rgba(23,21,19,.12);
-  --line2:rgba(23,21,19,.08);
-  --gold:#b88348;
-  --gold-soft:#d3a977;
-  --radius:28px;
-  --radius2:22px;
-  --shadow:0 24px 72px rgba(68,48,28,.11);
-  --project-hero-h:520px;
-  --project-meta-h:520px;
-}
-*{box-sizing:border-box}
-body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:linear-gradient(180deg,var(--egg),#f8f5ef 40%,var(--egg2));color:var(--ink);line-height:1.56}
-a{text-decoration:none;color:inherit}
-img,video{display:block;max-width:100%}
-button{font:inherit}
-.shell{width:min(calc(100% - 32px),1220px);margin:0 auto}
-.nav{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 0;background:linear-gradient(180deg,rgba(244,239,230,.95),rgba(244,239,230,.76),transparent)}
-.nav a,.btn,.gallery-btn{min-height:44px;padding:11px 15px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.5);display:inline-flex;align-items:center;gap:8px}
-.btn.primary{background:linear-gradient(135deg,var(--gold-soft),var(--gold));color:white;border-color:transparent}
-.hero{display:grid;grid-template-columns:1.02fr .98fr;gap:20px;padding:22px 0}
-.card{background:rgba(255,255,255,.56);border:1px solid rgba(255,255,255,.68);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
-.hero>.card{height:var(--project-hero-h)}
-.media{min-height:var(--project-hero-h);background:#e5ddd0}
-.media img,.media video{width:100%;height:100%;object-fit:cover}
-.copy,.meta-card,.wide-card{padding:22px;display:grid;gap:12px;align-content:start}
-.copy{align-content:center;overflow:auto}
-.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;width:fit-content;border:1px solid rgba(23,21,19,.08);background:rgba(255,255,255,.52);text-transform:uppercase;letter-spacing:.16em;font-size:.76rem;color:var(--muted)}
-.eyebrow::before{content:'';width:8px;height:8px;border-radius:999px;background:var(--gold)}
-h1{margin:0;font-size:clamp(2.9rem,5vw,5.2rem);line-height:.94;letter-spacing:-.05em}
-h2{margin:0;font-size:clamp(1.3rem,2vw,1.86rem);letter-spacing:-.04em}
-h3{margin:0;font-size:clamp(1.15rem,1.7vw,1.5rem);letter-spacing:-.03em}
-p{margin:0;color:var(--muted)}
-.label{display:block;color:rgba(23,21,19,.52);text-transform:uppercase;letter-spacing:.16em;font-size:.72rem}
-.meta-grid{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);gap:16px;align-items:start}
-.meta-grid > *{min-width:0}
-.summary-card{height:var(--project-meta-h);display:grid;grid-template-rows:auto minmax(0,1fr)}
-.summary-scroll{min-height:0;overflow-y:auto;padding-right:8px}
-.summary-card .frame-list{display:grid;gap:14px;margin-top:2px}
-.summary-card .frame-item{display:grid;gap:6px;padding-top:14px;border-top:1px solid var(--line2)}
-.gallery-card{display:grid;grid-template-rows:minmax(0,1fr) auto auto;align-content:start;min-width:0;height:var(--project-meta-h);padding:0}
-.gallery-stage-wrap{position:relative;min-width:0;width:100%;height:100%;overflow:hidden}
-.gallery-stage{width:100%;max-width:100%;height:100%;background:#e5ddd0;border-bottom:1px solid var(--line2);overflow:hidden}
-.gallery-stage img,.gallery-stage video,.gallery-stage iframe{width:100%;height:100%;object-fit:cover;border:0;background:#e5ddd0}
-.gallery-stage img,.gallery-stage iframe{cursor:zoom-in}
-.gallery-toolbar{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;padding:12px 18px 8px}
-.gallery-controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.gallery-btn{cursor:pointer}
-.gallery-count{color:rgba(23,21,19,.6);font-size:.82rem;text-transform:uppercase;letter-spacing:.18em}
-.gallery-strip{display:flex;gap:10px;overflow-x:auto;padding:0 18px 14px;scrollbar-width:thin}
-.gallery-lightbox{position:fixed;inset:0;z-index:120;display:none;align-items:center;justify-content:center;background:rgba(14,12,10,.92);padding:28px}
-.gallery-lightbox.open{display:flex}
-.gallery-lightbox-inner{width:min(100%,1400px);height:min(100%,92vh);display:grid;grid-template-rows:auto 1fr auto;gap:16px}
-.gallery-lightbox-top{display:flex;justify-content:space-between;align-items:center;gap:12px;color:white}
-.gallery-lightbox-top .gallery-count{color:rgba(255,255,255,.7)}
-.gallery-lightbox-stage{position:relative;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);border-radius:28px;overflow:hidden}
-.gallery-lightbox-stage img,.gallery-lightbox-stage video,.gallery-lightbox-stage iframe{width:100%;height:100%;object-fit:contain;border:0;background:#0e0c0a}
-.gallery-lightbox-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:2}
-.gallery-lightbox-nav.prev{left:18px}
-.gallery-lightbox-nav.next{right:18px}
-.gallery-lightbox-strip{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px}
-.gallery-lightbox .gallery-thumb{flex-basis:108px}
-.gallery-thumb{position:relative;flex:0 0 96px;aspect-ratio:1/1;padding:0;border-radius:18px;border:1px solid var(--line);background:rgba(255,255,255,.6);overflow:hidden;cursor:pointer}
-.gallery-thumb.active{border-color:rgba(184,131,72,.6);box-shadow:0 0 0 2px rgba(184,131,72,.16)}
-.gallery-thumb img{width:100%;height:100%;object-fit:cover}
-.gallery-thumb span{position:absolute;left:8px;bottom:8px;padding:4px 7px;border-radius:999px;background:rgba(23,21,19,.72);color:white;font-size:.68rem;letter-spacing:.08em}
-.section-stack{display:grid;gap:16px;padding:16px 0 32px}
-.narrative-card{padding:22px 22px 24px}
-.note-stack{display:grid;gap:16px}
-.note-item{display:grid;gap:8px}
-.note-item + .note-item{padding-top:16px;border-top:1px solid var(--line2)}
-@media (max-width:980px){.hero,.meta-grid{grid-template-columns:1fr}.hero>.card,.summary-card,.gallery-card{height:auto}.media{min-height:360px}.copy{overflow:visible}.summary-scroll{overflow:visible;padding-right:0}.gallery-stage{height:auto;aspect-ratio:16/10}.gallery-thumb{flex-basis:88px}.gallery-lightbox .gallery-thumb{flex-basis:96px}}
+  *,*::before,*::after{box-sizing:border-box}
+  :root{
+    --bg:#e0dee1; --ink:#181818; --mute:rgba(24,24,24,.55); --line:rgba(24,24,24,.16);
+    --serif:'Fraunces',Georgia,serif;
+    --sans:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
+    --pad:2.2vw;
+    --sm:clamp(11px,.72vw,14px);
+    --out:cubic-bezier(.16,1,.3,1);
+  }
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+    -webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  .lbl{font-size:var(--sm);text-transform:uppercase;letter-spacing:.06em}
+
+  /* ---- hero ---- */
+  .phero{position:relative;height:100svh;min-height:520px;overflow:hidden;background:#111}
+  .phero video,.phero img{width:100%;height:100%;object-fit:cover;display:block}
+  .phero .tri{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr)}
+  .phero .tri video{width:100%;height:100%;object-fit:cover;display:block}
+  @media (max-width:760px){
+    .phero .tri{grid-template-columns:1fr}
+    .phero .tri video:not(:first-child){display:none}
+  }
+  .phero::after{content:'';position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(180deg,rgba(0,0,0,.5),rgba(0,0,0,.05) 30%,rgba(0,0,0,.1) 55%,rgba(0,0,0,.65))}
+  .pui{position:absolute;inset:0;color:#fff;z-index:2;text-shadow:0 1px 20px rgba(0,0,0,.5)}
+  .pui a{pointer-events:auto}
+  .ptop{position:absolute;top:var(--pad);left:var(--pad);right:var(--pad);
+    display:flex;justify-content:space-between;gap:1em}
+  .ptop .r{display:flex;gap:1.4em}
+  .ptop a{position:relative}
+  .ptop a::after{content:'';position:absolute;left:0;bottom:-3px;height:1px;width:100%;
+    background:currentColor;transform:scaleX(0);transform-origin:100% 50%;transition:transform .45s var(--out)}
+  .ptop a:hover::after{transform:scaleX(1);transform-origin:0 50%}
+  /* title / focus / year stacked centre, exactly as small as the nav */
+  .pstack{position:absolute;top:var(--pad);left:50%;transform:translateX(-50%);
+    text-align:center;display:grid;gap:.25em;white-space:nowrap}
+  .pcred{position:absolute;left:var(--pad);right:var(--pad);bottom:calc(var(--pad) + 1vh);
+    display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.5vw;max-width:1100px}
+  .pcred .k{opacity:.66;margin-bottom:.5em}
+  .pcred .v{font-size:clamp(13px,.95vw,17px);line-height:1.4}
+
+  /* ---- embedded film ---- */
+  .film{padding:7vh var(--pad) 0;max-width:1500px;margin:0 auto}
+  .film .k{margin-bottom:1em;opacity:.55}
+  .filmwrap{position:relative;aspect-ratio:16/9;background:#000;overflow:hidden}
+  .filmwrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+
+  /* ---- lede ---- */
+  .lede{padding:14vh var(--pad) 10vh;max-width:1240px;margin:0 auto}
+  .lede p{margin:0;font-size:clamp(19px,1.65vw,30px);line-height:1.34;letter-spacing:-.01em}
+
+  /* ---- alternating blocks ---- */
+  .blk{padding:6vh var(--pad);display:grid;gap:2vw 3vw;align-items:center;
+    grid-template-columns:repeat(12,minmax(0,1fr))}
+  /* grid-row is explicit on purpose. Auto-placement is sparse: once the media
+     is placed in columns 5-13, the cursor has passed column 4, so the text
+     could not fit beside it and was pushed onto a second row - which is why it
+     sat below the pictures instead of level with them. */
+  .blk .m{grid-column:5 / 13; grid-row:1}
+  .blk .t{grid-column:1 / 4; grid-row:1}
+  .blk.flip .m{grid-column:1 / 9; grid-row:1}
+  .blk.flip .t{grid-column:10 / 13; grid-row:1}
+  /* Media is capped against the VIEWPORT height, not just its column width.
+     A portrait clip at 62% column width is taller than the screen, which is
+     what was running off the top and bottom on scroll. width/height auto keeps
+     the real aspect and lets whichever limit binds first do the work. */
+  .blk .m{display:grid;grid-auto-flow:column;gap:1vw;
+    justify-content:center;align-items:center;max-height:78svh}
+  .blk .m video,.blk .m img{display:block;background:#d4d2d5;
+    width:auto;height:auto;max-width:100%;max-height:78svh}
+  /* a pair shares the column, so each needs to sit shorter to stay in frame */
+  .blk .m.pair video,.blk .m.pair img{max-height:66svh}
+
+  /* full-width plate: breaks the left/right rhythm partway down. Every frame
+     here is the same portrait ratio, so the rows line up without masonry. */
+  .gridband{padding:7vh var(--pad);display:grid;gap:1.1vw;
+    grid-template-columns:repeat(3,minmax(0,1fr));max-width:1500px;margin:0 auto}
+  .gridband img{width:100%;height:auto;display:block;background:#d4d2d5}
+  .blk .t p{margin:0;font-size:clamp(14px,1.02vw,18px);line-height:1.62;color:var(--ink)}
+  a.inline{border-bottom:1px solid var(--line);padding-bottom:.05em;
+    transition:border-color .35s var(--out)}
+  a.inline:hover{border-color:var(--ink)}
+  .blk .t .k{margin-bottom:1em;opacity:.55}
+
+  /* ---- horizontal strip ----
+     Native overflow scrolling with snap, not a pointer-drag handler. Trackpad,
+     shift+wheel, touch and the keyboard all drive it for free, and there is no
+     custom drag fighting the browser or swallowing clicks. */
+  .strip{position:relative}
+  .stripsticky{position:sticky;top:0;height:100svh;overflow:hidden;
+    display:flex;align-items:center}
+  .stripsticky:focus-visible{outline:1px solid var(--ink);outline-offset:-4px}
+  .striprow{display:flex;gap:1.2vw;padding-left:var(--pad);width:max-content;
+    align-items:center;will-change:transform}
+  /* one common height, natural widths, a tall still can no longer tower over
+     a wide one, and nothing exceeds the viewport */
+  /* The cell sizes to its picture. The pre-load guard belongs on the MEDIA,
+     which has a real intrinsic ratio, not on the figure, a figure has none, so
+     `auto` there never resolved and every cell stayed a 3:2 landscape box with
+     a portrait image rattling around inside it. */
+  .striprow figure{margin:0;flex:0 0 auto;height:min(56svh,620px);width:auto}
+  .striprow img,.striprow video{height:100%;width:auto;max-width:none;display:block;
+    background:#d4d2d5;aspect-ratio:auto 9/16}
+
+  /* Touch and reduced-motion get a plain scroller instead. Pinning the page and
+     repurposing scroll direction is miserable on a phone, and it is exactly the
+     kind of motion a reduced-motion preference is asking us not to do. */
+  @media (max-width:860px), (prefers-reduced-motion:reduce){
+    .strip{height:auto !important;padding:6vh 0}
+    .stripsticky{position:static;height:auto;overflow-x:auto;overflow-y:hidden;
+      scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain}
+    .stripsticky::-webkit-scrollbar{display:none}
+    .striprow{transform:none !important;padding:0 var(--pad)}
+    .striprow figure{scroll-snap-align:center}
+  }
+  /* click-to-play clip */
+  .clip{position:relative}
+  .clip .play{position:absolute;inset:0;width:100%;height:100%;padding:0;border:0;
+    background:transparent;cursor:pointer;display:grid;place-items:center}
+  .clip .play span{width:clamp(48px,4.4vw,72px);aspect-ratio:1;border-radius:50%;
+    background:rgba(255,255,255,.92);display:block;position:relative;
+    transition:transform .4s var(--out),opacity .35s var(--out)}
+  .clip .play span::after{content:'';position:absolute;top:50%;left:56%;
+    transform:translate(-50%,-50%);
+    border-left:.9em solid var(--ink);border-top:.55em solid transparent;border-bottom:.55em solid transparent}
+  .clip .play:hover span{transform:scale(1.09)}
+  .clip .play:focus-visible{outline:2px solid #fff;outline-offset:-8px}
+  /* hidden while running, back on hover so the same control pauses it */
+  .clip.playing .play span{opacity:0;transform:scale(.82)}
+  .clip.playing .play:hover span,.clip.playing .play:focus-visible span{opacity:1;transform:scale(1)}
+  .striphint{padding:0 var(--pad) 6vh;opacity:.5}
+  @media (hover:none){ .striphint{display:none} }
+
+  /* ---- next ---- */
+  .nextp{position:relative;height:62svh;min-height:360px;overflow:hidden;display:block;background:#111}
+  .nextp img{width:100%;height:100%;object-fit:cover;display:block;
+    transform:scale(1.02);transition:transform 1.1s var(--out)}
+  .nextp:hover img{transform:scale(1.07)}
+  .nextp::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,.42)}
+  .nextp .cap{position:absolute;inset:0;z-index:2;color:#fff;display:grid;
+    place-content:center;text-align:center;gap:.7em;text-shadow:0 1px 20px rgba(0,0,0,.5)}
+  .nextp .cap strong{font-weight:400;font-size:clamp(24px,3.4vw,56px);letter-spacing:-.02em}
+
+  /* ---- reveal ----
+     gated behind .js so the default state is VISIBLE. Hiding content by
+     default and relying on script to bring it back means no-JS (and any
+     error before the observer is wired) renders an empty case study. */
+  .js .rv{opacity:0;transform:translateY(26px);transition:opacity .9s var(--out),transform .9s var(--out)}
+  .js .rv.in{opacity:1;transform:none}
+
+  @media (max-width:860px){
+    :root{--pad:5vw}
+    .pstack{display:none}
+    /* On a phone the hero stops being a cropped full-bleed frame and simply
+       shows the picture. A landscape still cover-fitted into a portrait screen
+       survives at about a quarter of its width, which destroys the composition;
+       natural aspect keeps every hero readable whatever shape it is. The
+       credits then flow underneath instead of sitting on top of nothing. */
+    .phero{height:auto;min-height:0;background:var(--bg)}
+    .phero img,.phero video{width:100%;height:auto;object-fit:contain}
+    .phero .tri{position:static;grid-template-columns:1fr}
+    .phero::after{display:none}
+    .pui{position:static;color:var(--ink);text-shadow:none}
+    .ptop{position:absolute;top:var(--pad);left:var(--pad);right:var(--pad);
+      color:#fff;text-shadow:0 1px 20px rgba(0,0,0,.55);z-index:3}
+    .pcred{position:static;padding:3.5vh 0 0;grid-template-columns:1fr;gap:1.1em}
+    .blk{grid-template-columns:1fr;padding:5vh var(--pad)}
+    .blk .m{grid-auto-flow:row;gap:2vh}
+    .blk .m.pair video,.blk .m.pair img{max-height:52svh}
+    .gridband{grid-template-columns:repeat(2,minmax(0,1fr));padding:5vh var(--pad)}
+    .blk .m,.blk .t,.blk.flip .m,.blk.flip .t{grid-column:1; grid-row:auto}
+    .striprow figure{width:82vw}
+  }
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    .rv{opacity:1;transform:none;transition:none}
+    .nextp img,.nextp:hover img{transform:none;transition:none}
+  }
 </style>
 </head>
 <body>
-<div class='shell'>
-<nav class='nav'>
-  <a href='../index.html#selected-work'>← Back to homepage</a>
-  <div style='display:flex;gap:10px;flex-wrap:wrap'>
-    <a href='bio.html'>Prev</a>
-    <a href='jeep-apparel.html'>Next</a>
 
-</nav>
-<section class='hero'>
-  <div class='card media'><img src='https://static.wixstatic.com/media/14555f_6cc8c0bfb28d499d962c8b310f3b1e6e~mv2.jpg/v1/fill/w_1000,h_424,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_6cc8c0bfb28d499d962c8b310f3b1e6e~mv2.jpg' alt='The Reunion' /></div>
-  <div class='card copy'>
-    <div class='eyebrow'>Atmosphere / narrative</div>
-    <h1>The Reunion</h1>
-    <p>A short cinematic study of longing, memory, and the tension of something almost remembered.</p>
-    <p>Built from a simple voiceover and allowed to unfold through image-making, the piece moves like a memory rather than a fixed storyboard.</p>
-    <div style='display:flex;gap:12px;flex-wrap:wrap'>
-      <a class='btn' href='../index.html#film'>Back to services</a>
+<header class="phero">
+  <img src='/assets/stills/the-reunion-07.jpg' alt='The Reunion' />
+  <div class="pui">
+    <div class="ptop lbl">
+      <a href="../index.html">&#8592; Index</a>
+      <span class="r">
+        <a href="swing-path-pro.html">Prev</a>
+        <a href="invisi-merino.html">Next</a>
+      </span>
     </div>
-
-</section>
-<section class='meta-grid'>
-  <article class='card meta-card summary-card'>
-    <div class='eyebrow'>Overview</div>
-    <div class='summary-scroll'>
-      <h3>Project at a glance</h3>
-      <p>The project began with a voiceover about longing, memory, and the feeling of searching for something just beyond reach. From there, the film was shaped as an emotional sequence first and a narrative explanation second.</p>
-      <div class='frame-list'>
-        <div class='frame-item'><span class='label'>Role</span><p>Concept development, visual worldbuilding, image generation, and sequence construction for an experimental short.</p></div>
-        <div class='frame-item'><span class='label'>Brief</span><p>Create a quiet cinematic piece that could hold emotional tension without over-explaining itself, allowing atmosphere and pacing to carry the meaning.</p></div>
-        <div class='frame-item'><span class='label'>Outcome</span><p>A restrained short film where the final emotional arc emerges through accumulation, ending in a reunion that feels more psychological than literal.</p></div>
-      </div>
+    <div class="pstack lbl">
+      <span>The Reunion</span>
+      <span>Atmosphere / narrative</span>
+      <span>2026</span>
     </div>
-  </article>
-  <article class='card gallery-card'>
-    <div class='gallery-stage-wrap'>
-      <div class='gallery-stage' id='galleryStage'><img src='https://i.ytimg.com/vi/lqwqS_55zro/hqdefault.jpg' alt='The Reunion video preview' data-gallery-preview='youtube' /></div>
+    <div class="pcred">
+      <div><div class="k lbl">Role</div><div class="v">Concept development, visual worldbuilding, image generation, and sequence construction for an experimental short.</div></div>
+      <div><div class="k lbl">Focus</div><div class="v">Atmosphere / narrative</div></div>
+      <div><div class="k lbl">Year</div><div class="v">2026</div></div>
     </div>
-    <div class='gallery-toolbar'>
-      <div class='gallery-controls'>
-        <button class='gallery-btn' type='button' id='galleryPrev'>Prev</button>
-        <button class='gallery-btn' type='button' id='galleryNext'>Next</button>
-        <div class='gallery-count'><span id='galleryCurrent'>1</span> / <span id='galleryTotal'>13</span></div>
-      </div>
-      <button class='gallery-btn' type='button' id='galleryExpand'>Expand</button>
-    </div>
-    <div class='gallery-strip'><button class='gallery-thumb active' type='button' data-gallery-thumb='0' aria-label='Show The Reunion asset 1'><img src='https://i.ytimg.com/vi/lqwqS_55zro/hqdefault.jpg' alt='The Reunion preview 1' /><span>Film</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='1' aria-label='Show The Reunion asset 2'><img src='https://static.wixstatic.com/media/14555f_95e9c9d2b11642ada02786cf6fd4c69d~mv2.jpg/v1/fill/w_1000,h_424,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_95e9c9d2b11642ada02786cf6fd4c69d~mv2.jpg' alt='The Reunion preview 2' /><span>02</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='2' aria-label='Show The Reunion asset 3'><img src='https://static.wixstatic.com/media/14555f_6cc8c0bfb28d499d962c8b310f3b1e6e~mv2.jpg/v1/fill/w_1000,h_424,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_6cc8c0bfb28d499d962c8b310f3b1e6e~mv2.jpg' alt='The Reunion preview 3' /><span>03</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='3' aria-label='Show The Reunion asset 4'><img src='https://static.wixstatic.com/media/14555f_aa52852993644f688851846305b346c5~mv2.jpg' alt='The Reunion preview 4' /><span>04</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='4' aria-label='Show The Reunion asset 5'><img src='https://static.wixstatic.com/media/14555f_3b327309185846d88679dde6a85aca71~mv2.jpg' alt='The Reunion preview 5' /><span>05</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='5' aria-label='Show The Reunion asset 6'><img src='https://static.wixstatic.com/media/14555f_302ef17db78842b890970b8c8a86f768~mv2.jpg' alt='The Reunion preview 6' /><span>06</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='6' aria-label='Show The Reunion asset 7'><img src='https://static.wixstatic.com/media/14555f_1734c82caefb47e9873f3c113e003b7b~mv2.jpg' alt='The Reunion preview 7' /><span>07</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='7' aria-label='Show The Reunion asset 8'><img src='https://static.wixstatic.com/media/14555f_284d5067a23d432ab7cd751acf540831~mv2.jpg' alt='The Reunion preview 8' /><span>08</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='8' aria-label='Show The Reunion asset 9'><img src='https://static.wixstatic.com/media/14555f_f6e08b5c348041f38ebb5402c2da9409~mv2.jpg' alt='The Reunion preview 9' /><span>09</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='9' aria-label='Show The Reunion asset 10'><img src='https://static.wixstatic.com/media/14555f_bd0c3efe416c41678da331064fcc9b07~mv2.jpg' alt='The Reunion preview 10' /><span>10</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='10' aria-label='Show The Reunion asset 11'><img src='https://static.wixstatic.com/media/14555f_12fe06380a7f447e9a58740ca001fe9e~mv2.jpg' alt='The Reunion preview 11' /><span>11</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='11' aria-label='Show The Reunion asset 12'><img src='https://static.wixstatic.com/media/14555f_2b195fee1ec642448bd225386257eaaa~mv2.jpg' alt='The Reunion preview 12' /><span>12</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='12' aria-label='Show The Reunion asset 13'><img src='https://static.wixstatic.com/media/14555f_d824fbec6551412789f9622e9a42cf24~mv2.jpg' alt='The Reunion preview 13' /><span>13</span></button></div>
-  </article>
-</section>
-<section class='section-stack'>
-  <article class='card wide-card narrative-card'>
-    <div class='eyebrow'>Case-study overview</div>
-    <h2>Project notes</h2>
-    <div class='note-stack'><div class='note-item'><span class='label'>Project intent</span><p>In this project, the aim was to build a cinematic piece where atmosphere, pacing, and restraint could carry the emotional weight before any explanation arrived.</p></div><div class='note-item'><span class='label'>Production approach</span><p>The project began with a voiceover that established tone and emotional direction. From there, still images were developed in MidJourney and gradually extended into a sequence, with new scenes introduced to bridge transitions and let the narrative reveal itself over time.</p></div><div class='note-item'><span class='label'>Visual language</span><p>In this project, the visual language leans into atmosphere, tonal restraint, and slow emotional pacing. The imagery is allowed to breathe, giving the piece a sense of authorship that sits apart from more overtly campaign-led work.</p></div><div class='note-item'><span class='label'>Outcome</span><p>The result is a short film built through a hybrid workflow spanning MidJourney, NanoBanana, ComfyUI, and DaVinci Resolve, where exploration remained part of the method rather than something hidden behind the finish.</p></div></div>
-  </article>
-</section>
-</div>
-<div class='gallery-lightbox' id='galleryLightbox' aria-hidden='true'>
-  <div class='gallery-lightbox-inner'>
-    <div class='gallery-lightbox-top'>
-      <div class='eyebrow'>Expanded view</div>
-      <div class='gallery-controls'>
-        <div class='gallery-count'><span id='lightboxCurrent'>1</span> / <span id='lightboxTotal'>13</span></div>
-        <button class='gallery-btn' type='button' id='lightboxClose'>Close</button>
-      </div>
-    </div>
-    <div class='gallery-lightbox-stage' id='galleryLightboxStage'>
-      <button class='gallery-btn gallery-lightbox-nav prev' type='button' id='lightboxPrev'>Prev</button>
-      <button class='gallery-btn gallery-lightbox-nav next' type='button' id='lightboxNext'>Next</button>
-    </div>
-    <div class='gallery-lightbox-strip' id='galleryLightboxStrip'><button class='gallery-thumb active' type='button' data-gallery-thumb='0' aria-label='Show The Reunion asset 1'><img src='https://i.ytimg.com/vi/lqwqS_55zro/hqdefault.jpg' alt='The Reunion preview 1' /><span>Film</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='1' aria-label='Show The Reunion asset 2'><img src='https://static.wixstatic.com/media/14555f_95e9c9d2b11642ada02786cf6fd4c69d~mv2.jpg/v1/fill/w_1000,h_424,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_95e9c9d2b11642ada02786cf6fd4c69d~mv2.jpg' alt='The Reunion preview 2' /><span>02</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='2' aria-label='Show The Reunion asset 3'><img src='https://static.wixstatic.com/media/14555f_6cc8c0bfb28d499d962c8b310f3b1e6e~mv2.jpg/v1/fill/w_1000,h_424,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_6cc8c0bfb28d499d962c8b310f3b1e6e~mv2.jpg' alt='The Reunion preview 3' /><span>03</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='3' aria-label='Show The Reunion asset 4'><img src='https://static.wixstatic.com/media/14555f_aa52852993644f688851846305b346c5~mv2.jpg' alt='The Reunion preview 4' /><span>04</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='4' aria-label='Show The Reunion asset 5'><img src='https://static.wixstatic.com/media/14555f_3b327309185846d88679dde6a85aca71~mv2.jpg' alt='The Reunion preview 5' /><span>05</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='5' aria-label='Show The Reunion asset 6'><img src='https://static.wixstatic.com/media/14555f_302ef17db78842b890970b8c8a86f768~mv2.jpg' alt='The Reunion preview 6' /><span>06</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='6' aria-label='Show The Reunion asset 7'><img src='https://static.wixstatic.com/media/14555f_1734c82caefb47e9873f3c113e003b7b~mv2.jpg' alt='The Reunion preview 7' /><span>07</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='7' aria-label='Show The Reunion asset 8'><img src='https://static.wixstatic.com/media/14555f_284d5067a23d432ab7cd751acf540831~mv2.jpg' alt='The Reunion preview 8' /><span>08</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='8' aria-label='Show The Reunion asset 9'><img src='https://static.wixstatic.com/media/14555f_f6e08b5c348041f38ebb5402c2da9409~mv2.jpg' alt='The Reunion preview 9' /><span>09</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='9' aria-label='Show The Reunion asset 10'><img src='https://static.wixstatic.com/media/14555f_bd0c3efe416c41678da331064fcc9b07~mv2.jpg' alt='The Reunion preview 10' /><span>10</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='10' aria-label='Show The Reunion asset 11'><img src='https://static.wixstatic.com/media/14555f_12fe06380a7f447e9a58740ca001fe9e~mv2.jpg' alt='The Reunion preview 11' /><span>11</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='11' aria-label='Show The Reunion asset 12'><img src='https://static.wixstatic.com/media/14555f_2b195fee1ec642448bd225386257eaaa~mv2.jpg' alt='The Reunion preview 12' /><span>12</span></button><button class='gallery-thumb' type='button' data-gallery-thumb='12' aria-label='Show The Reunion asset 13'><img src='https://static.wixstatic.com/media/14555f_d824fbec6551412789f9622e9a42cf24~mv2.jpg' alt='The Reunion preview 13' /><span>13</span></button></div>
   </div>
-</div>
-<script id='galleryData' type='application/json'>[{"type": "youtube", "src": "https://www.youtube.com/embed/lqwqS_55zro", "thumb": "https://i.ytimg.com/vi/lqwqS_55zro/hqdefault.jpg"}, {"type": "image", "src": "https://static.wixstatic.com/media/14555f_95e9c9d2b11642ada02786cf6fd4c69d~mv2.jpg/v1/fill/w_1000,h_424,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_95e9c9d2b11642ada02786cf6fd4c69d~mv2.jpg", "thumb": "https://static.wixstatic.com/media/14555f_95e9c9d2b11642ada02786cf6fd4c69d~mv2.jpg/v1/fill/w_1000,h_424,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_95e9c9d2b11642ada02786cf6fd4c69d~mv2.jpg"}, {"type": "image", "src": "https://static.wixstatic.com/media/14555f_6cc8c0bfb28d499d962c8b310f3b1e6e~mv2.jpg/v1/fill/w_1000,h_424,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_6cc8c0bfb28d499d962c8b310f3b1e6e~mv2.jpg", "thumb": "https://static.wixstatic.com/media/14555f_6cc8c0bfb28d499d962c8b310f3b1e6e~mv2.jpg/v1/fill/w_1000,h_424,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_6cc8c0bfb28d499d962c8b310f3b1e6e~mv2.jpg"}, {"type": "image", "src": "https://static.wixstatic.com/media/14555f_aa52852993644f688851846305b346c5~mv2.jpg", "thumb": "https://static.wixstatic.com/media/14555f_aa52852993644f688851846305b346c5~mv2.jpg"}, {"type": "image", "src": "https://static.wixstatic.com/media/14555f_3b327309185846d88679dde6a85aca71~mv2.jpg", "thumb": "https://static.wixstatic.com/media/14555f_3b327309185846d88679dde6a85aca71~mv2.jpg"}, {"type": "image", "src": "https://static.wixstatic.com/media/14555f_302ef17db78842b890970b8c8a86f768~mv2.jpg", "thumb": "https://static.wixstatic.com/media/14555f_302ef17db78842b890970b8c8a86f768~mv2.jpg"}, {"type": "image", "src": "https://static.wixstatic.com/media/14555f_1734c82caefb47e9873f3c113e003b7b~mv2.jpg", "thumb": "https://static.wixstatic.com/media/14555f_1734c82caefb47e9873f3c113e003b7b~mv2.jpg"}, {"type": "image", "src": "https://static.wixstatic.com/media/14555f_284d5067a23d432ab7cd751acf540831~mv2.jpg", "thumb": "https://static.wixstatic.com/media/14555f_284d5067a23d432ab7cd751acf540831~mv2.jpg"}, {"type": "image", "src": "https://static.wixstatic.com/media/14555f_f6e08b5c348041f38ebb5402c2da9409~mv2.jpg", "thumb": "https://static.wixstatic.com/media/14555f_f6e08b5c348041f38ebb5402c2da9409~mv2.jpg"}, {"type": "image", "src": "https://static.wixstatic.com/media/14555f_bd0c3efe416c41678da331064fcc9b07~mv2.jpg", "thumb": "https://static.wixstatic.com/media/14555f_bd0c3efe416c41678da331064fcc9b07~mv2.jpg"}, {"type": "image", "src": "https://static.wixstatic.com/media/14555f_12fe06380a7f447e9a58740ca001fe9e~mv2.jpg", "thumb": "https://static.wixstatic.com/media/14555f_12fe06380a7f447e9a58740ca001fe9e~mv2.jpg"}, {"type": "image", "src": "https://static.wixstatic.com/media/14555f_2b195fee1ec642448bd225386257eaaa~mv2.jpg", "thumb": "https://static.wixstatic.com/media/14555f_2b195fee1ec642448bd225386257eaaa~mv2.jpg"}, {"type": "image", "src": "https://static.wixstatic.com/media/14555f_d824fbec6551412789f9622e9a42cf24~mv2.jpg", "thumb": "https://static.wixstatic.com/media/14555f_d824fbec6551412789f9622e9a42cf24~mv2.jpg"}]</script>
+</header>
+
+<section class='film rv'><div class='k lbl'>Film</div><div class='filmwrap'><iframe src='https://www.youtube-nocookie.com/embed/lqwqS_55zro?rel=0' title='The Reunion' loading='lazy' allowfullscreen allow='accelerometer; encrypted-media; picture-in-picture; fullscreen'></iframe></div></section>
+
+<section class="lede"><p class="rv">The project began with a voiceover about longing, memory, and the feeling of searching for something just beyond reach. From there, the film was shaped as an emotional sequence first and a narrative explanation second.</p></section>
+
+<section class='blk'><div class='m pair rv'><img src='/assets/stills/the-reunion-08.jpg' alt='The Reunion' decoding='async' /><img src='/assets/stills/the-reunion-07.jpg' alt='The Reunion' decoding='async' /></div><div class='t rv'><div class='k lbl'>Brief</div><p>Create a quiet cinematic piece that could hold emotional tension without over-explaining itself, allowing atmosphere and pacing to carry the meaning.</p></div></section><section class='blk flip'><div class='m pair rv'><img src='/assets/stills/the-reunion-09.jpg' alt='The Reunion' decoding='async' /><img src='/assets/stills/the-reunion-06.jpg' alt='The Reunion' decoding='async' /></div><div class='t rv'><div class='k lbl'>Approach</div><p>The project began with a voiceover that established tone and emotional direction. From there, still images were developed in MidJourney and gradually extended into a sequence, with new scenes introduced to bridge transitions and let the narrative reveal itself over time.</p></div></section><section class='blk'><div class='m pair rv'><img src='/assets/stills/the-reunion-05.jpg' alt='The Reunion' decoding='async' /><img src='/assets/stills/the-reunion-02.jpg' alt='The Reunion' decoding='async' /></div><div class='t rv'><div class='k lbl'>Outcome</div><p>A restrained short film where the final emotional arc emerges through accumulation, ending in a reunion that feels more psychological than literal.</p></div></section><section class='blk flip'><div class='m pair rv'><img src='/assets/stills/the-reunion-03.jpg' alt='The Reunion' decoding='async' /><img src='/assets/stills/the-reunion-12.jpg' alt='The Reunion' decoding='async' /></div><div class='t rv'><div class='k lbl'>Intent</div><p>In this project, the aim was to build a cinematic piece where atmosphere, pacing, and restraint could carry the emotional weight before any explanation arrived.</p></div></section><section class='blk'><div class='m pair rv'><img src='/assets/stills/the-reunion-10.jpg' alt='The Reunion' decoding='async' /><img src='/assets/stills/the-reunion-01.jpg' alt='The Reunion' decoding='async' /></div><div class='t rv'><div class='k lbl'>Portfolio</div><p>In this project, the visual language leans into atmosphere, tonal restraint, and slow emotional pacing. The imagery is allowed to breathe, giving the piece a sense of authorship that sits apart from more overtly campaign-led work.</p></div></section>
+
+<section class="strip">
+  <div class="stripsticky" tabindex="0" role="region" aria-label="The Reunion gallery">
+    <div class="striprow"><figure><img src='/assets/stills/the-reunion-08.jpg' alt='The Reunion' loading='lazy' /></figure><figure><img src='/assets/stills/the-reunion-07.jpg' alt='The Reunion' loading='lazy' /></figure><figure><img src='/assets/stills/the-reunion-09.jpg' alt='The Reunion' loading='lazy' /></figure><figure><img src='/assets/stills/the-reunion-06.jpg' alt='The Reunion' loading='lazy' /></figure><figure><img src='/assets/stills/the-reunion-05.jpg' alt='The Reunion' loading='lazy' /></figure><figure><img src='/assets/stills/the-reunion-02.jpg' alt='The Reunion' loading='lazy' /></figure><figure><img src='/assets/stills/the-reunion-03.jpg' alt='The Reunion' loading='lazy' /></figure><figure><img src='/assets/stills/the-reunion-12.jpg' alt='The Reunion' loading='lazy' /></figure><figure><img src='/assets/stills/the-reunion-10.jpg' alt='The Reunion' loading='lazy' /></figure><figure><img src='/assets/stills/the-reunion-01.jpg' alt='The Reunion' loading='lazy' /></figure><figure><img src='/assets/stills/the-reunion-04.jpg' alt='The Reunion' loading='lazy' /></figure><figure><img src='/assets/stills/the-reunion-11.jpg' alt='The Reunion' loading='lazy' /></figure></div>
+  </div>
+</section>
+
+<a class="nextp" href="invisi-merino.html">
+  <img src="/assets/stills/invisi-merino-hero.jpg" alt="Invisi Merino" loading="lazy">
+  <span class="cap">
+    <span class="lbl">Next project</span>
+    <strong>Invisi Merino</strong>
+  </span>
+</a>
+
 <script>
 (() => {
-  const dataEl = document.getElementById('galleryData');
-  const stage = document.getElementById('galleryStage');
-  const lightbox = document.getElementById('galleryLightbox');
-  const lightboxStage = document.getElementById('galleryLightboxStage');
-  if (!dataEl || !stage || !lightbox || !lightboxStage) return;
-  const items = JSON.parse(dataEl.textContent);
-  const thumbs = Array.from(document.querySelectorAll('.gallery-strip [data-gallery-thumb]'));
-  const lightboxThumbs = Array.from(document.querySelectorAll('.gallery-lightbox-strip [data-gallery-thumb]'));
-  const prev = document.getElementById('galleryPrev');
-  const next = document.getElementById('galleryNext');
-  const expand = document.getElementById('galleryExpand');
-  const current = document.getElementById('galleryCurrent');
-  const total = document.getElementById('galleryTotal');
-  const lightboxCurrent = document.getElementById('lightboxCurrent');
-  const lightboxTotal = document.getElementById('lightboxTotal');
-  const lightboxPrev = document.getElementById('lightboxPrev');
-  const lightboxNext = document.getElementById('lightboxNext');
-  const lightboxClose = document.getElementById('lightboxClose');
-  const title = "The Reunion";
-  let index = 0;
 
-  const stageMarkup = (item) => {
-    if (!item) return '';
-    if (item.type === 'youtube') {
-      return `<img src="${item.thumb || item.src}" alt="${title} video preview" data-gallery-preview="youtube" />`;
+  // reveal on entry, with a straight bail-out if the browser can't observe
+  if (!('IntersectionObserver' in window)) {
+    document.querySelectorAll('.rv').forEach((el) => el.classList.add('in'));
+    document.documentElement.classList.remove('js');
+    return;
+  }
+  const io = new IntersectionObserver((es) => {
+    es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { rootMargin: '0px 0px -12% 0px' });
+  document.querySelectorAll('.rv').forEach((el) => io.observe(el));
+
+  // Same freeze as the reel: observer callbacks are not guaranteed to land
+  // before first paint, and anything already on screen would sit at opacity 0
+  // until a resize forced re-evaluation. Sweep directly instead of trusting it.
+  function sweep() {
+    document.querySelectorAll('.rv:not(.in)').forEach((el) => {
+      const r = el.getBoundingClientRect();
+      if (r.top < innerHeight * 0.92 && r.bottom > 0) el.classList.add('in');
+    });
+  }
+  sweep();
+  addEventListener('load', sweep);
+
+  // body videos only run while on screen, a dozen autoplaying clips will
+  // stall a laptop for footage nobody is looking at
+  const vio = new IntersectionObserver((es) => {
+    es.forEach((e) => {
+      const v = e.target;
+      if (e.isIntersecting) { const p = v.play(); if (p) p.catch(() => {}); } else v.pause();
+    });
+  }, { threshold: 0.25 });
+  document.querySelectorAll('video[data-inview]').forEach((v) => vio.observe(v));
+
+  // ---- sticky sideways belt ----
+  // Duplicated BEFORE the clip handlers are wired below, so the clones get
+  // their own listeners rather than being dead copies.
+  const strip = document.querySelector('.strip');
+  const sticky = strip && strip.querySelector('.stripsticky');
+  const row = strip && strip.querySelector('.striprow');
+  const flat = matchMedia('(max-width:860px), (prefers-reduced-motion:reduce)');
+
+  if (row && row.children.length) {
+    [...row.children].forEach((n) => row.appendChild(n.cloneNode(true)));
+
+    let half = 0, speed = 1, tick = false;
+
+    function measure() {
+      if (flat.matches) { strip.style.height = ''; row.style.transform = ''; half = 0; return; }
+      const style = getComputedStyle(row);
+      const gap = parseFloat(style.columnGap) || 0;
+      // one full set, including the gap that trails it, miss this and the
+      // wrap lands a gap-width off and visibly jumps every cycle
+      half = (row.scrollWidth + gap) / 2;
+      // Cap the pinned stretch. A 16-item gallery at 1:1 would hold the page
+      // for ~15000px; instead the belt runs faster than the scroll so one full
+      // set always passes within a few viewports.
+      // BELT_SPEED scales how far the belt moves per pixel of page scroll.
+      // Halving it means twice the scroll for the same travel, so the pinned
+      // stretch doubles, that is inherent, not a side effect worth tuning out.
+      const BELT_SPEED = 0.5;
+      const travel = Math.min(half, innerHeight * 3.2) / BELT_SPEED;
+      speed = half / travel;
+      strip.style.height = Math.round(travel + innerHeight) + 'px';
+      place();
     }
-    if (item.type === 'video') {
-      return `<video src="${item.src}" controls controlslist="nofullscreen noremoteplayback" disablepictureinpicture playsinline preload="metadata"></video>`;
+
+    function place() {
+      if (flat.matches || !half) return;
+      const top = strip.getBoundingClientRect().top;
+      const travel = strip.offsetHeight - innerHeight;
+      const scrolled = Math.min(Math.max(-top, 0), Math.max(travel, 0));
+      row.style.transform = 'translate3d(' + -((scrolled * speed) % half).toFixed(2) + 'px,0,0)';
     }
-    return `<img src="${item.src}" alt="${title}" />`;
-  };
 
-  const lightboxMarkup = (item) => {
-    if (!item) return '';
-    if (item.type === 'youtube') {
-      return `<iframe src="${item.src}?rel=0&modestbranding=1" title="${title} video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>`;
-    }
-    if (item.type === 'video') {
-      return `<video src="${item.src}" controls controlslist="nofullscreen noremoteplayback" disablepictureinpicture playsinline preload="metadata"></video>`;
-    }
-    return `<img src="${item.src}" alt="${title}" />`;
-  };
+    addEventListener('scroll', () => {
+      if (tick) return;
+      tick = true;
+      requestAnimationFrame(() => { place(); tick = false; });
+    }, { passive: true });
 
-  const syncState = () => {
-    current.textContent = String(index + 1);
-    total.textContent = String(items.length);
-    lightboxCurrent.textContent = String(index + 1);
-    lightboxTotal.textContent = String(items.length);
-    thumbs.forEach((thumb, i) => thumb.classList.toggle('active', i === index));
-    lightboxThumbs.forEach((thumb, i) => thumb.classList.toggle('active', i === index));
-  };
+    addEventListener('resize', measure);
+    flat.addEventListener('change', measure);
+    addEventListener('load', measure);
+    measure();
+  }
 
-  const renderStage = () => {
-    const item = items[index];
-    stage.innerHTML = stageMarkup(item);
-    const prevBtn = lightboxStage.querySelector('#lightboxPrev');
-    const nextBtn = lightboxStage.querySelector('#lightboxNext');
-    lightboxStage.innerHTML = lightboxMarkup(item);
-    lightboxStage.appendChild(prevBtn);
-    lightboxStage.appendChild(nextBtn);
-    syncState();
-  };
+  document.querySelectorAll('.strip .clip').forEach((fig) => {
+    const v = fig.querySelector('video');
+    const btn = fig.querySelector('.play');
 
-  const setIndex = (nextIndex) => {
-    if (!items.length) return;
-    index = (nextIndex + items.length) % items.length;
-    renderStage();
-  };
+    const stopOthers = () => document.querySelectorAll('.strip .clip').forEach((o) => {
+      if (o === fig) return;
+      o.querySelector('video').pause();
+      o.classList.remove('playing');
+    });
 
-  const openLightbox = () => {
-    lightbox.classList.add('open');
-    lightbox.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
-    renderStage();
-  };
+    btn.addEventListener('click', () => {
+      if (!v.paused) { v.pause(); fig.classList.remove('playing'); return; }
+      stopOthers();                       // never two clips talking at once
+      const mark = () => fig.classList.add('playing');
+      // a click is user intent, so sound is allowed, but fall back to muted
+      // rather than silently doing nothing if the browser still refuses
+      v.play().then(mark).catch(() => { v.muted = true; v.play().then(mark).catch(() => {}); });
+    });
 
-  const closeLightbox = () => {
-    lightbox.classList.remove('open');
-    lightbox.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
-  };
-
-  stage.addEventListener('click', (event) => {
-    const media = stage.firstElementChild;
-    if (!media) return;
-    if (media.tagName === 'IMG' || media.tagName === 'IFRAME') {
-      openLightbox();
-    }
+    v.addEventListener('ended', () => fig.classList.remove('playing'));
+    v.addEventListener('pause', () => fig.classList.remove('playing'));
   });
 
-  thumbs.forEach((thumb, thumbIndex) => thumb.addEventListener('click', () => setIndex(thumbIndex)));
-  lightboxThumbs.forEach((thumb, thumbIndex) => thumb.addEventListener('click', () => setIndex(thumbIndex)));
-  prev?.addEventListener('click', () => setIndex(index - 1));
-  next?.addEventListener('click', () => setIndex(index + 1));
-  expand?.addEventListener('click', openLightbox);
-  lightboxPrev?.addEventListener('click', () => setIndex(index - 1));
-  lightboxNext?.addEventListener('click', () => setIndex(index + 1));
-  lightboxClose?.addEventListener('click', closeLightbox);
-  lightbox?.addEventListener('click', (event) => { if (event.target === lightbox) closeLightbox(); });
-  document.addEventListener('keydown', (event) => {
-    if (!lightbox.classList.contains('open')) return;
-    if (event.key === 'Escape') closeLightbox();
-    if (event.key === 'ArrowLeft') setIndex(index - 1);
-    if (event.key === 'ArrowRight') setIndex(index + 1);
-  });
-  renderStage();
 })();
 </script>
 </body>
