@@ -1053,11 +1053,17 @@ project_css = """
     .ptop{position:absolute;top:var(--pad);left:var(--pad);right:var(--pad);
       color:#fff;text-shadow:0 1px 20px rgba(0,0,0,.55);z-index:3}
     .pcred{position:static;padding:3.5vh 0 0;grid-template-columns:1fr;gap:1.1em}
-    .blk{grid-template-columns:1fr;padding:5vh var(--pad)}
-    .blk .m{grid-auto-flow:row;gap:2vh}
-    .blk .m.pair video,.blk .m.pair img{max-height:52svh}
+    /* No grid on a phone. Grid placement is what allowed the copy and the
+       media to share a cell; plain block flow cannot overlap, and the media
+       sits above its text in DOM order. */
+    .blk{display:block;padding:5vh var(--pad)}
+    .blk .m,.blk.flip .m{display:block;max-height:none;margin:0 0 2.2vh}
+    .blk .t,.blk.flip .t{display:block}
+    .blk .m video,.blk .m img,
+    .blk .m.pair video,.blk .m.pair img{
+      width:100%;height:auto;max-width:100%;max-height:none;margin:0 0 1.6vh}
+    .blk .m video:last-child,.blk .m img:last-child{margin-bottom:0}
     .gridband{grid-template-columns:repeat(2,minmax(0,1fr));padding:5vh var(--pad)}
-    .blk .m,.blk .t,.blk.flip .m,.blk.flip .t{grid-column:1; grid-row:auto}
     .striprow figure{width:82vw}
   }
   @media (prefers-reduced-motion:reduce){
