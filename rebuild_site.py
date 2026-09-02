@@ -968,7 +968,11 @@ project_css = """
      here is the same portrait ratio, so the rows line up without masonry. */
   .gridband{padding:7vh var(--pad);display:grid;gap:1.1vw;
     grid-template-columns:repeat(3,minmax(0,1fr));max-width:1500px;margin:0 auto}
-  .gridband img{width:100%;height:auto;display:block;background:#d4d2d5}
+  /* Grid items stretch to their row, so mixed source heights would squash the
+     shorter frames. Lock the ratio here rather than re-encoding every image
+     each time one is swapped. */
+  .gridband img{width:100%;height:auto;aspect-ratio:9/16;object-fit:cover;
+    display:block;background:#d4d2d5}
   .blk .t p{margin:0;font-size:clamp(14px,1.02vw,18px);line-height:1.62;color:var(--ink)}
   a.inline{border-bottom:1px solid var(--line);padding-bottom:.05em;
     transition:border-color .35s var(--out)}
@@ -1450,12 +1454,15 @@ digital_dir = root
 
 digital_slides = []
 for i, p in enumerate(visible_projects):
-    # digital/ and projects/ are both one level deep, so ../ resolves for both
-    poster = html.escape(root_url(hero_poster(p)) or '', quote=True)
     # A project may carry media_set: several portrait clips shown as vertical
     # thirds instead of one cropped landscape frame. 9:16 footage fills a third
     # almost exactly, so nothing gets cropped away.
     media_set = p.get('media_set')
+    # hero_poster encodes a frame as a side effect, so only ask for one on the
+    # branches that actually show it. digital/ and projects/ are both one level
+    # deep, so ../ resolves for both.
+    poster = ('' if media_set
+              else html.escape(root_url(hero_poster(p)) or '', quote=True))
     if media_set:
         cells = []
         for k, u in enumerate(media_set):

@@ -74,16 +74,16 @@
       "media": "/assets/video/jeep-gladiator.mp4",
       "thumb": "/assets/stills/jeep-apparel-12.jpg",
       "tag": "Commercial / apparel",
-      "summary": "Campaign-led visual development for Jeep Apparel South Africa, built around grit, utility, and outdoor brand energy.",
-      "overview_text": "This project is less about pure atmosphere and more about brand-world construction: building imagery that feels rugged, immediate, and aligned with Jeep Apparel’s outdoor identity.",
+      "summary": "Campaign-led visual development across an ongoing run of work for Jeep Apparel South Africa, built around grit, utility, and outdoor brand energy.",
+      "overview_text": "These projects are less about pure atmosphere and more about brand-world construction: building imagery that feels rugged, immediate, and aligned with Jeep Apparel's outdoor identity.",
       "hero_text": "The work combines client-supplied product photography with AI-built environments and digital human models to create campaign-ready stills and motion.",
       "role_text": "Visual development, environment direction, compositing logic, and campaign image generation for an ongoing branded content system.",
-      "brief_text": "Create campaign-ready imagery and short-form motion that extends Jeep Apparel into a larger, more cinematic outdoor lifestyle world.",
-      "outcome_text": "An adaptable production approach for stills and motion that can iterate quickly while keeping the tone cohesive across environments, models, and product framing.",
-      "approach_text": "Garments are photographed by the client first, then carried into digitally constructed scenes where virtual talent, atmosphere, and location design are shaped around the campaign tone. The environments move between outdoor landscape language and tighter editorial interiors depending on the visual objective.",
-      "portfolio_text": "In this project, we connected cinematic taste with practical brand execution. Product, styling, motion, and mood are all shaped to feel campaign-ready while still holding onto an authored visual identity.",
+      "brief_text": "Across successive campaigns, create imagery and short-form motion that extends Jeep Apparel into a larger, more cinematic outdoor lifestyle world.",
+      "outcome_text": "An adaptable production approach for stills and motion that can iterate quickly while keeping the tone cohesive across campaigns, environments, models, and product framing.",
+      "approach_text": "Garments are photographed by the client first, then carried into digitally constructed scenes where virtual talent, atmosphere, and location design are shaped around each campaign's tone. The environments move between outdoor landscape language and tighter editorial interiors depending on the visual objective.",
+      "portfolio_text": "Within these projects, we connected cinematic taste with practical brand execution. Product, styling, motion, and mood are all shaped to feel campaign-ready while still holding onto an authored visual identity.",
       "next_text": "The result is a flexible stills-and-motion workflow built with MidJourney, generative editing tools, and DaVinci Resolve, making it possible to test multiple campaign directions without the weight of a conventional location-heavy shoot.",
-      "intent_text": "In this project, the aim was to build a tougher, more commercially direct campaign language around grit, utility, and outdoor brand energy.",
+      "intent_text": "Across these projects, the aim was to build a tougher, more commercially direct campaign language around grit, utility, and outdoor brand energy.",
       "gallery": [
         {
           "type": "video",
@@ -131,7 +131,7 @@
         },
         {
           "type": "image",
-          "src": "/assets/stills/jeep-sup-jersey.jpg"
+          "src": "/assets/stills/jeep-citylite-09.jpg"
         },
         {
           "type": "image",

@@ -93,7 +93,11 @@
      here is the same portrait ratio, so the rows line up without masonry. */
   .gridband{padding:7vh var(--pad);display:grid;gap:1.1vw;
     grid-template-columns:repeat(3,minmax(0,1fr));max-width:1500px;margin:0 auto}
-  .gridband img{width:100%;height:auto;display:block;background:#d4d2d5}
+  /* Grid items stretch to their row, so mixed source heights would squash the
+     shorter frames. Lock the ratio here rather than re-encoding every image
+     each time one is swapped. */
+  .gridband img{width:100%;height:auto;aspect-ratio:9/16;object-fit:cover;
+    display:block;background:#d4d2d5}
   .blk .t p{margin:0;font-size:clamp(14px,1.02vw,18px);line-height:1.62;color:var(--ink)}
   a.inline{border-bottom:1px solid var(--line);padding-bottom:.05em;
     transition:border-color .35s var(--out)}
