@@ -27,9 +27,13 @@ projects = data['projects']
 visible_projects = [p for p in projects if p['slug'] != 'bio' and not p.get('hidden')]
 bio_project = next(p for p in projects if p['slug'] == 'bio')
 
-FONTS_HTML = """<link rel='preconnect' href='https://fonts.googleapis.com' />
+HEAD_HTML = """<link rel='preconnect' href='https://fonts.googleapis.com' />
 <link rel='preconnect' href='https://fonts.gstatic.com' crossorigin />
-<link href='https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Inter:wght@400;500;600&display=swap' rel='stylesheet' />"""
+<link href='https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Inter:wght@400;500;600&display=swap' rel='stylesheet' />
+<link rel='icon' href='/favicon.svg' type='image/svg+xml' />
+<link rel='icon' href='/favicon-32.png' sizes='32x32' />
+<link rel='apple-touch-icon' href='/apple-touch-icon.png' />
+<meta name='theme-color' content='#181818' />"""
 
 
 # ---------------------------------------------------------------- helpers
@@ -226,7 +230,7 @@ index_html = """<!DOCTYPE html>
   <meta property='og:description' content='__DESC__' />
   <meta property='og:image' content='__POSTER__' />
   <meta name='twitter:card' content='summary_large_image' />
-  __FONTS__
+  __HEAD__
   <style>
     :root {
       --egg:#f3efe6;
@@ -679,7 +683,7 @@ index_html = """<!DOCTYPE html>
 replacements = {
     '__TITLE__': html.escape(site['title'], quote=True),
     '__DESC__': html.escape(site['description'], quote=True),
-    '__FONTS__': FONTS_HTML,
+    '__HEAD__': HEAD_HTML,
     '__HERO_MEDIA__': ''.join(hero_media_html),
     '__HERO_TITLE__': wrap_words(site['hero_headline']),
     '__HERO_LEDE__': html.escape(site['hero_lede']),
@@ -806,7 +810,7 @@ privacy_page = f"""<!DOCTYPE html>
 <meta name='viewport' content='width=device-width, initial-scale=1.0' />
 <title>Privacy policy · Jonathan Tait</title>
 <meta name='description' content='Privacy policy and legal information for Jonathan Tait.' />
-{FONTS_HTML}
+{HEAD_HTML}
 <style>{page_css}</style>
 </head>
 <body>
@@ -842,7 +846,7 @@ def render_bio_profile_page(p):
 <meta name='viewport' content='width=device-width, initial-scale=1.0' />
 <title>{html.escape(p['title'])} · Jonathan Tait</title>
 <meta name='description' content='{html.escape(p['summary'])}' />
-{FONTS_HTML}
+{HEAD_HTML}
 <style>{page_css}</style>
 </head>
 <body>
@@ -1192,7 +1196,7 @@ PROJECT_TMPL = """<!DOCTYPE html>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>__TITLE__ · Jonathan Tait</title>
 <meta name="description" content="__DESC__">
-__FONTS__
+__HEAD__
 <script>document.documentElement.classList.add('js')</script>
 <style>__CSS__</style>
 </head>
@@ -1398,7 +1402,7 @@ for idx, p in enumerate(visible_projects):
     for k, v in {
         '__TITLE__': html.escape(p['title'], quote=True),
         '__DESC__': html.escape(p['summary'], quote=True),
-        '__FONTS__': FONTS_HTML,
+        '__HEAD__': HEAD_HTML,
         '__CSS__': project_css,
         '__JS__': project_js,
         '__HERO__': hero_media,
@@ -1474,7 +1478,7 @@ digital_html = """<!DOCTYPE html>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>__TITLE__ · Digital</title>
 <meta name="description" content="__DESC__">
-__FONTS__
+__HEAD__
 <style>
   *,*::before,*::after{box-sizing:border-box}
   :root{
@@ -1861,7 +1865,7 @@ __FONTS__
 for key, value in {
     '__TITLE__': html.escape(site['title'], quote=True),
     '__DESC__': html.escape(site['description'], quote=True),
-    '__FONTS__': FONTS_HTML,
+    '__HEAD__': HEAD_HTML,
     '__SLIDES__': ''.join(digital_slides),
     '__MARK__': html.escape(site['name']),
     '__TAGLINE__': html.escape(site['hero_lede'].split('.')[0]),
@@ -1998,7 +2002,7 @@ def sub_page(title, body, current):
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>__PT__ · Jonathan Tait</title>
 <meta name="description" content="__DESC__">
-__FONTS__
+__HEAD__
 <style>__CSS__</style>
 </head>
 <body>
@@ -2013,7 +2017,7 @@ __FOOT__
     for k, v in {
         '__PT__': html.escape(title, quote=True),
         '__DESC__': html.escape(site['description'], quote=True),
-        '__FONTS__': FONTS_HTML,
+        '__HEAD__': HEAD_HTML,
         '__CSS__': SUB_CSS,
         '__MARK__': html.escape(site['name']),
         '__NAV__': nav,
