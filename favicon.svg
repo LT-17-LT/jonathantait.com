@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Jonathan Tait">
-  <rect width="64" height="64" fill="#181818"/>
-  <g transform="translate(3,1)" fill="none" stroke="#e7e2d9" stroke-width="7"
-     stroke-linecap="butt" stroke-linejoin="miter">
-    <path d="M19 17 V38 A6 6 0 0 1 7 38"/>
-    <path d="M27 17.5 H53 M40 17.5 V44"/>
-  </g>
-</svg>
