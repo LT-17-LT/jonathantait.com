@@ -1344,15 +1344,24 @@ for idx, p in enumerate(visible_projects):
     need = sum(PATTERN[i % len(PATTERN)] for i in range(len(sections)))
     # explicit tail tiles, appended below the grid's own rows
     extra = [{'type': 'image', 'src': u} for u in p.get('grid_extra', [])]
+    # a project may name its band outright, in which case that is the band
+    named = [{'type': 'image', 'src': u} for u in p.get('grid', [])]
     # only interrupt with a grid if the strip still has something left afterwards
-    use_grid = len(stills) - need >= GRID_N + 4 or bool(extra)
+    use_grid = bool(named) or len(stills) - need >= GRID_N + 4 or bool(extra)
 
     # The band draws from a fixed offset, and the blocks draw from everything
     # else. Previously both walked the same cursor, so changing the block
     # pattern silently re-dealt the band's contents.
     GRID_AT = 3
-    grid_items = stills[GRID_AT:GRID_AT + GRID_N] if use_grid else []
-    pool = (stills[:GRID_AT] + stills[GRID_AT + GRID_N:]) if use_grid else stills
+    if named:
+        grid_items = named
+        spent = {it['src'] for it in named}
+        pool = [it for it in stills if it['src'] not in spent]
+    elif use_grid:
+        grid_items = stills[GRID_AT:GRID_AT + GRID_N]
+        pool = stills[:GRID_AT] + stills[GRID_AT + GRID_N:]
+    else:
+        grid_items, pool = [], stills
 
     blocks, cursor = [], 0
     for i, (key, text) in enumerate(sections):
