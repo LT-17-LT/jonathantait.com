@@ -863,6 +863,7 @@ def render_bio_profile_page(p):
     <h1 style='max-width:12ch'>{html.escape(p['title'])}</h1>
     <p>{html.escape(p['summary'])}</p>
     <p>{html.escape(p['hero_text'])}</p>
+    <p>{html.escape(p['overview_text'])}</p>
     {bio_extra_paragraph}
     <div style='display:flex;gap:12px;flex-wrap:wrap'>
       <a class='btn' href='../contact.html'>Get in touch</a>
@@ -2071,6 +2072,7 @@ info_body = f"""
       <div>
         <h3>Practice</h3>
         <p>{html.escape(bio_project['summary'])}</p>
+        <p>{html.escape(bio_project['overview_text'])}</p>
       </div>
       <div>
         <h3>Based</h3>
