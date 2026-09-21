@@ -106,16 +106,17 @@ def linkify(escaped):
         shown = m.group(0).rstrip('.,;:')
         tail = m.group(0)[len(shown):]
         href = shown if shown.startswith('http') else 'https://' + shown
+        label = re.sub(r'^https?://', '', shown).rstrip('/')
         return (f"<a class='inline' href='{href}' target='_blank' "
-                f"rel='noopener noreferrer'>{shown}</a>{tail}")
+                f"rel='noopener noreferrer'>{label}</a>{tail}")
     return URL_RE.sub(repl, escaped)
 
 
-def hero_poster(p):
+def hero_poster(p, url=None):
     """Landscape poster for a full-bleed hero. Video projects get a real frame
     from the clip; image projects keep their still."""
     if p.get('media_type') == 'video':
-        name = video_thumb(p['media'], p['slug'], 0, width=1280)
+        name = video_thumb(url or p['media'], p['slug'], 0, width=1280)
         if name:
             return f'../generated-gallery-thumbs/{name}'
     return thumb_url(p.get('thumb'))
@@ -963,6 +964,13 @@ project_css = """
     width:auto;height:auto;max-width:100%;max-height:78svh}
   /* a pair shares the column, so each needs to sit shorter to stay in frame */
   .blk .m.pair video,.blk .m.pair img{max-height:66svh}
+  /* landscape clips: a video has no intrinsic size until its metadata loads,
+     so give it one, capped so a short window still sees the whole frame */
+  .blk.wide .m video{width:min(100%, calc(78svh * 16 / 9));height:auto;
+    aspect-ratio:16/9;max-height:none}
+  .gridband.wide{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .gridband video{width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;
+    display:block;background:#d4d2d5}
 
   /* full-width plate: breaks the left/right rhythm partway down. Every frame
      here is the same portrait ratio, so the rows line up without masonry. */
@@ -1072,6 +1080,7 @@ project_css = """
       width:100%;height:auto;max-width:100%;max-height:none;margin:0 0 1.6vh}
     .blk .m video:last-child,.blk .m img:last-child{margin-bottom:0}
     .gridband{grid-template-columns:repeat(2,minmax(0,1fr));padding:5vh var(--pad)}
+    .gridband.wide{grid-template-columns:1fr}
     .striprow figure{width:82vw}
   }
   @media (prefers-reduced-motion:reduce){
@@ -1235,11 +1244,7 @@ __FILM__
 
 __BLOCKS__
 
-<section class="strip">
-  <div class="stripsticky" tabindex="0" role="region" aria-label="__TITLE__ gallery">
-    <div class="striprow">__STRIP__</div>
-  </div>
-</section>
+__STRIP__
 
 <a class="nextp" href="__NEXT__.html">
   <img src="__NEXT_THUMB__" alt="__NEXT_TITLE__" loading="lazy">
@@ -1311,14 +1316,15 @@ for idx, p in enumerate(visible_projects):
         )
         hero_media = f"<div class='tri'>{cells}</div>"
     elif p['media_type'] == 'video':
-        hero_media = (f"<video src='{p['media']}' poster='{hero_poster(p)}' "
+        src = p.get('page_media') or p['media']
+        hero_media = (f"<video src='{src}' poster='{hero_poster(p, src)}' "
                       f"autoplay muted loop playsinline></video>")
     else:
         hero_media = f"<img src='{p['media']}' alt='{html.escape(p['title'], quote=True)}' />" 
 
     # pair the written sections with gallery media, alternating side each time
     sections = [(k, p.get(f'{k}_text', '')) for k in
-                ('brief', 'approach', 'outcome', 'intent', 'portfolio')]
+                ('brief', 'approach', 'outcome', 'intent', 'portfolio', 'credits')]
     sections = [(k, v) for k, v in sections if v]
 
     # motion up top, stills through the body, motion again at the foot, so the
@@ -1345,6 +1351,12 @@ for idx, p in enumerate(visible_projects):
     # its column, so a lone one leaves most of the row empty.
     PATTERN = [2, 2, 2, 2, 2]
     GRID_N = 6
+    # A project made only of clips has nothing for the still-led body, and the
+    # strip's clips are click-to-play. So the clips run the body instead: one
+    # per section, the rest as a band, every one autoplaying as it scrolls in.
+    motion = bool(clips) and not stills
+    if motion:
+        PATTERN = [1]
     need = sum(PATTERN[i % len(PATTERN)] for i in range(len(sections)))
     # explicit tail tiles, appended below the grid's own rows
     extra = [{'type': 'image', 'src': u} for u in p.get('grid_extra', [])]
@@ -1357,7 +1369,11 @@ for idx, p in enumerate(visible_projects):
     # else. Previously both walked the same cursor, so changing the block
     # pattern silently re-dealt the band's contents.
     GRID_AT = 3
-    if named:
+    if motion:
+        pool = clips
+        grid_items = clips[len(sections):]
+        use_grid = bool(grid_items)
+    elif named:
         grid_items = named
         spent = {it['src'] for it in named}
         pool = [it for it in stills if it['src'] not in spent]
@@ -1376,24 +1392,32 @@ for idx, p in enumerate(visible_projects):
         pair = ' pair' if len(items) > 1 else ''
         media = f"<div class='m{pair} rv'>{cells}</div>" if items else ''
         flip = ' flip' if i % 2 else ''
+        wide = ' wide' if motion else ''
         blocks.append(
-            f"<section class='blk{flip}'>{media}"
+            f"<section class='blk{flip}{wide}'>{media}"
             f"<div class='t rv'><div class='k lbl'>{html.escape(key.title())}</div>"
             f"<p>{linkify(html.escape(text))}</p></div></section>"
         )
         # a full-width plate partway down, breaking the left/right rhythm
         if use_grid and i == 1:
             tiles = ''.join(
+                media_tag(it, p['title']) if it.get('type') == 'video' else
                 f"<img src='{html.escape(it['src'], quote=True)}' "
                 f"alt='{html.escape(p['title'], quote=True)}' loading='lazy' />"
                 for it in grid_items + extra)
-            blocks.append(f"<section class='gridband rv'>{tiles}</section>")
+            wide = ' wide' if motion else ''
+            blocks.append(f"<section class='gridband{wide} rv'>{tiles}</section>")
 
     # clips lead the strip, then whatever stills the body did not spend
     # every frame on the page also appears here, so the belt is the whole
     # gallery rather than the offcuts
-    strip_items = clips + stills + extra
-    strip = ''.join(strip_item(it, p['title']) for it in (strip_items or stills))
+    strip_items = [] if motion else clips + stills + extra
+    strip = ''.join(strip_item(it, p['title']) for it in strip_items)
+    if strip:
+        label = html.escape(p['title'], quote=True)
+        strip = (f'<section class="strip"><div class="stripsticky" tabindex="0" '
+                 f'role="region" aria-label="{label} gallery">'
+                 f'<div class="striprow">{strip}</div></div></section>')
 
     film_html = ''
     if films:

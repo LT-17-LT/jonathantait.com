@@ -88,6 +88,13 @@
     width:auto;height:auto;max-width:100%;max-height:78svh}
   /* a pair shares the column, so each needs to sit shorter to stay in frame */
   .blk .m.pair video,.blk .m.pair img{max-height:66svh}
+  /* landscape clips: a video has no intrinsic size until its metadata loads,
+     so give it one, capped so a short window still sees the whole frame */
+  .blk.wide .m video{width:min(100%, calc(78svh * 16 / 9));height:auto;
+    aspect-ratio:16/9;max-height:none}
+  .gridband.wide{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .gridband video{width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;
+    display:block;background:#d4d2d5}
 
   /* full-width plate: breaks the left/right rhythm partway down. Every frame
      here is the same portrait ratio, so the rows line up without masonry. */
@@ -197,6 +204,7 @@
       width:100%;height:auto;max-width:100%;max-height:none;margin:0 0 1.6vh}
     .blk .m video:last-child,.blk .m img:last-child{margin-bottom:0}
     .gridband{grid-template-columns:repeat(2,minmax(0,1fr));padding:5vh var(--pad)}
+    .gridband.wide{grid-template-columns:1fr}
     .striprow figure{width:82vw}
   }
   @media (prefers-reduced-motion:reduce){
@@ -237,11 +245,7 @@
 
 <section class='blk'><div class='m pair rv'><img src='/assets/stills/the-reunion-08.jpg' alt='The Reunion' decoding='async' /><img src='/assets/stills/the-reunion-07.jpg' alt='The Reunion' decoding='async' /></div><div class='t rv'><div class='k lbl'>Brief</div><p>Create a quiet cinematic piece that could hold emotional tension without over-explaining itself, allowing atmosphere and pacing to carry the meaning.</p></div></section><section class='blk flip'><div class='m pair rv'><img src='/assets/stills/the-reunion-09.jpg' alt='The Reunion' decoding='async' /><img src='/assets/stills/the-reunion-06.jpg' alt='The Reunion' decoding='async' /></div><div class='t rv'><div class='k lbl'>Approach</div><p>The project began with a voiceover that established tone and emotional direction. From there, still images were developed in MidJourney and gradually extended into a sequence, with new scenes introduced to bridge transitions and let the narrative reveal itself over time.</p></div></section><section class='blk'><div class='m pair rv'><img src='/assets/stills/the-reunion-05.jpg' alt='The Reunion' decoding='async' /><img src='/assets/stills/the-reunion-02.jpg' alt='The Reunion' decoding='async' /></div><div class='t rv'><div class='k lbl'>Outcome</div><p>A restrained short film where the final emotional arc emerges through accumulation, ending in a reunion that feels more psychological than literal.</p></div></section><section class='blk flip'><div class='m pair rv'><img src='/assets/stills/the-reunion-03.jpg' alt='The Reunion' decoding='async' /><img src='/assets/stills/the-reunion-12.jpg' alt='The Reunion' decoding='async' /></div><div class='t rv'><div class='k lbl'>Intent</div><p>In this project, the aim was to build a cinematic piece where atmosphere, pacing, and restraint could carry the emotional weight before any explanation arrived.</p></div></section><section class='blk'><div class='m pair rv'><img src='/assets/stills/the-reunion-10.jpg' alt='The Reunion' decoding='async' /><img src='/assets/stills/the-reunion-01.jpg' alt='The Reunion' decoding='async' /></div><div class='t rv'><div class='k lbl'>Portfolio</div><p>In this project, the visual language leans into atmosphere, tonal restraint, and slow emotional pacing. The imagery is allowed to breathe, giving the piece a sense of authorship that sits apart from more overtly campaign-led work.</p></div></section>
 
-<section class="strip">
-  <div class="stripsticky" tabindex="0" role="region" aria-label="The Reunion gallery">
-    <div class="striprow"><figure><img src='/assets/stills/the-reunion-08.jpg' alt='The Reunion' loading='lazy' /></figure><figure><img src='/assets/stills/the-reunion-07.jpg' alt='The Reunion' loading='lazy' /></figure><figure><img src='/assets/stills/the-reunion-09.jpg' alt='The Reunion' loading='lazy' /></figure><figure><img src='/assets/stills/the-reunion-06.jpg' alt='The Reunion' loading='lazy' /></figure><figure><img src='/assets/stills/the-reunion-05.jpg' alt='The Reunion' loading='lazy' /></figure><figure><img src='/assets/stills/the-reunion-02.jpg' alt='The Reunion' loading='lazy' /></figure><figure><img src='/assets/stills/the-reunion-03.jpg' alt='The Reunion' loading='lazy' /></figure><figure><img src='/assets/stills/the-reunion-12.jpg' alt='The Reunion' loading='lazy' /></figure><figure><img src='/assets/stills/the-reunion-10.jpg' alt='The Reunion' loading='lazy' /></figure><figure><img src='/assets/stills/the-reunion-01.jpg' alt='The Reunion' loading='lazy' /></figure><figure><img src='/assets/stills/the-reunion-04.jpg' alt='The Reunion' loading='lazy' /></figure><figure><img src='/assets/stills/the-reunion-11.jpg' alt='The Reunion' loading='lazy' /></figure></div>
-  </div>
-</section>
+<section class="strip"><div class="stripsticky" tabindex="0" role="region" aria-label="The Reunion gallery"><div class="striprow"><figure><img src='/assets/stills/the-reunion-08.jpg' alt='The Reunion' loading='lazy' /></figure><figure><img src='/assets/stills/the-reunion-07.jpg' alt='The Reunion' loading='lazy' /></figure><figure><img src='/assets/stills/the-reunion-09.jpg' alt='The Reunion' loading='lazy' /></figure><figure><img src='/assets/stills/the-reunion-06.jpg' alt='The Reunion' loading='lazy' /></figure><figure><img src='/assets/stills/the-reunion-05.jpg' alt='The Reunion' loading='lazy' /></figure><figure><img src='/assets/stills/the-reunion-02.jpg' alt='The Reunion' loading='lazy' /></figure><figure><img src='/assets/stills/the-reunion-03.jpg' alt='The Reunion' loading='lazy' /></figure><figure><img src='/assets/stills/the-reunion-12.jpg' alt='The Reunion' loading='lazy' /></figure><figure><img src='/assets/stills/the-reunion-10.jpg' alt='The Reunion' loading='lazy' /></figure><figure><img src='/assets/stills/the-reunion-01.jpg' alt='The Reunion' loading='lazy' /></figure><figure><img src='/assets/stills/the-reunion-04.jpg' alt='The Reunion' loading='lazy' /></figure><figure><img src='/assets/stills/the-reunion-11.jpg' alt='The Reunion' loading='lazy' /></figure></div></div></section>
 
 <a class="nextp" href="invisi-merino.html">
   <img src="/assets/stills/invisi-merino-hero.jpg" alt="Invisi Merino" loading="lazy">

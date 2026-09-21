@@ -88,6 +88,13 @@
     width:auto;height:auto;max-width:100%;max-height:78svh}
   /* a pair shares the column, so each needs to sit shorter to stay in frame */
   .blk .m.pair video,.blk .m.pair img{max-height:66svh}
+  /* landscape clips: a video has no intrinsic size until its metadata loads,
+     so give it one, capped so a short window still sees the whole frame */
+  .blk.wide .m video{width:min(100%, calc(78svh * 16 / 9));height:auto;
+    aspect-ratio:16/9;max-height:none}
+  .gridband.wide{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .gridband video{width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;
+    display:block;background:#d4d2d5}
 
   /* full-width plate: breaks the left/right rhythm partway down. Every frame
      here is the same portrait ratio, so the rows line up without masonry. */
@@ -197,6 +204,7 @@
       width:100%;height:auto;max-width:100%;max-height:none;margin:0 0 1.6vh}
     .blk .m video:last-child,.blk .m img:last-child{margin-bottom:0}
     .gridband{grid-template-columns:repeat(2,minmax(0,1fr));padding:5vh var(--pad)}
+    .gridband.wide{grid-template-columns:1fr}
     .striprow figure{width:82vw}
   }
   @media (prefers-reduced-motion:reduce){
@@ -237,11 +245,7 @@
 
 <section class='blk'><div class='m pair rv'><img src='/assets/stills/carrol-boyes-06.jpg' alt='Carrol Boyes' decoding='async' /><img src='/assets/stills/carrol-boyes-04.jpg' alt='Carrol Boyes' decoding='async' /></div><div class='t rv'><div class='k lbl'>Brief</div><p>Create a premium visual world for sculptural tableware that balances realism, atmosphere, and recognisable brand character.</p></div></section><section class='blk flip'><div class='m pair rv'><img src='/assets/stills/carrol-boyes-02.jpg' alt='Carrol Boyes' decoding='async' /><img src='/assets/stills/carrol-boyes-09.jpg' alt='Carrol Boyes' decoding='async' /></div><div class='t rv'><div class='k lbl'>Approach</div><p>Each frame began with studio-shot product photography, which was then extended into digitally built environments through a hybrid AI workflow. The emphasis stayed on material, silhouette, and ritual, allowing the objects to remain central even as the atmosphere around them grew more stylised.</p></div></section><section class='blk'><div class='m pair rv'><img src='/assets/stills/carrol-boyes-10.jpg' alt='Carrol Boyes' decoding='async' /><img src='/assets/stills/carrol-boyes-05.jpg' alt='Carrol Boyes' decoding='async' /></div><div class='t rv'><div class='k lbl'>Outcome</div><p>More than one hundred images and a supporting video set created through a hybrid production approach rooted in real product photography.</p></div></section><section class='blk flip'><div class='m pair rv'><img src='/assets/stills/carrol-boyes-01.jpg' alt='Carrol Boyes' decoding='async' /><img src='/assets/stills/carrol-boyes-11.jpg' alt='Carrol Boyes' decoding='async' /></div><div class='t rv'><div class='k lbl'>Intent</div><p>In this project, the aim was to build a premium object-led visual world where product truth and atmosphere could exist together without competing.</p></div></section><section class='blk'><div class='m pair rv'><img src='/assets/stills/carrol-boyes-08.jpg' alt='Carrol Boyes' decoding='async' /><img src='/assets/stills/carrol-boyes-03.jpg' alt='Carrol Boyes' decoding='async' /></div><div class='t rv'><div class='k lbl'>Portfolio</div><p>In this project, the visual language stays close to material, silhouette, and finish. The work remains atmospheric, but it is shaped to respect recognisable form and the brand fidelity of the physical object.</p></div></section>
 
-<section class="strip">
-  <div class="stripsticky" tabindex="0" role="region" aria-label="Carrol Boyes gallery">
-    <div class="striprow"><figure><img src='/assets/stills/carrol-boyes-06.jpg' alt='Carrol Boyes' loading='lazy' /></figure><figure><img src='/assets/stills/carrol-boyes-04.jpg' alt='Carrol Boyes' loading='lazy' /></figure><figure><img src='/assets/stills/carrol-boyes-02.jpg' alt='Carrol Boyes' loading='lazy' /></figure><figure><img src='/assets/stills/carrol-boyes-09.jpg' alt='Carrol Boyes' loading='lazy' /></figure><figure><img src='/assets/stills/carrol-boyes-10.jpg' alt='Carrol Boyes' loading='lazy' /></figure><figure><img src='/assets/stills/carrol-boyes-05.jpg' alt='Carrol Boyes' loading='lazy' /></figure><figure><img src='/assets/stills/carrol-boyes-01.jpg' alt='Carrol Boyes' loading='lazy' /></figure><figure><img src='/assets/stills/carrol-boyes-11.jpg' alt='Carrol Boyes' loading='lazy' /></figure><figure><img src='/assets/stills/carrol-boyes-08.jpg' alt='Carrol Boyes' loading='lazy' /></figure><figure><img src='/assets/stills/carrol-boyes-03.jpg' alt='Carrol Boyes' loading='lazy' /></figure><figure><img src='/assets/stills/carrol-boyes-07.jpg' alt='Carrol Boyes' loading='lazy' /></figure></div>
-  </div>
-</section>
+<section class="strip"><div class="stripsticky" tabindex="0" role="region" aria-label="Carrol Boyes gallery"><div class="striprow"><figure><img src='/assets/stills/carrol-boyes-06.jpg' alt='Carrol Boyes' loading='lazy' /></figure><figure><img src='/assets/stills/carrol-boyes-04.jpg' alt='Carrol Boyes' loading='lazy' /></figure><figure><img src='/assets/stills/carrol-boyes-02.jpg' alt='Carrol Boyes' loading='lazy' /></figure><figure><img src='/assets/stills/carrol-boyes-09.jpg' alt='Carrol Boyes' loading='lazy' /></figure><figure><img src='/assets/stills/carrol-boyes-10.jpg' alt='Carrol Boyes' loading='lazy' /></figure><figure><img src='/assets/stills/carrol-boyes-05.jpg' alt='Carrol Boyes' loading='lazy' /></figure><figure><img src='/assets/stills/carrol-boyes-01.jpg' alt='Carrol Boyes' loading='lazy' /></figure><figure><img src='/assets/stills/carrol-boyes-11.jpg' alt='Carrol Boyes' loading='lazy' /></figure><figure><img src='/assets/stills/carrol-boyes-08.jpg' alt='Carrol Boyes' loading='lazy' /></figure><figure><img src='/assets/stills/carrol-boyes-03.jpg' alt='Carrol Boyes' loading='lazy' /></figure><figure><img src='/assets/stills/carrol-boyes-07.jpg' alt='Carrol Boyes' loading='lazy' /></figure></div></div></section>
 
 <a class="nextp" href="dividuum.html">
   <img src="/assets/stills/dividuum-02.jpg" alt="Dividuum" loading="lazy">
