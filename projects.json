@@ -7,63 +7,6 @@
     "location": "Cape Town / Düsseldorf",
     "hero_headline": "Generative AI Creative Technologist",
     "hero_lede": "Cinematic direction, AI-assisted campaign production, and generative worldbuilding. Images built to feel grounded, atmospheric, and believable.",
-    "hero_media": [
-      {
-        "type": "video",
-        "src": "https://video.wixstatic.com/video/14555f_ab39ac0e32bb45efb0857d421afd9454/1080p/mp4/file.mp4"
-      },
-      {
-        "type": "video",
-        "src": "https://video.wixstatic.com/video/14555f_f238e47ab7cf44d386741c1c4f93ac3d/1080p/mp4/file.mp4"
-      },
-      {
-        "type": "video",
-        "src": "https://video.wixstatic.com/video/14555f_314a8a4123ea4a5fa516d3d7a34cfe63/1080p/mp4/file.mp4"
-      },
-      {
-        "type": "video",
-        "src": "https://video.wixstatic.com/video/14555f_c4e6650c8a2c4a70a9ae27861c9c9f87/1080p/mp4/file.mp4"
-      },
-      {
-        "type": "image",
-        "src": "https://static.wixstatic.com/media/14555f_a715f604326d41a19ed685d841ac87c9~mv2.jpg/v1/fill/w_1000,h_558,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_a715f604326d41a19ed685d841ac87c9~mv2.jpg"
-      },
-      {
-        "type": "image",
-        "src": "https://static.wixstatic.com/media/14555f_7200187af99a4ad58f506a88ecdc3a32~mv2.png/v1/fill/w_1000,h_1500,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_7200187af99a4ad58f506a88ecdc3a32~mv2.png"
-      }
-    ],
-    "film_clip": "https://d8j0ntlcm91z4.cloudfront.net/user_2zHxsu73kQLwzkHl7I48OV6CZAC/hf_20260423_080152_0a982790-69cc-4d27-9e32-d0ad8c279685.mp4",
-    "film_poster": "https://static.wixstatic.com/media/14555f_95e9c9d2b11642ada02786cf6fd4c69d~mv2.jpg/v1/fill/w_1000,h_424,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/14555f_95e9c9d2b11642ada02786cf6fd4c69d~mv2.jpg",
-    "services": [
-      {
-        "title": "AI Campaign Creative",
-        "copy": "Campaign stills and short-form motion built for launch-world brand storytelling."
-      },
-      {
-        "title": "Generative Worldbuilding",
-        "copy": "Concept, look development, casting, and environments for authored visual worlds."
-      },
-      {
-        "title": "Cinematic AI Film",
-        "copy": "Short films, brand motion, and narrative sequences shaped through atmosphere and pacing."
-      },
-      {
-        "title": "Hybrid Creative Direction",
-        "copy": "End-to-end AI production systems connecting concept, tooling, and final finish."
-      }
-    ],
-    "marquee": [
-      "AI Campaign Creative",
-      "Generative Worldbuilding",
-      "Cinematic AI Film",
-      "Hybrid Creative Direction",
-      "ComfyUI",
-      "Unreal Engine",
-      "Blender",
-      "MidJourney",
-      "DaVinci Resolve"
-    ],
     "name": "Jonathan Tait"
   },
   "projects": [

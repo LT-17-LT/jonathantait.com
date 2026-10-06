@@ -3,7 +3,6 @@
 prototype/
 versions/
 research/
-legacy/
 .claude/
 
 # Build tooling and working notes are not part of the site.
